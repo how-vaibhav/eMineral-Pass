@@ -1,247 +1,330 @@
-import { jsPDF } from 'jspdf'
-import { supabaseAdmin } from '@/lib/supabase'
-import { FormFieldDefinition, FormSubmissionData } from '@/types'
-import { format } from 'date-fns'
+import { jsPDF } from "jspdf";
+import { supabaseAdmin } from "@/lib/supabase";
+import { format } from "date-fns";
+import fs from "fs";
+import path from "path";
+
+/* ================= CONFIG ================= */
+
+const PAGE_MARGIN_X = 12;
+const COLUMN_RIGHT_X = 110;
+const LINE_HEIGHT = 5;
+
+/* ================= TYPES ================= */
 
 interface PDFGenerationOptions {
-  title?: string
-  includeQRCode?: boolean
-  qrCodeDataUrl?: string
-  headerImageUrl?: string
-  footerText?: string
+  qrCodeDataUrl?: string;
 }
 
-/**
- * Generate PDF document from form data
- * Designed for A4 print-ready output with professional styling
- */
+let cachedDevaFontBase64: string | null = null;
+
+function getDevanagariFontBase64(): string | null {
+  if (cachedDevaFontBase64) return cachedDevaFontBase64;
+
+  try {
+    const fontPath = path.join(
+      process.cwd(),
+      "public",
+      "fonts",
+      "NotoSansDevanagari-Regular.ttf",
+    );
+    const fontBuffer = fs.readFileSync(fontPath);
+    cachedDevaFontBase64 = fontBuffer.toString("base64");
+    return cachedDevaFontBase64;
+  } catch (error) {
+    console.warn(
+      "Devanagari font not found. Hindi text may not render.",
+      error,
+    );
+    return null;
+  }
+}
+
+function ensureDevanagariFont(pdf: jsPDF) {
+  const base64 = getDevanagariFontBase64();
+  if (!base64) return;
+
+  // @ts-ignore - jsPDF VFS font registration
+  pdf.addFileToVFS("NotoSansDevanagari-Regular.ttf", base64);
+  // @ts-ignore - jsPDF font registration
+  pdf.addFont("NotoSansDevanagari-Regular.ttf", "NotoSansDeva", "normal");
+}
+
+/* ================= CORE PDF ================= */
+
 export async function generatePDF(
   recordId: string,
-  formData: FormSubmissionData,
+  data: Record<string, string>,
   generatedOn: Date,
   validUpto: Date,
-  fields: FormFieldDefinition[],
-  options: PDFGenerationOptions = {}
+  options: PDFGenerationOptions = {},
 ): Promise<Buffer> {
-  const {
-    title = 'Form Record',
-    includeQRCode = true,
-    qrCodeDataUrl,
-    footerText,
-  } = options
+  const toText = (value: unknown, fallback = "-") => {
+    if (value === null || value === undefined || value === "") return fallback;
+    return String(value);
+  };
 
-  // Create PDF in A4 format (210 x 297 mm)
   const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4',
-  })
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
 
-  const pageWidth = pdf.internal.pageSize.getWidth()
-  const pageHeight = pdf.internal.pageSize.getHeight()
-  const margin = 12
-  const contentWidth = pageWidth - margin * 2
+  pdf.setFont("helvetica", "normal");
+  ensureDevanagariFont(pdf);
 
-  let yPosition = margin
+  const commonData = {
+    formNo: recordId,
+    licenseeId: toText((data as any).licenseeId ?? (data as any).licensee_id),
+    licenseeName: toText(
+      (data as any).licenseeName ??
+        (data as any).name_of_lessee ??
+        (data as any).nameOfLicenseeOfLease,
+    ),
+    mobile: toText(
+      (data as any).mobile ??
+        (data as any).mobile_number_of_lessee ??
+        (data as any).mobileNumberOfLicensee,
+    ),
+    address: toText(
+      (data as any).address ??
+        (data as any).licensee_details_address ??
+        (data as any).licenseeDetailsAddress,
+    ),
+    tehsil: toText(
+      (data as any).tehsil ??
+        (data as any).tehsil_of_lessee ??
+        (data as any).tehsilOfLicense,
+    ),
+    district: toText(
+      (data as any).district ??
+        (data as any).district_of_lessee ??
+        (data as any).districtOfLicense,
+    ),
+    qty: toText(
+      (data as any).qty ??
+        (data as any).quantity_in_ton ??
+        (data as any).quantityInTonnes,
+    ),
+    mineral: toText(
+      (data as any).mineral ??
+        (data as any).mineral_name ??
+        (data as any).mineralName,
+    ),
+    loadingFrom: toText(
+      (data as any).loadingFrom ??
+        (data as any).loading_from ??
+        (data as any).placeOfLoading,
+    ),
+    destination: toText(
+      (data as any).destination ??
+        (data as any).name_of_consignee ??
+        (data as any).nameOfConsignee,
+    ),
+    distance: toText(
+      (data as any).distance ??
+        (data as any).distance_km ??
+        (data as any).distanceInKm,
+    ),
+    generatedOn: format(generatedOn, "dd-MM-yyyy hh:mm:ss a"),
+    validUpto: format(validUpto, "dd-MM-yyyy hh:mm:ss a"),
+    sellingPrice: toText(
+      (data as any).sellingPrice ??
+        (data as any).selling_price ??
+        (data as any).sellingPriceRs,
+    ),
+    serialNo: toText(
+      (data as any).serialNo ??
+        (data as any).serial_number ??
+        (data as any).serialNumber,
+    ),
+  };
 
-  // Helper function to add a line break
-  const addLineBreak = (space = 5) => {
-    yPosition += space
+  renderCopy(pdf, 14, "प्रथम प्रति ( पट्टा धारक हेतु )", commonData);
+  renderCopy(
+    pdf,
+    102,
+    "द्वितीय प्रति ( परिवहनकर्ता / उपभोक्ता / भण्डारण / कार्यदायी संस्था हेतु )",
+    commonData,
+  );
+  renderCopy(pdf, 190, "तृतीय प्रति ( जाँचकर्ता हेतु )", commonData);
+
+  if (options.qrCodeDataUrl && options.qrCodeDataUrl.startsWith("data:image")) {
+    pdf.addImage(options.qrCodeDataUrl, "PNG", 155, 245, 35, 35);
   }
 
-  // Helper function to check if we need a new page
-  const checkPageBreak = (requiredHeight = 30) => {
-    if (yPosition + requiredHeight > pageHeight - margin) {
-      pdf.addPage()
-      yPosition = margin
-    }
-  }
-
-  // 1. Header with title
-  pdf.setFontSize(18)
-  pdf.setFont('helvetica', 'bold')
-  pdf.text(title, margin, yPosition)
-  yPosition += 15
-
-  // 2. Status badge and key information
-  checkPageBreak(15)
-  pdf.setFontSize(10)
-  pdf.setFont('helvetica', 'normal')
-
-  const isExpired = new Date() > validUpto
-  const status = isExpired ? 'EXPIRED' : 'ACTIVE'
-  const statusColor = isExpired ? [220, 38, 38] : [34, 197, 94]
-
-  pdf.setTextColor(statusColor[0], statusColor[1], statusColor[2])
-  pdf.setFont('helvetica', 'bold')
-  pdf.text(`Status: ${status}`, margin, yPosition)
-  pdf.setTextColor(0, 0, 0)
-  pdf.setFont('helvetica', 'normal')
-  yPosition += 8
-
-  // Key metadata
-  const generatedOnStr = format(new Date(generatedOn), 'PPP p')
-  const validUptoStr = format(new Date(validUpto), 'PPP p')
-
-  pdf.text(`Record ID: ${recordId}`, margin, yPosition)
-  yPosition += 6
-  pdf.text(`Generated: ${generatedOnStr}`, margin, yPosition)
-  yPosition += 6
-  pdf.text(`Valid Until: ${validUptoStr}`, margin, yPosition)
-  yPosition += 12
-
-  // 3. Divider line
-  checkPageBreak(20)
-  pdf.setDrawColor(200, 200, 200)
-  pdf.line(margin, yPosition, pageWidth - margin, yPosition)
-  yPosition += 8
-
-  // 4. Form data table
-  checkPageBreak(30)
-  pdf.setFontSize(11)
-  pdf.setFont('helvetica', 'bold')
-  pdf.text('Form Data', margin, yPosition)
-  yPosition += 8
-
-  pdf.setFont('helvetica', 'normal')
-  pdf.setFontSize(9)
-
-  // Table configuration
-  const tableColumnWidth = contentWidth / 2
-  const rowHeight = 8
-
-  for (const field of fields) {
-    checkPageBreak(rowHeight + 2)
-
-    const value = formData[field.name] ?? '-'
-    const displayValue = String(value)
-
-    // Field label (bold)
-    pdf.setFont('helvetica', 'bold')
-    pdf.text(field.label + ':', margin, yPosition)
-
-    // Field value (normal)
-    pdf.setFont('helvetica', 'normal')
-    const labelWidth = pdf.getTextWidth(field.label + ': ')
-    const valueX = margin + labelWidth + 2
-    const maxValueWidth = contentWidth - labelWidth - 2
-
-    // Use text with word wrap for long values
-    const wrappedValue = pdf.splitTextToSize(displayValue, maxValueWidth)
-    pdf.text(wrappedValue, valueX, yPosition)
-
-    yPosition += rowHeight + (wrappedValue.length > 1 ? (wrappedValue.length - 1) * 4 : 0)
-  }
-
-  yPosition += 8
-
-  // 5. QR Code (if provided)
-  if (includeQRCode && qrCodeDataUrl) {
-    checkPageBreak(60)
-    pdf.setFont('helvetica', 'bold')
-    pdf.setFontSize(10)
-    pdf.text('Verification QR Code', margin, yPosition)
-    yPosition += 8
-
-    // Add QR code image (40mm x 40mm)
-    try {
-      pdf.addImage(qrCodeDataUrl, 'PNG', margin, yPosition, 40, 40)
-      yPosition += 45
-    } catch (error) {
-      console.error('Failed to embed QR code in PDF:', error)
-      yPosition += 5
-    }
-  }
-
-  // 6. Footer
-  checkPageBreak(15)
-  pdf.setFontSize(8)
-  pdf.setTextColor(128, 128, 128)
-  pdf.setFont('helvetica', 'normal')
-
-  const pageCount = pdf.internal.pages.length - 1
-  if (pageCount > 1) {
-    pdf.text(`Page 1 of ${pageCount}`, pageWidth - margin - 20, pageHeight - margin)
-  }
-
-  if (footerText) {
-    pdf.text(footerText, margin, pageHeight - margin)
-  }
-
-  // Return as buffer
-  return Buffer.from(pdf.output('arraybuffer'))
+  return Buffer.from(pdf.output("arraybuffer"));
 }
 
-/**
- * Upload PDF to Supabase Storage
- */
+/* ================= COPY RENDERER ================= */
+
+function renderHindiTitle(pdf: jsPDF, text: string, x: number, y: number) {
+  // Use Devanagari font only for Hindi text
+  try {
+    // @ts-ignore
+    pdf.setFont("NotoSansDeva", "normal");
+  } catch {
+    // Fallback to default font if custom font is not registered
+    pdf.setFont("helvetica", "normal");
+  }
+  pdf.setFontSize(10);
+  pdf.text(text, x, y);
+  pdf.setFont("helvetica", "normal");
+}
+
+function renderCopy(pdf: jsPDF, startY: number, title: string, d: any) {
+  let y = startY;
+
+  renderHindiTitle(pdf, title, PAGE_MARGIN_X, y);
+  y += 6;
+
+  pdf.setFontSize(9);
+
+  row(pdf, y, `1. eForm-C No.: ${d.formNo}`, `2. Licensee Id: ${d.licenseeId}`);
+  y += LINE_HEIGHT;
+
+  pdf.text(`3. Name of Licensee:`, PAGE_MARGIN_X, y);
+  y += LINE_HEIGHT;
+  pdf.text(d.licenseeName, PAGE_MARGIN_X + 6, y);
+  y += LINE_HEIGHT;
+
+  pdf.text(`4. Mobile Number Of Licensee: ${d.mobile}`, PAGE_MARGIN_X, y);
+  y += LINE_HEIGHT;
+
+  pdf.text(
+    `5. Licensee Details [Address, Village, (Gata/Khand), Area]:`,
+    PAGE_MARGIN_X,
+    y,
+  );
+  y += LINE_HEIGHT;
+  manualWrap(pdf, d.address, PAGE_MARGIN_X + 6, y);
+  y += LINE_HEIGHT * 2;
+
+  row(
+    pdf,
+    y,
+    `6. Tehsil Of License: ${d.tehsil}`,
+    `7. District Of License: ${d.district}`,
+  );
+  y += LINE_HEIGHT;
+
+  pdf.text(
+    `8. QTY Transported In (Cubic Meter/Ton for Silica sand/Diaspore/Pyrophylite): ${d.qty}`,
+    PAGE_MARGIN_X,
+    y,
+  );
+  y += LINE_HEIGHT;
+
+  pdf.text(`9. Name Of Mineral:`, PAGE_MARGIN_X, y);
+  y += LINE_HEIGHT;
+  manualWrap(pdf, d.mineral, PAGE_MARGIN_X + 6, y);
+  y += LINE_HEIGHT;
+
+  row(
+    pdf,
+    y,
+    `10. Loading From: ${d.loadingFrom}`,
+    `11. Destination: ${d.destination}`,
+  );
+  y += LINE_HEIGHT;
+
+  row(
+    pdf,
+    y,
+    `12. Distance (Approx in K.M.): ${d.distance}`,
+    `13. eForm-C Generated On: ${d.generatedOn}`,
+  );
+  y += LINE_HEIGHT;
+
+  row(
+    pdf,
+    y,
+    `14. eForm-C Valid Upto: ${d.validUpto}`,
+    `15. Destination District: ${d.district}`,
+  );
+  y += LINE_HEIGHT;
+
+  row(
+    pdf,
+    y,
+    `16. Traveling Duration: 7`,
+    `17. Selling Price (Rs): ${d.sellingPrice}`,
+  );
+  y += LINE_HEIGHT;
+
+  pdf.text(`18. Serial Number: ${d.serialNo}`, PAGE_MARGIN_X, y);
+}
+
+/* ================= HELPERS ================= */
+
+function row(pdf: jsPDF, y: number, left: string, right: string) {
+  pdf.text(left, PAGE_MARGIN_X, y);
+  pdf.text(right, COLUMN_RIGHT_X, y);
+}
+
+function manualWrap(pdf: jsPDF, text: string, x: number, y: number) {
+  const safeText = text || "";
+  const lines = safeText.split("\n");
+  lines.forEach((line, i) => {
+    pdf.text(line, x, y + i * LINE_HEIGHT);
+  });
+}
+
+/* ================= STORAGE ================= */
+
 export async function uploadPDF(
   recordId: string,
   userId: string,
   pdfBuffer: Buffer,
-  filename: string = `${recordId}.pdf`
 ): Promise<string> {
-  const path = `pdfs/${userId}/${filename}`
+  const path = `pdfs/${userId}/${recordId}.pdf`;
 
   const { data, error } = await supabaseAdmin.storage
-    .from('pdfs')
+    .from("pdfs")
     .upload(path, pdfBuffer, {
-      contentType: 'application/pdf',
-      cacheControl: '31536000', // 1 year
+      contentType: "application/pdf",
       upsert: false,
-    })
+    });
 
-  if (error) {
-    throw new Error(`Failed to upload PDF: ${error.message}`)
+  if (error) throw error;
+
+  const signed = await supabaseAdmin.storage
+    .from("pdfs")
+    .createSignedUrl(data.path, 2592000);
+
+  if (!signed.data?.signedUrl) {
+    throw new Error("Signed URL generation failed");
   }
 
-  // Generate signed URL (1 month expiry)
-  const signedRes = await supabaseAdmin.storage.from('pdfs').createSignedUrl(data.path, 2592000) // 30 days
-
-  if (signedRes.error) {
-    throw new Error(`Failed to create signed URL: ${signedRes.error.message}`)
-  }
-
-  const signedUrl = signedRes.data?.signedUrl
-  if (!signedUrl) {
-    throw new Error('Failed to create signed URL: no URL returned')
-  }
-
-  return signedUrl
+  return signed.data.signedUrl;
 }
 
-/**
- * Generate and store PDF for a record
- */
 export async function generateAndStorePDF(
   recordId: string,
   userId: string,
-  formData: FormSubmissionData,
+  formData: Record<string, string>,
   generatedOn: Date,
   validUpto: Date,
-  fields: FormFieldDefinition[],
-  qrCodeDataUrl?: string
+  options: PDFGenerationOptions = {},
 ): Promise<string> {
   try {
+    // Generate the PDF buffer
     const pdfBuffer = await generatePDF(
       recordId,
       formData,
       generatedOn,
       validUpto,
-      fields,
-      {
-        title: 'Form Submission Record',
-        includeQRCode: true,
-        qrCodeDataUrl,
-        footerText: `Generated on ${format(new Date(), 'PPP')}`,
-      }
-    )
+      options,
+    );
 
-    const timestamp = Date.now()
-    const pdfUrl = await uploadPDF(recordId, userId, pdfBuffer, `record-${timestamp}.pdf`)
-    return pdfUrl
+    // Upload to storage and get signed URL
+    const pdfUrl = await uploadPDF(recordId, userId, pdfBuffer);
+
+    return pdfUrl;
   } catch (error) {
-    console.error('PDF generation failed:', error)
-    throw error
+    console.error("Error generating and storing PDF:", error);
+    throw new Error(
+      `Failed to generate PDF: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }

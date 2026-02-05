@@ -6,11 +6,12 @@ This guide walks through implementing the repeatable form → QR → PDF → das
 
 ---
 
-## Phase 1: Local Development Setup
+## Phase 1: Local Development Setup (Detailed)
 
-### 1.1 Environment Configuration
+### 1.1 Environment Configuration (Step-by-step)
 
-Create `.env.local`:
+1. In the project root, create a file named `.env.local`.
+2. Paste the following and replace values with your Supabase keys:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -19,30 +20,41 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIs...
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-Get these from Supabase Dashboard:
-- Go to Settings → API
-- Copy Project URL
-- Copy anon key
-- Copy service_role key (keep this secret!)
+Where to find each value:
 
-### 1.2 Database Initialization
+- Supabase Dashboard → Settings → API
+- **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
+- **anon public** key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- **service_role** key → `SUPABASE_SERVICE_ROLE_KEY` (keep secret)
 
-1. Go to Supabase Dashboard
-2. Open SQL Editor
-3. Create new query
-4. Copy entire `supabase/migrations/001_init_schema.sql`
-5. Execute query
-6. Verify tables created in Table Editor
+✅ After saving `.env.local`, restart the dev server if it was running.
 
-### 1.3 Storage Buckets
+### 1.2 Database Initialization (SQL Editor)
 
-1. Go to Storage → Buckets
+1. Open Supabase Dashboard
+2. Click **SQL Editor** (left sidebar)
+3. Click **New Query**
+4. Open the file `supabase/migrations/001_init_schema.sql`
+5. Copy the entire SQL file and paste into the SQL Editor
+6. Click **Run**
+7. Go to **Table Editor** and verify these tables exist:
+   - `users`
+   - `records`
+   - `scan_logs`
+   - `form_templates`
+   - `audit_logs`
+
+### 1.3 Storage Buckets (Required for PDFs & QR)
+
+1. Go to **Storage** → **Buckets**
 2. Create bucket: `qr-codes`
-   - Set to PUBLIC
-   - Click "Public" toggle
+   - Set to **PUBLIC**
 3. Create bucket: `pdfs`
-   - Set to PUBLIC
-   - Click "Public" toggle
+   - Set to **PUBLIC**
+4. (Optional but recommended) Create bucket: `documents`
+   - Set to **PUBLIC**
+
+✅ Verify each bucket is visible and accessible.
 
 ### 1.4 Run Development Server
 
@@ -54,20 +66,57 @@ Open http://localhost:3000
 
 ---
 
-## Phase 2: Authentication Flow
+## Phase 2: Authentication Flow (Detailed)
 
-### 2.1 User Registration
+### 2.1 Routes You Should Use
 
-1. Create account at login page
-2. Use test account: `test@example.com` / `password123`
-3. Verify:
+These are the actual auth routes in this project:
+
+- **Sign up:** `/auth/signup`
+- **Sign in:** `/auth/signin`
+
+If you open `/signup` directly, it will show **404** because the route is `/auth/signup`.
+
+### 2.2 User Registration (Manual Test)
+
+1. Open http://localhost:3000/auth/signup
+2. Select role: **Host** or **User**
+3. Fill required fields:
+   - Full Name
+   - Email
+   - Password & Confirm Password
+   - Organization Name (host only)
+4. Submit the form
+5. Expected behavior:
    - User created in Supabase Auth
-   - User record created in `users` table
-   - JWT token stored in cookie
+   - Profile created in `public.users`
+   - User redirected to:
+     - Host: `/dashboard/host`
+     - User: `/dashboard/user`
+
+✅ If you see **404 after signup**, it was caused by a redirect to a non-existent route. This has been fixed to use `/dashboard/host` instead of `/dashboard/host/setup`.
+
+ℹ️ If Supabase Auth creates the user but `public.users` stays empty, you need one of the following:
+
+- A server route that inserts into `public.users` using the service role key, or
+- A database trigger that creates a profile row when a new auth user is created.
+
+### 2.3 User Login (Manual Test)
+
+1. Open http://localhost:3000/auth/signin
+2. Select role
+3. Enter email and password
+4. Submit
+5. Expected behavior:
+   - JWT session created
+   - Redirect to `/dashboard/host` or `/dashboard/user`
+
+---
 
 ### 2.2 Protected Routes
 
 All routes under `(dashboard)` require authentication:
+
 - `/dashboard` - Admin dashboard
 - `/form` - Create new record
 - `/records` - View all records
@@ -127,10 +176,10 @@ export async function createRecord({
   validityHours = 24,
 }) {
   // 1. Generate unique IDs
-  const recordId = uuidv4()
-  const publicToken = generatePublicToken()
-  const generatedOn = new Date()
-  const validUpto = addHours(generatedOn, validityHours)
+  const recordId = uuidv4();
+  const publicToken = generatePublicToken();
+  const generatedOn = new Date();
+  const validUpto = addHours(generatedOn, validityHours);
 
   // 2. Create record in database
   // 3. Generate and upload QR code
@@ -151,16 +200,16 @@ File: `src/lib/qr-generator.ts`
 
 ```typescript
 // 1. Generate QR data from public URL
-const publicUrl = `https://yourdomain.com/records/${publicToken}`
+const publicUrl = `https://yourdomain.com/records/${publicToken}`;
 
 // 2. Create QR code as PNG buffer
-const qrBuffer = await generateQRCodeBuffer(publicUrl)
+const qrBuffer = await generateQRCodeBuffer(publicUrl);
 
 // 3. Upload to Supabase Storage
-const qrCodeUrl = await uploadQRCode(recordId, userId, qrBuffer)
+const qrCodeUrl = await uploadQRCode(recordId, userId, qrBuffer);
 
 // 4. Store URL in record
-record.qr_code_url = qrCodeUrl
+record.qr_code_url = qrCodeUrl;
 ```
 
 ### 4.2 Verifying QR Code
@@ -179,6 +228,7 @@ record.qr_code_url = qrCodeUrl
 File: `src/lib/pdf-generator.ts`
 
 PDF includes:
+
 - Professional header with title
 - Status badge (Active/Expired)
 - Key metadata (Record ID, dates)
@@ -206,18 +256,18 @@ To change PDF styling, edit `src/lib/pdf-generator.ts`:
 
 ```typescript
 // Change colors
-pdf.setTextColor(255, 0, 0) // RGB
+pdf.setTextColor(255, 0, 0); // RGB
 
 // Change fonts
-pdf.setFont('helvetica', 'bold')
-pdf.setFontSize(18)
+pdf.setFont("helvetica", "bold");
+pdf.setFontSize(18);
 
 // Add images
-pdf.addImage(imageUrl, 'PNG', x, y, width, height)
+pdf.addImage(imageUrl, "PNG", x, y, width, height);
 
 // Draw shapes
-pdf.line(x1, y1, x2, y2)
-pdf.rect(x, y, width, height)
+pdf.line(x1, y1, x2, y2);
+pdf.rect(x, y, width, height);
 ```
 
 ---
@@ -229,6 +279,7 @@ pdf.rect(x, y, width, height)
 File: `src/app/(public)/records/[recordId]/page.tsx`
 
 Features:
+
 - No authentication required
 - Display read-only record data
 - Show status badge
@@ -251,6 +302,7 @@ Features:
 ### 6.3 Scan Logging
 
 When public page is viewed:
+
 1. Server logs scan event (asynchronous)
 2. Scan log includes:
    - Record ID
@@ -270,6 +322,7 @@ When public page is viewed:
 File: `src/app/(dashboard)/page.tsx`
 
 Shows:
+
 - Total records created (all time)
 - Total QR scans (all time)
 - Records created today
@@ -280,6 +333,7 @@ Shows:
 ### 7.2 Records Table
 
 Features:
+
 - List all user's records
 - Sort by: Date, Expiry, Scans
 - Filter by: Status, Date range
@@ -289,6 +343,7 @@ Features:
 ### 7.3 Analytics Charts
 
 Charts show (last 30 days):
+
 - Records created per day (line chart)
 - Scans per day (line chart)
 - Status distribution (pie chart)
@@ -312,10 +367,9 @@ Charts show (last 30 days):
 Uses `next-themes` library (already installed).
 
 Root layout includes:
+
 ```tsx
-<ThemeProvider>
-  {children}
-</ThemeProvider>
+<ThemeProvider>{children}</ThemeProvider>
 ```
 
 ### 8.2 Theme Toggle
@@ -323,6 +377,7 @@ Root layout includes:
 In navbar: Click theme icon to toggle
 
 Colors defined in `src/app/globals.css`:
+
 - Light mode: `--background: 100%` (white)
 - Dark mode: `--background: 3.6%` (very dark)
 
@@ -349,6 +404,7 @@ Colors defined in `src/app/globals.css`:
 ### 9.2 Testing on Mobile
 
 Chrome DevTools:
+
 1. Press F12
 2. Click device toggle (top-left)
 3. Select "iPhone 12" or "Pixel 5"
@@ -382,6 +438,7 @@ vercel
 In Vercel Dashboard → Settings → Environment Variables:
 
 Add:
+
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
@@ -390,6 +447,7 @@ Add:
 ### 10.3 Deploy
 
 Push to `main` branch:
+
 ```bash
 git add .
 git commit -m "Deploy to production"
@@ -437,6 +495,7 @@ Vercel auto-deploys. Wait ~2 minutes for deployment.
 ### 12.1 Monitoring
 
 Watch:
+
 - Vercel dashboard for deployments
 - Supabase dashboard for database usage
 - API performance
@@ -452,6 +511,7 @@ Watch:
 ### 12.3 Scaling
 
 If usage grows:
+
 - Upgrade Supabase plan ($25/month)
 - Add caching layer (Redis)
 - Implement pagination
@@ -514,6 +574,7 @@ Solution:
 ## Next Steps
 
 After full deployment:
+
 1. **Gather user feedback** - Test with real users
 2. **Monitor analytics** - Check Vercel & Supabase dashboards
 3. **Iterate** - Add features based on feedback
@@ -522,6 +583,7 @@ After full deployment:
 ---
 
 For questions, refer to:
+
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - System design
 - [DEPLOYMENT.md](./DEPLOYMENT.md) - Deployment guide
 - [README.md](./README.md) - Feature overview

@@ -16,29 +16,18 @@ import {
   Clock,
   BookOpen,
   Layers,
-  Sun,
-  Moon,
-  LogOut,
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const { effectiveTheme, toggleTheme } = useTheme();
-  const { isAuthenticated, user, signOut } = useAuth();
+  const { effectiveTheme } = useTheme();
+  const { isAuthenticated, user } = useAuth();
 
   useEffect(() => {
     setMounted(true);
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
 
   if (!mounted) return null;
 
@@ -100,67 +89,8 @@ export default function Home() {
     <div
       className={`min-h-screen ${isDark ? "bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white" : "bg-gradient-to-b from-white via-slate-50 to-white text-slate-900"}`}
     >
-      {isAuthenticated && (
-        <motion.nav
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`fixed w-full z-50 transition-all ${
-            isScrolled
-              ? isDark
-                ? "bg-slate-950/80 border-b border-slate-800/50 backdrop-blur-lg"
-                : "bg-white/80 border-b border-slate-200/50 backdrop-blur-lg"
-              : "bg-transparent"
-          }`}
-        >
-          <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className={`text-2xl font-bold ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
-            >
-              <span className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
-                eMineral
-              </span>
-              <span className="ml-2">Pass</span>
-            </motion.div>
-            <div className="flex gap-4 items-center">
-              <button
-                onClick={toggleTheme}
-                className={`p-2.5 rounded-lg transition-colors ${
-                  isDark
-                    ? "bg-slate-800 hover:bg-slate-700"
-                    : "bg-slate-100 hover:bg-slate-200"
-                }`}
-                title={`Switch to ${effectiveTheme === "dark" ? "light" : "dark"} mode`}
-                aria-label="Toggle theme"
-              >
-                {effectiveTheme === "dark" ? (
-                  <Sun className="w-5 h-5 text-yellow-500" />
-                ) : (
-                  <Moon className="w-5 h-5 text-slate-400" />
-                )}
-              </button>
-              <span className={`text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>
-                {user?.email}
-              </span>
-              <button
-                onClick={handleSignOut}
-                className={`p-2 rounded-lg transition-colors ${
-                  isDark
-                    ? "bg-red-950 hover:bg-red-900"
-                    : "bg-red-100 hover:bg-red-200"
-                }`}
-                title="Sign out"
-              >
-                <LogOut className={`w-5 h-5 ${isDark ? "text-red-400" : "text-red-600"}`} />
-              </button>
-            </div>
-          </div>
-        </motion.nav>
-      )}
       <section
-        className={`relative min-h-screen flex items-center justify-center px-6 pt-20 ${isDark ? "bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950" : "bg-gradient-to-b from-white to-slate-50"}`}
+        className={`relative min-h-screen flex items-center justify-center px-6 ${isDark ? "bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950" : "bg-gradient-to-b from-white to-slate-50"}`}
       >
         <div className="absolute inset-0 overflow-hidden">
           <div
@@ -203,23 +133,38 @@ export default function Home() {
             Uttar Pradesh Minerals Rules, 2018
           </motion.p>
 
-          <motion.div
-            variants={itemVariants}
-            className="flex gap-6 justify-center flex-wrap"
-          >
-            <Link
-              href="/auth/signup"
-              className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-bold text-lg text-white flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50"
+          {!isAuthenticated && (
+            <motion.div
+              variants={itemVariants}
+              className="flex gap-4 justify-center flex-wrap sm:flex-nowrap"
             >
-              Get ePass <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link
-              href="/auth/signin"
-              className={`px-8 py-4 ${isDark ? "bg-slate-800 border-slate-600" : "bg-slate-200 border-slate-400"} border rounded-lg font-bold text-lg hover:${isDark ? "bg-slate-700" : "bg-slate-300"}`}
+              <Link
+                href="/auth/signup"
+                className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-bold text-base sm:text-lg text-white flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+              >
+                Get ePass <ArrowRight className="w-5 h-5" />
+              </Link>
+              <Link
+                href="/auth/signin"
+                className={`px-6 sm:px-8 py-3 sm:py-4 ${isDark ? "bg-slate-800 hover:bg-slate-700 border-slate-600" : "bg-slate-200 hover:bg-slate-300 border-slate-400"} border rounded-lg font-bold text-base sm:text-lg transition-all`}
+              >
+                Sign In
+              </Link>
+            </motion.div>
+          )}
+          {isAuthenticated && user && (
+            <motion.div
+              variants={itemVariants}
+              className="flex gap-4 justify-center flex-wrap sm:flex-nowrap"
             >
-              Sign In
-            </Link>
-          </motion.div>
+              <Link
+                href="/dashboard/user"
+                className="px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-bold text-base sm:text-lg text-white flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+              >
+                Go to Dashboard <ArrowRight className="w-5 h-5" />
+              </Link>
+            </motion.div>
+          )}
 
           <motion.div
             variants={itemVariants}

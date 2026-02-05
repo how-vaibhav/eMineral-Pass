@@ -1,73 +1,82 @@
-'use client'
+"use client";
 
-import { useState, useCallback, useMemo } from 'react'
-import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Input, TextArea, Select } from '@/components/ui/Input'
-import { useAuth } from '@/context/AuthContext'
-import { useTheme } from '@/context/ThemeContext'
-import { createRecord } from '@/lib/records.server'
-import { validateFormSubmission } from '@/lib/validation'
-import { FormSubmissionData } from '@/types'
-import { 
-  EFORM_C_SCHEMA, 
-  getEditableFields, 
+import { useState, useCallback, useMemo } from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/Button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
+import { Input, TextArea, Select } from "@/components/ui/Input";
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
+import { createRecord } from "@/lib/records.server";
+import { validateFormSubmission } from "@/lib/validation";
+import { FormSubmissionData } from "@/types";
+import {
+  EFORM_C_SCHEMA,
+  getEditableFields,
   getFormSections,
   EFORM_C_HEADER,
   VEHICLE_SECTION_HEADER,
   getMainFormFields,
   getVehicleFields,
-} from '@/lib/eform-c-official'
+} from "@/lib/eform-c-official";
 
 export default function FormPage() {
-  const { user } = useAuth()
-  const { effectiveTheme } = useTheme()
-  const [formData, setFormData] = useState<FormSubmissionData>({})
-  const [errors, setErrors] = useState<Record<string, string>>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [successMessage, setSuccessMessage] = useState('')
-  const [generatedRecord, setGeneratedRecord] = useState<any>(null)
+  const { user } = useAuth();
+  const { effectiveTheme } = useTheme();
+  const [formData, setFormData] = useState<FormSubmissionData>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [generatedRecord, setGeneratedRecord] = useState<any>(null);
 
-  const isDark = effectiveTheme === 'dark'
+  const isDark = effectiveTheme === "dark";
 
   // Memoize form fields to prevent recalculation
-  const mainFormFields = useMemo(() => getMainFormFields(), [])
-  const vehicleFields = useMemo(() => getVehicleFields(), [])
-  const editableFields = useMemo(() => getEditableFields(), [])
+  const mainFormFields = useMemo(() => getMainFormFields(), []);
+  const vehicleFields = useMemo(() => getVehicleFields(), []);
+  const editableFields = useMemo(() => getEditableFields(), []);
 
-  const handleInputChange = useCallback((fieldName: string, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [fieldName]: value,
-    }))
-    // Clear error when user starts typing
-    if (errors[fieldName]) {
-      setErrors((prev) => ({
+  const handleInputChange = useCallback(
+    (fieldName: string, value: any) => {
+      setFormData((prev) => ({
         ...prev,
-        [fieldName]: '',
-      }))
-    }
-  }, [errors])
+        [fieldName]: value,
+      }));
+      // Clear error when user starts typing
+      if (errors[fieldName]) {
+        setErrors((prev) => ({
+          ...prev,
+          [fieldName]: "",
+        }));
+      }
+    },
+    [errors],
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!user) {
-      alert('Please log in first')
-      return
+      alert("Please log in first");
+      return;
     }
 
     // Client-side validation - only validate editable fields
-    const validation = validateFormSubmission(formData, editableFields)
+    const validation = validateFormSubmission(formData, editableFields);
 
     if (!validation.valid) {
-      setErrors(validation.errors)
-      return
+      setErrors(validation.errors);
+      return;
     }
 
-    setIsSubmitting(true)
-    setSuccessMessage('')
+    setIsSubmitting(true);
+    setSuccessMessage("");
 
     try {
       // Call server action to create record
@@ -76,86 +85,92 @@ export default function FormPage() {
         formData,
         fields: EFORM_C_SCHEMA.fields,
         validityHours: EFORM_C_SCHEMA.validityHours,
-      })
+      });
 
       if (result.success) {
-        setGeneratedRecord(result.record)
-        setSuccessMessage('Record created successfully!')
-        setFormData({})
-        setErrors({})
+        setGeneratedRecord(result.record);
+        setSuccessMessage("Record created successfully!");
+        setFormData({});
+        setErrors({});
       } else {
-        alert(`Error: ${result.error}`)
+        alert(`Error: ${result.error}`);
       }
     } catch (error) {
-      console.error('Form submission error:', error)
-      alert('Failed to submit form')
+      console.error("Form submission error:", error);
+      alert("Failed to submit form");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleCreateNewEntry = () => {
-    setGeneratedRecord(null)
-    setSuccessMessage('')
-    setFormData({})
-    setErrors({})
-  }
+    setGeneratedRecord(null);
+    setSuccessMessage("");
+    setFormData({});
+    setErrors({});
+  };
 
   // Render field based on type and read-only status (memoized with useCallback)
-  const renderField = useCallback((field: any) => {
-    const isAutoGenerated = field.readOnly && (field.name === 'eform_c_generated_on' || field.name === 'eform_c_valid_upto')
+  const renderField = useCallback(
+    (field: any) => {
+      const isAutoGenerated =
+        field.readOnly &&
+        (field.name === "eform_c_generated_on" ||
+          field.name === "eform_c_valid_upto");
 
-    if (isAutoGenerated) {
-      return (
-        <div className="space-y-1">
-          <label className="block text-sm font-medium text-foreground">
-            {field.label}
-          </label>
-          <div className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-sm text-slate-600 dark:text-slate-400 font-mono">
-            {formData[field.name] || '(Auto-generated upon submission)'}
+      if (isAutoGenerated) {
+        return (
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-foreground">
+              {field.label}
+            </label>
+            <div className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-sm text-slate-600 dark:text-slate-400 font-mono">
+              {formData[field.name] || "(Auto-generated upon submission)"}
+            </div>
           </div>
-        </div>
-      )
-    }
+        );
+      }
 
-    if (field.type === 'textarea') {
+      if (field.type === "textarea") {
+        return (
+          <TextArea
+            label={field.label}
+            placeholder={field.placeholder}
+            value={String(formData[field.name] || "")}
+            onChange={(e) => handleInputChange(field.name, e.target.value)}
+            error={errors[field.name]}
+            required={field.required}
+          />
+        );
+      }
+
+      if (field.type === "select") {
+        return (
+          <Select
+            label={field.label}
+            options={field.options || []}
+            value={String(formData[field.name] || "")}
+            onChange={(e) => handleInputChange(field.name, e.target.value)}
+            error={errors[field.name]}
+            required={field.required}
+          />
+        );
+      }
+
       return (
-        <TextArea
+        <Input
           label={field.label}
+          type={field.type}
           placeholder={field.placeholder}
-          value={String(formData[field.name] || '')}
+          value={String(formData[field.name] || "")}
           onChange={(e) => handleInputChange(field.name, e.target.value)}
           error={errors[field.name]}
           required={field.required}
         />
-      )
-    }
-
-    if (field.type === 'select') {
-      return (
-        <Select
-          label={field.label}
-          options={field.options || []}
-          value={String(formData[field.name] || '')}
-          onChange={(e) => handleInputChange(field.name, e.target.value)}
-          error={errors[field.name]}
-          required={field.required}
-        />
-      )
-    }
-
-    return (
-      <Input
-        label={field.label}
-        type={field.type}
-        placeholder={field.placeholder}
-        value={String(formData[field.name] || '')}
-        onChange={(e) => handleInputChange(field.name, e.target.value)}
-        error={errors[field.name]}
-        required={field.required}
-      />
-    )
-  }, [formData, errors, handleInputChange])
+      );
+    },
+    [formData, errors, handleInputChange],
+  );
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 p-4 md:p-8">
@@ -174,7 +189,8 @@ export default function FormPage() {
                   eForm-C Generated Successfully
                 </h2>
                 <p className="text-sm text-green-600 dark:text-green-500">
-                  Your pass for transportation of minor mineral has been created.
+                  Your pass for transportation of minor mineral has been
+                  created.
                 </p>
               </div>
             </div>
@@ -183,23 +199,40 @@ export default function FormPage() {
               {/* Record Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white dark:bg-slate-900 border border-green-200 dark:border-green-900 rounded">
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Record ID</p>
-                  <p className="font-mono text-sm font-semibold break-all">{generatedRecord.id}</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                    Record ID
+                  </p>
+                  <p className="font-mono text-sm font-semibold break-all">
+                    {generatedRecord.id}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">eForm-C No.</p>
-                  <p className="font-mono text-sm font-semibold">{generatedRecord.eform_c_no || generatedRecord.id.slice(0, 8)}</p>
+                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                    eForm-C No.
+                  </p>
+                  <p className="font-mono text-sm font-semibold">
+                    {generatedRecord.eform_c_no ||
+                      generatedRecord.id.slice(0, 8)}
+                  </p>
                 </div>
                 {generatedRecord.eform_c_generated_on && (
                   <div>
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Generated On</p>
-                    <p className="font-mono text-sm">{generatedRecord.eform_c_generated_on}</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                      Generated On
+                    </p>
+                    <p className="font-mono text-sm">
+                      {generatedRecord.eform_c_generated_on}
+                    </p>
                   </div>
                 )}
                 {generatedRecord.eform_c_valid_upto && (
                   <div>
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Valid Upto</p>
-                    <p className="font-mono text-sm">{generatedRecord.eform_c_valid_upto}</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                      Valid Upto
+                    </p>
+                    <p className="font-mono text-sm">
+                      {generatedRecord.eform_c_valid_upto}
+                    </p>
                   </div>
                 )}
               </div>
@@ -208,7 +241,9 @@ export default function FormPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {generatedRecord.qr_code_url && (
                   <div className="flex flex-col items-center justify-center p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded">
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 font-semibold">QR Code</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 font-semibold">
+                      QR Code
+                    </p>
                     <img
                       src={generatedRecord.qr_code_url}
                       alt="eForm-C QR Code"
@@ -218,14 +253,26 @@ export default function FormPage() {
                 )}
 
                 <div className="flex flex-col justify-center gap-3">
-                  {generatedRecord.pdf_url && (
-                    <a href={generatedRecord.pdf_url} target="_blank" rel="noopener noreferrer">
+                  {generatedRecord.pdf_url ? (
+                    <a
+                      href={generatedRecord.pdf_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <Button className="w-full">📄 Download PDF Pass</Button>
                     </a>
+                  ) : (
+                    <Button className="w-full" disabled>
+                      ⏳ PDF is generating...
+                    </Button>
                   )}
 
                   {generatedRecord.public_token && (
-                    <a href={`/records/${generatedRecord.public_token}`} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={`/records/${generatedRecord.public_token}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       <Button className="w-full" variant="secondary">
                         🔗 View Record
                       </Button>
@@ -278,7 +325,9 @@ export default function FormPage() {
                       <div
                         key={field.id}
                         className={
-                          field.name === 'licensee_details_address' ? 'md:col-span-2' : ''
+                          field.name === "licensee_details_address"
+                            ? "md:col-span-2"
+                            : ""
                         }
                       >
                         {renderField(field)}
@@ -298,7 +347,9 @@ export default function FormPage() {
                       <div
                         key={field.id}
                         className={
-                          field.name === 'mobile_number_of_driver' ? 'md:col-span-2 md:w-1/2' : ''
+                          field.name === "mobile_number_of_driver"
+                            ? "md:col-span-2 md:w-1/2"
+                            : ""
                         }
                       >
                         {renderField(field)}
@@ -315,7 +366,9 @@ export default function FormPage() {
                     disabled={isSubmitting}
                     className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base"
                   >
-                    {isSubmitting ? 'Generating eForm-C...' : 'Generate eForm-C Pass'}
+                    {isSubmitting
+                      ? "Generating eForm-C..."
+                      : "Generate eForm-C Pass"}
                   </Button>
                 </div>
               </form>
@@ -324,5 +377,5 @@ export default function FormPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
