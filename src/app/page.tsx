@@ -120,14 +120,14 @@ export default function Home() {
 
           <motion.h1
             variants={itemVariants}
-            className={`text-7xl md:text-8xl font-black mb-6 bg-linear-to-r from-cyan-400 via-blue-500 to-blue-600 bg-clip-text text-transparent`}
+            className={`text-4xl sm:text-6xl md:text-8xl font-black mb-6 bg-linear-to-r from-cyan-400 via-blue-500 to-blue-600 bg-clip-text text-transparent`}
           >
             eMineral Pass
           </motion.h1>
 
           <motion.p
             variants={itemVariants}
-            className={`text-xl ${isDark ? "text-slate-300" : "text-slate-600"} mb-12 max-w-2xl mx-auto`}
+            className={`text-lg sm:text-xl ${isDark ? "text-slate-300" : "text-slate-600"} mb-12 max-w-2xl mx-auto`}
           >
             Official digital pass system for mineral transportation under the
             Uttar Pradesh Minerals Rules, 2018
@@ -168,7 +168,7 @@ export default function Home() {
 
           <motion.div
             variants={itemVariants}
-            className={`grid grid-cols-3 gap-6 mt-20`}
+            className={`grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-12 sm:mt-20`}
           >
             {[
               { num: "ISO Compliant", label: "Standards" },

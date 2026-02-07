@@ -247,7 +247,7 @@ export default function FormPage() {
                     <img
                       src={generatedRecord.qr_code_url}
                       alt="eForm-C QR Code"
-                      className="w-48 h-48 p-2 border border-slate-300 dark:border-slate-600 rounded"
+                      className="w-40 h-40 sm:w-48 sm:h-48 p-2 border border-slate-300 dark:border-slate-600 rounded"
                     />
                   </div>
                 )}
@@ -306,7 +306,7 @@ export default function FormPage() {
                 {EFORM_C_HEADER.line3}
               </p>
               <hr className="my-4 border-slate-300 dark:border-slate-600" />
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-2">
                 {EFORM_C_HEADER.title}
               </h1>
               <p className="text-xs md:text-sm text-slate-700 dark:text-slate-300 font-semibold">

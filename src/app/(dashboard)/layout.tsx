@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   // Perform redirect in a separate effect to avoid redirect loops
   useEffect(() => {
     if (shouldRedirect && !isLoading && !isAuthenticated) {
-      router.push("/auth/signin");
+      router.push("/");
     }
   }, [shouldRedirect, isLoading, isAuthenticated, router]);
 

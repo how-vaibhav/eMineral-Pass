@@ -21,8 +21,6 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [organizationName, setOrganizationName] = useState("");
-  const [organizationLicense, setOrganizationLicense] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
@@ -56,11 +54,6 @@ export default function SignUpPage() {
 
     if (password.length < 8) {
       setError("Password must be at least 8 characters");
-      return;
-    }
-
-    if (role === "host" && !organizationName) {
-      setError("Organization name is required for hosts");
       return;
     }
 
@@ -108,11 +101,11 @@ export default function SignUpPage() {
         ></div>
       </div>
 
-      <div className="relative min-h-screen flex items-center justify-center px-6 py-12">
+      <div className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 py-12">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className={`w-full max-w-md ${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"} border rounded-2xl shadow-xl p-8`}
+          className={`w-full max-w-md ${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"} border rounded-2xl shadow-xl p-6 sm:p-8`}
         >
           {/* Back button */}
           <Link
@@ -124,7 +117,9 @@ export default function SignUpPage() {
           </Link>
 
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Create Account</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+              Create Account
+            </h1>
             <p className={isDark ? "text-slate-400" : "text-slate-600"}>
               Join eMineral Pass today
             </p>
@@ -220,36 +215,6 @@ export default function SignUpPage() {
                   placeholder="you@example.com"
                 />
               </div>
-
-              {/* Organization fields for hosts */}
-              {role === "host" && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Organization Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={organizationName}
-                      onChange={(e) => setOrganizationName(e.target.value)}
-                      className={`w-full px-4 py-2 border rounded-lg transition-colors ${isDark ? "bg-slate-800 border-slate-700 focus:border-cyan-500 text-white" : "bg-white border-slate-300 focus:border-cyan-500 text-slate-900"} focus:outline-none`}
-                      placeholder="Your organization"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Mining License No.
-                    </label>
-                    <input
-                      type="text"
-                      value={organizationLicense}
-                      onChange={(e) => setOrganizationLicense(e.target.value)}
-                      className={`w-full px-4 py-2 border rounded-lg transition-colors ${isDark ? "bg-slate-800 border-slate-700 focus:border-cyan-500 text-white" : "bg-white border-slate-300 focus:border-cyan-500 text-slate-900"} focus:outline-none`}
-                      placeholder="Optional - add later"
-                    />
-                  </div>
-                </>
-              )}
 
               {/* Password */}
               <div>

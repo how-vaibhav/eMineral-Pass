@@ -24,9 +24,14 @@ function DashboardNavbarComponent() {
   }
 
   const handleSignOut = async () => {
-    await signOut();
-    setMobileMenuOpen(false);
-    router.push("/");
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Sign out failed:", error);
+    } finally {
+      setMobileMenuOpen(false);
+      window.location.href = "/";
+    }
   };
 
   return (

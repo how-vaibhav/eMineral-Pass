@@ -309,7 +309,7 @@ export default function HostDashboard() {
                     animate={{ opacity: 1, y: 0 }}
                     className={`${isDark ? "bg-slate-900 border-slate-800 hover:border-slate-700" : "bg-white border-slate-200 hover:border-slate-300"} border rounded-lg p-4 transition-all`}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-4">
                           <div>
@@ -333,7 +333,7 @@ export default function HostDashboard() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-6">
+                      <div className="flex flex-wrap items-center gap-4 sm:gap-6">
                         <span
                           className={`px-3 py-1 rounded-full text-sm font-semibold ${
                             record.status === "active"

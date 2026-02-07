@@ -431,7 +431,7 @@ export default function UserDashboard() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2 justify-end">
+                    <div className="flex flex-wrap gap-2 justify-start md:justify-end">
                       <Link
                         href={`/records/${record.id}`}
                         className={`p-2 rounded-lg ${isDark ? "hover:bg-slate-800" : "hover:bg-slate-100"} transition-colors`}

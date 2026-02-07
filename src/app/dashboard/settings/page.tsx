@@ -167,13 +167,14 @@ export default function SettingsPage() {
 
     try {
       await signOut();
-      router.push("/");
     } catch (error) {
       console.error("Error signing out:", error);
       setNotification({
         type: "error",
         message: "Failed to sign out",
       });
+    } finally {
+      window.location.href = "/";
     }
   };
 
@@ -614,7 +615,7 @@ export default function SettingsPage() {
                 <div>
                   <h2 className="text-xl font-bold mb-4">Theme Settings</h2>
                   <div
-                    className={`flex items-center justify-between p-4 rounded-lg border ${
+                    className={`flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between p-4 rounded-lg border ${
                       isDark
                         ? "bg-slate-800 border-slate-700 text-slate-100"
                         : "bg-white border-slate-200 text-slate-900"

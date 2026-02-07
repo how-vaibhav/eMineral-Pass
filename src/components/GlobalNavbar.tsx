@@ -92,7 +92,13 @@ function GlobalNavbarComponent() {
                   {user.user_metadata?.full_name || user.email}
                 </span>
                 <button
-                  onClick={signOut}
+                  onClick={async () => {
+                    try {
+                      await signOut();
+                    } finally {
+                      window.location.href = "/";
+                    }
+                  }}
                   className={`p-2.5 rounded-lg transition-colors ${
                     isDark
                       ? "bg-red-900/30 hover:bg-red-900/50 border border-red-800"
@@ -194,9 +200,13 @@ function GlobalNavbarComponent() {
                     {user.user_metadata?.full_name || user.email}
                   </div>
                   <button
-                    onClick={() => {
-                      signOut();
-                      setIsMenuOpen(false);
+                    onClick={async () => {
+                      try {
+                        await signOut();
+                      } finally {
+                        setIsMenuOpen(false);
+                        window.location.href = "/";
+                      }
                     }}
                     className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       isDark
