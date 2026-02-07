@@ -1,33 +1,33 @@
-'use client'
+"use client";
 
-import React, { memo, useState, useEffect } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/context/AuthContext'
-import { useTheme } from '@/context/ThemeContext'
-import { Menu, X, Sun, Moon, LogOut } from 'lucide-react'
+import React, { memo, useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
+import { Menu, X, Sun, Moon, LogOut } from "lucide-react";
 
 function DashboardNavbarComponent() {
-  const [mounted, setMounted] = useState(false)
-  const router = useRouter()
-  const { user, signOut, isAuthenticated } = useAuth()
-  const { effectiveTheme, toggleTheme } = useTheme()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mounted, setMounted] = useState(false);
+  const router = useRouter();
+  const { user, signOut, isAuthenticated } = useAuth();
+  const { effectiveTheme, toggleTheme } = useTheme();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Prevent hydration mismatch
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
-    return null
+    return null;
   }
 
   const handleSignOut = async () => {
-    await signOut()
-    setMobileMenuOpen(false)
-    router.push('/')
-  }
+    await signOut();
+    setMobileMenuOpen(false);
+    router.push("/");
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 shadow-sm">
@@ -65,10 +65,10 @@ function DashboardNavbarComponent() {
             <button
               onClick={toggleTheme}
               className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200"
-              title={`Switch to ${effectiveTheme === 'dark' ? 'light' : 'dark'} mode`}
+              title={`Switch to ${effectiveTheme === "dark" ? "light" : "dark"} mode`}
               aria-label="Toggle theme"
             >
-              {effectiveTheme === 'dark' ? (
+              {effectiveTheme === "dark" ? (
                 <Sun className="w-5 h-5 text-yellow-500 transition-transform" />
               ) : (
                 <Moon className="w-5 h-5 text-slate-400 transition-transform" />
@@ -78,7 +78,9 @@ function DashboardNavbarComponent() {
             {/* User Menu */}
             {isAuthenticated && user ? (
               <div className="flex items-center gap-4 pl-4 border-l border-slate-200 dark:border-slate-700">
-                <span className="text-sm text-slate-600 dark:text-slate-400">{user.email}</span>
+                <span className="text-sm text-slate-600 dark:text-slate-400">
+                  {user.email}
+                </span>
                 <button
                   onClick={handleSignOut}
                   className="p-2 rounded-lg bg-red-100 dark:bg-red-950 hover:bg-red-200 dark:hover:bg-red-900 transition"
@@ -103,10 +105,10 @@ function DashboardNavbarComponent() {
             <button
               onClick={toggleTheme}
               className="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200"
-              title={`Switch to ${effectiveTheme === 'dark' ? 'light' : 'dark'} mode`}
+              title={`Switch to ${effectiveTheme === "dark" ? "light" : "dark"} mode`}
               aria-label="Toggle theme"
             >
-              {effectiveTheme === 'dark' ? (
+              {effectiveTheme === "dark" ? (
                 <Sun className="w-5 h-5 text-yellow-500 transition-transform" />
               ) : (
                 <Moon className="w-5 h-5 text-slate-400 transition-transform" />
@@ -151,7 +153,9 @@ function DashboardNavbarComponent() {
 
             {isAuthenticated && user ? (
               <>
-                <div className="py-2 text-sm text-slate-600 dark:text-slate-400">{user.email}</div>
+                <div className="py-2 text-sm text-slate-600 dark:text-slate-400">
+                  {user.email}
+                </div>
                 <button
                   onClick={handleSignOut}
                   className="w-full text-left text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 py-2 transition"
@@ -172,7 +176,7 @@ function DashboardNavbarComponent() {
         )}
       </div>
     </nav>
-  )
+  );
 }
 
-export const DashboardNavbar = memo(DashboardNavbarComponent)
+export const DashboardNavbar = memo(DashboardNavbarComponent);

@@ -8,7 +8,11 @@ export function GlobalFooter() {
 
   return (
     <footer
-      className={`${isDark ? "border-slate-800 text-slate-400" : "border-slate-300 text-slate-600"} border-t py-12 px-6`}
+      className={`${
+        isDark
+          ? "border-slate-800 text-slate-400 bg-slate-950"
+          : "border-slate-200 text-slate-700 bg-white"
+      } border-t py-12 px-6 transition-colors`}
     >
       <div className="max-w-7xl mx-auto text-center text-sm">
         <p>

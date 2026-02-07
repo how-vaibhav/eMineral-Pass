@@ -32,6 +32,7 @@ export default function SettingsPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [notification, setNotification] = useState<{
     type: "success" | "error";
     message: string;
@@ -88,7 +89,11 @@ export default function SettingsPage() {
   };
 
   const handleChangePassword = async () => {
-    if (!formData.currentPassword || !formData.newPassword || !formData.confirmPassword) {
+    if (
+      !formData.currentPassword ||
+      !formData.newPassword ||
+      !formData.confirmPassword
+    ) {
       setNotification({
         type: "error",
         message: "Please fill in all password fields",
@@ -205,6 +210,116 @@ export default function SettingsPage() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExportData = async () => {
+    if (!user) {
+      setNotification({
+        type: "error",
+        message: "You must be signed in to export data.",
+      });
+      return;
+    }
+
+    const chunkArray = <T,>(items: T[], size: number) => {
+      const chunks: T[][] = [];
+      for (let i = 0; i < items.length; i += size) {
+        chunks.push(items.slice(i, i + size));
+      }
+      return chunks;
+    };
+
+    setIsExporting(true);
+    try {
+      const exportPayload: Record<string, unknown> = {
+        exported_at: new Date().toISOString(),
+        user: {
+          id: user.id,
+          email: user.email,
+          metadata: user.user_metadata || {},
+        },
+      };
+
+      const { data: profileData, error: profileError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        exportPayload.profile_error = profileError.message;
+      } else {
+        exportPayload.profile = profileData;
+      }
+
+      const { data: recordsData, error: recordsError } = await supabase
+        .from("records")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (recordsError) throw recordsError;
+
+      const records = recordsData || [];
+      exportPayload.records = records;
+
+      const recordIds = records.map((record) => record.id);
+      const scanLogs: unknown[] = [];
+
+      if (recordIds.length > 0) {
+        const chunks = chunkArray(recordIds, 100);
+        for (const chunk of chunks) {
+          const { data: scanData, error: scanError } = await supabase
+            .from("scan_logs")
+            .select("*")
+            .in("record_id", chunk)
+            .order("scanned_at", { ascending: false });
+
+          if (scanError) throw scanError;
+          scanLogs.push(...(scanData || []));
+        }
+      }
+
+      exportPayload.scan_logs = scanLogs;
+
+      const { data: templatesData, error: templatesError } = await supabase
+        .from("form_templates")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (templatesError) {
+        exportPayload.form_templates_error = templatesError.message;
+      } else {
+        exportPayload.form_templates = templatesData || [];
+      }
+
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const fileName = `emineral-pass-export-${user.id}-${timestamp}.json`;
+      const blob = new Blob([JSON.stringify(exportPayload, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(url);
+
+      setNotification({
+        type: "success",
+        message: "Your data export is ready and downloading.",
+      });
+      setTimeout(() => setNotification(null), 3000);
+    } catch (error) {
+      console.error("Error exporting data:", error);
+      setNotification({
+        type: "error",
+        message: "Failed to export data. Please try again.",
+      });
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -498,7 +613,13 @@ export default function SettingsPage() {
               >
                 <div>
                   <h2 className="text-xl font-bold mb-4">Theme Settings</h2>
-                  <div className="flex items-center justify-between p-4 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+                  <div
+                    className={`flex items-center justify-between p-4 rounded-lg border ${
+                      isDark
+                        ? "bg-slate-800 border-slate-700 text-slate-100"
+                        : "bg-white border-slate-200 text-slate-900"
+                    }`}
+                  >
                     <div className="flex items-center gap-4">
                       {effectiveTheme === "dark" ? (
                         <Moon className="w-6 h-6 text-yellow-500" />
@@ -512,7 +633,7 @@ export default function SettingsPage() {
                             : "Light Mode"}
                         </p>
                         <p
-                          className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}
+                          className={`text-sm ${isDark ? "text-slate-400" : "text-slate-700"}`}
                         >
                           Current theme preference
                         </p>
@@ -597,9 +718,11 @@ export default function SettingsPage() {
                         You can request a copy of all your data in JSON format.
                       </p>
                       <button
-                        className={`px-6 py-2 rounded-lg font-semibold transition-all border-2 ${isDark ? "border-blue-500 text-blue-400 hover:bg-blue-500/10" : "border-blue-500 text-blue-600 hover:bg-blue-100"}`}
+                        onClick={handleExportData}
+                        disabled={isExporting}
+                        className={`px-6 py-2 rounded-lg font-semibold transition-all border-2 disabled:opacity-60 ${isDark ? "border-blue-500 text-blue-400 hover:bg-blue-500/10" : "border-blue-500 text-blue-600 hover:bg-blue-100"}`}
                       >
-                        Export Data
+                        {isExporting ? "Exporting..." : "Export Data"}
                       </button>
                     </div>
                   </div>
