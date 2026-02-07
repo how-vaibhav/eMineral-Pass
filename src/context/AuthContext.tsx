@@ -9,6 +9,7 @@ import {
 } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import type { UserRole } from "@/types/auth";
 
 interface AuthContextType {
   session: Session | null;
@@ -16,11 +17,12 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   signOut: () => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, role: UserRole) => Promise<void>;
   signUp: (
     email: string,
     password: string,
     fullName: string,
+    role: UserRole,
   ) => Promise<{ session: Session | null; user: User | null }>;
   error: string | null;
 }
@@ -154,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, role: UserRole) => {
     try {
       setError(null);
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -162,6 +164,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
       });
       if (error) throw error;
+
+      const metadataRole = (
+        data.user?.user_metadata as { role?: string } | null
+      )?.role;
+
+      if (!metadataRole) {
+        await supabase.auth.signOut();
+        throw new Error("Account role missing. Please contact support.");
+      }
+
+      if (metadataRole !== role) {
+        await supabase.auth.signOut();
+        throw new Error(
+          `This account is registered as a ${metadataRole}.
+Please sign in using the correct role.`,
+        );
+      }
 
       // Immediately update state with the session data
       if (data.session) {
@@ -175,7 +194,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (
+    email: string,
+    password: string,
+    fullName: string,
+    role: UserRole,
+  ) => {
     try {
       setError(null);
       const { data, error } = await supabase.auth.signUp({
@@ -184,6 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         options: {
           data: {
             full_name: fullName,
+            role,
           },
         },
       });

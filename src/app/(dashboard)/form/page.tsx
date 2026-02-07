@@ -68,6 +68,21 @@ export default function FormPage() {
 
     if (!validation.valid) {
       setErrors(validation.errors);
+
+      const firstErrorField = Object.keys(validation.errors)[0];
+      if (firstErrorField) {
+        const fieldElement = document.querySelector(
+          `[name="${firstErrorField}"]`,
+        ) as HTMLElement | null;
+        if (fieldElement) {
+          fieldElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+          fieldElement.focus();
+        }
+      }
+
       return;
     }
 
@@ -130,6 +145,8 @@ export default function FormPage() {
       if (field.type === "textarea") {
         return (
           <TextArea
+            id={field.name}
+            name={field.name}
             label={field.label}
             placeholder={field.placeholder}
             value={String(formData[field.name] || "")}
@@ -143,6 +160,8 @@ export default function FormPage() {
       if (field.type === "select") {
         return (
           <Select
+            id={field.name}
+            name={field.name}
             label={field.label}
             options={field.options || []}
             value={String(formData[field.name] || "")}
@@ -155,6 +174,8 @@ export default function FormPage() {
 
       return (
         <Input
+          id={field.name}
+          name={field.name}
           label={field.label}
           type={field.type}
           placeholder={field.placeholder}
@@ -176,7 +197,7 @@ export default function FormPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="mb-6 p-6 sm:p-8 bg-emerald-50/90 dark:bg-emerald-950/30 border border-emerald-300/70 dark:border-emerald-800/70 rounded-2xl shadow-[0_16px_40px_rgba(16,185,129,0.15)]"
+            className="mb-6 p-6 sm:p-8 bg-white dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/70 rounded-2xl shadow-[0_16px_40px_rgba(16,185,129,0.12)]"
           >
             <div className="flex items-start gap-4 mb-4">
               <div className="text-4xl">✓</div>
@@ -184,7 +205,7 @@ export default function FormPage() {
                 <h2 className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mb-1">
                   eForm-C Generated Successfully
                 </h2>
-                <p className="text-sm text-emerald-600 dark:text-emerald-400">
+                <p className="text-sm text-slate-800 dark:text-emerald-400">
                   Your pass for transportation of minor mineral has been
                   created.
                 </p>
@@ -193,40 +214,40 @@ export default function FormPage() {
 
             <div className="space-y-4">
               {/* Record Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 sm:p-5 bg-white/90 dark:bg-slate-900/70 border border-emerald-200/70 dark:border-emerald-900/60 rounded-xl">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 sm:p-5 bg-slate-50 dark:bg-slate-900/70 border border-emerald-200/70 dark:border-emerald-900/60 rounded-xl">
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-1">
+                  <p className="text-xs font-semibold text-slate-700 dark:text-muted-foreground mb-1">
                     Record ID
                   </p>
-                  <p className="font-mono text-sm font-semibold break-all">
+                  <p className="font-mono text-sm font-semibold text-slate-900 dark:text-foreground break-all">
                     {generatedRecord.id}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground mb-1">
+                  <p className="text-xs font-semibold text-slate-700 dark:text-muted-foreground mb-1">
                     eForm-C No.
                   </p>
-                  <p className="font-mono text-sm font-semibold">
+                  <p className="font-mono text-sm font-semibold text-slate-900 dark:text-foreground">
                     {generatedRecord.eform_c_no ||
                       generatedRecord.id.slice(0, 8)}
                   </p>
                 </div>
                 {generatedRecord.eform_c_generated_on && (
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-1">
+                    <p className="text-xs font-semibold text-slate-700 dark:text-muted-foreground mb-1">
                       Generated On
                     </p>
-                    <p className="font-mono text-sm">
+                    <p className="font-mono text-sm text-slate-900 dark:text-foreground">
                       {generatedRecord.eform_c_generated_on}
                     </p>
                   </div>
                 )}
                 {generatedRecord.eform_c_valid_upto && (
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground mb-1">
+                    <p className="text-xs font-semibold text-slate-700 dark:text-muted-foreground mb-1">
                       Valid Upto
                     </p>
-                    <p className="font-mono text-sm">
+                    <p className="font-mono text-sm text-slate-900 dark:text-foreground">
                       {generatedRecord.eform_c_valid_upto}
                     </p>
                   </div>
@@ -309,6 +330,17 @@ export default function FormPage() {
 
             {/* Form Content */}
             <div className="p-6 md:p-8">
+              {Object.keys(errors).length > 0 && (
+                <div
+                  className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200"
+                  role="alert"
+                >
+                  Please fix the highlighted fields. First issue:{" "}
+                  <span className="font-semibold">
+                    {errors[Object.keys(errors)[0]]}
+                  </span>
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Main Form Fields */}
                 <div className="space-y-6">

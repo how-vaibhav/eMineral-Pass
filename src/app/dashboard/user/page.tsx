@@ -151,7 +151,13 @@ export default function UserDashboard() {
         if (error) throw error;
         setRecords(data || []);
       } catch (error) {
-        console.error("Error fetching records:", error);
+        const message =
+          error instanceof Error
+            ? error.message
+            : typeof error === "object"
+              ? JSON.stringify(error)
+              : String(error);
+        console.error("Error fetching records:", message, error);
       } finally {
         setLoading(false);
       }

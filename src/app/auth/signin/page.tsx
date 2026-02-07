@@ -66,7 +66,7 @@ export default function SignInPage() {
     setSuccess("");
 
     try {
-      await signIn(email, password);
+      await signIn(email, password, role);
 
       setSuccess(
         `Welcome back! Redirecting to your ${role === "host" ? "License Portal" : "Dashboard"}...`,

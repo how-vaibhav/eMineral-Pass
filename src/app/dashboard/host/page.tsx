@@ -153,7 +153,13 @@ export default function HostDashboard() {
         if (usersError) throw usersError;
         setTotalUsers(count || 0);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        const message =
+          error instanceof Error
+            ? error.message
+            : typeof error === "object"
+              ? JSON.stringify(error)
+              : String(error);
+        console.error("Error fetching data:", message, error);
       } finally {
         setLoading(false);
       }

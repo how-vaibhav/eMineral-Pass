@@ -62,7 +62,7 @@ export default function SignUpPage() {
     setSuccess("");
 
     try {
-      const result = await signUp(email, password, fullName);
+      const result = await signUp(email, password, fullName, role);
 
       if (!result.session) {
         setSuccess("Account created! Please verify your email to continue.");

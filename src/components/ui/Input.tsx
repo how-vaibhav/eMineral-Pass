@@ -3,12 +3,58 @@
 import { InputHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
+const focusRelativeField = (current: HTMLElement, direction: "up" | "down") => {
+  const form = current.closest("form");
+  if (!form) return false;
+
+  const fields = Array.from(
+    form.querySelectorAll<HTMLElement>("input, select, textarea"),
+  ).filter((field) => {
+    if (field.hasAttribute("disabled")) return false;
+    if (field.getAttribute("type") === "hidden") return false;
+    if (field.getAttribute("aria-hidden") === "true") return false;
+    if (field.tabIndex === -1) return false;
+    return true;
+  });
+
+  const index = fields.indexOf(current);
+  if (index === -1) return false;
+
+  const nextIndex = direction === "down" ? index + 1 : index - 1;
+  const nextField = fields[nextIndex];
+  if (!nextField) return false;
+
+  nextField.focus();
+  return true;
+};
+
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   label?: string;
 }
 
 export function Input({ error, label, className, ...props }: InputProps) {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    props.onKeyDown?.(event);
+    if (event.defaultPrevented) return;
+
+    if (
+      (event.key === "ArrowDown" || event.key === "ArrowUp") &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.shiftKey
+    ) {
+      const moved = focusRelativeField(
+        event.currentTarget,
+        event.key === "ArrowDown" ? "down" : "up",
+      );
+      if (moved) {
+        event.preventDefault();
+      }
+    }
+  };
+
   return (
     <div className="w-full">
       {label && (
@@ -25,6 +71,7 @@ export function Input({ error, label, className, ...props }: InputProps) {
           error && "border-destructive focus:ring-destructive",
           className,
         )}
+        onKeyDown={handleKeyDown}
         {...props}
       />
       {error && <p className="mt-1.5 text-sm text-destructive">{error}</p>}
@@ -38,6 +85,27 @@ interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 }
 
 export function TextArea({ error, label, className, ...props }: TextAreaProps) {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    props.onKeyDown?.(event);
+    if (event.defaultPrevented) return;
+
+    if (
+      (event.key === "ArrowDown" || event.key === "ArrowUp") &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.shiftKey
+    ) {
+      const moved = focusRelativeField(
+        event.currentTarget,
+        event.key === "ArrowDown" ? "down" : "up",
+      );
+      if (moved) {
+        event.preventDefault();
+      }
+    }
+  };
+
   return (
     <div className="w-full">
       {label && (
@@ -54,6 +122,7 @@ export function TextArea({ error, label, className, ...props }: TextAreaProps) {
           error && "border-destructive focus:ring-destructive",
           className,
         )}
+        onKeyDown={handleKeyDown}
         {...props}
       />
       {error && <p className="mt-1.5 text-sm text-destructive">{error}</p>}
@@ -74,6 +143,27 @@ export function Select({
   className,
   ...props
 }: SelectProps) {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLSelectElement>) => {
+    props.onKeyDown?.(event);
+    if (event.defaultPrevented) return;
+
+    if (
+      (event.key === "ArrowDown" || event.key === "ArrowUp") &&
+      !event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.shiftKey
+    ) {
+      const moved = focusRelativeField(
+        event.currentTarget,
+        event.key === "ArrowDown" ? "down" : "up",
+      );
+      if (moved) {
+        event.preventDefault();
+      }
+    }
+  };
+
   return (
     <div className="w-full">
       {label && (
@@ -90,6 +180,7 @@ export function Select({
           error && "border-destructive focus:ring-destructive",
           className,
         )}
+        onKeyDown={handleKeyDown}
         {...props}
       >
         <option value="">Select an option</option>
