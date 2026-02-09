@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/Card";
 import { Input, TextArea, Select } from "@/components/ui/Input";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { createRecord } from "@/lib/records.server";
 import { validateFormSubmission } from "@/lib/validation";
 import { FormSubmissionData } from "@/types";
@@ -27,11 +28,13 @@ import {
 
 export default function FormPage() {
   const { user } = useAuth();
+  const { effectiveTheme } = useTheme();
   const [formData, setFormData] = useState<FormSubmissionData>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [generatedRecord, setGeneratedRecord] = useState<any>(null);
+  const isDark = effectiveTheme === "dark";
 
   // Memoize form fields to prevent recalculation
   const mainFormFields = useMemo(() => getMainFormFields(), []);
@@ -205,7 +208,9 @@ export default function FormPage() {
                 <h2 className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mb-1">
                   eForm-C Generated Successfully
                 </h2>
-                <p className="text-sm text-slate-800 dark:text-emerald-400">
+                <p
+                  className={`text-sm ${isDark ? "text-emerald-400" : "text-slate-700"}`}
+                >
                   Your pass for transportation of minor mineral has been
                   created.
                 </p>
@@ -216,38 +221,70 @@ export default function FormPage() {
               {/* Record Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 sm:p-5 bg-slate-50 dark:bg-slate-900/70 border border-emerald-200/70 dark:border-emerald-900/60 rounded-xl">
                 <div>
-                  <p className="text-xs font-semibold text-slate-700 dark:text-muted-foreground mb-1">
+                  <p
+                    className={`text-xs font-semibold mb-1 ${
+                      isDark ? "text-muted-foreground" : "text-slate-600"
+                    }`}
+                  >
                     Record ID
                   </p>
-                  <p className="font-mono text-sm font-semibold text-slate-900 dark:text-foreground break-all">
+                  <p
+                    className={`font-mono text-sm font-semibold break-all ${
+                      isDark ? "text-foreground" : "text-slate-900"
+                    }`}
+                  >
                     {generatedRecord.id}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-700 dark:text-muted-foreground mb-1">
+                  <p
+                    className={`text-xs font-semibold mb-1 ${
+                      isDark ? "text-muted-foreground" : "text-slate-600"
+                    }`}
+                  >
                     eForm-C No.
                   </p>
-                  <p className="font-mono text-sm font-semibold text-slate-900 dark:text-foreground">
+                  <p
+                    className={`font-mono text-sm font-semibold ${
+                      isDark ? "text-foreground" : "text-slate-900"
+                    }`}
+                  >
                     {generatedRecord.eform_c_no ||
                       generatedRecord.id.slice(0, 8)}
                   </p>
                 </div>
                 {generatedRecord.eform_c_generated_on && (
                   <div>
-                    <p className="text-xs font-semibold text-slate-700 dark:text-muted-foreground mb-1">
+                    <p
+                      className={`text-xs font-semibold mb-1 ${
+                        isDark ? "text-muted-foreground" : "text-slate-600"
+                      }`}
+                    >
                       Generated On
                     </p>
-                    <p className="font-mono text-sm text-slate-900 dark:text-foreground">
+                    <p
+                      className={`font-mono text-sm ${
+                        isDark ? "text-foreground" : "text-slate-900"
+                      }`}
+                    >
                       {generatedRecord.eform_c_generated_on}
                     </p>
                   </div>
                 )}
                 {generatedRecord.eform_c_valid_upto && (
                   <div>
-                    <p className="text-xs font-semibold text-slate-700 dark:text-muted-foreground mb-1">
+                    <p
+                      className={`text-xs font-semibold mb-1 ${
+                        isDark ? "text-muted-foreground" : "text-slate-600"
+                      }`}
+                    >
                       Valid Upto
                     </p>
-                    <p className="font-mono text-sm text-slate-900 dark:text-foreground">
+                    <p
+                      className={`font-mono text-sm ${
+                        isDark ? "text-foreground" : "text-slate-900"
+                      }`}
+                    >
                       {generatedRecord.eform_c_valid_upto}
                     </p>
                   </div>
