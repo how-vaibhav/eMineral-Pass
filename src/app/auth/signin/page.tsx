@@ -17,6 +17,10 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import type { UserRole } from '@/types/auth';
 
+interface HostStatus {
+	status: 'active' | 'pending';
+}
+
 export default function SignInPage() {
 	const router = useRouter();
 	const { effectiveTheme } = useTheme();
@@ -72,21 +76,28 @@ export default function SignInPage() {
 				`Welcome back! Redirecting to your ${role === 'host' ? 'License Portal' : 'Dashboard'}...`,
 			);
 
-			const { data: user } = await supabase.auth.getUser();
+			const { data: userData } = await supabase.auth.getUser();
 
-			if (!user) router.push('/signin');
+			const { user } = userData;
 
-			const { data: host } = await supabase
+			if (!user) {
+				router.push('/signin');
+				return;
+			}
+
+			const { data: host } = (await supabase
 				.from('user_roles')
 				.select('status')
 				.eq('user_id', user.id)
-				.single();
+				.single()) as { data: { status: String } | null };
+
+			console.log(host);
 
 			// Wait 1.5 seconds to show success message, then redirect
 			setTimeout(() => {
 				if (role === 'host') {
-					if (host?.status == 'active') router.push('/dashboard/host');
-					router.push('/auth/pending');
+					if (!host || host.status !== 'active') router.push('/auth/pending');
+					else router.push('/dashboard/host');
 				} else {
 					router.push('/dashboard/user');
 				}
