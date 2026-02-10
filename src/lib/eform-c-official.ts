@@ -44,10 +44,10 @@ export const EFORM_C_MAIN_FIELDS: FormFieldDefinition[] = [
     name: "eform_c_no",
     label: "eForm-C No.",
     type: "text",
-    required: true,
-    placeholder: "Enter eForm-C number",
+    required: false,
+    readOnly: true,
+    placeholder: "Auto-generated",
     validation: { minLength: 1, maxLength: 50 },
-    readOnly: false,
   },
   {
     id: "field_licensee_id",

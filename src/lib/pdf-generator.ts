@@ -8,9 +8,12 @@ import path from "path";
 
 const PAGE_MARGIN_X = 12;
 const COLUMN_RIGHT_X = 110;
-const LINE_HEIGHT = 5;
-const COPY_GAP = 10;
+const LINE_HEIGHT = 4.5;
+const COPY_GAP = 8;
 const DEVANAGARI_REGEX = /[\u0900-\u097F]/;
+const CONTENT_WIDTH = 210 - PAGE_MARGIN_X * 2;
+const BODY_FONT_SIZE = 8.5;
+const TITLE_FONT_SIZE = 8.5;
 
 /* ================= TYPES ================= */
 
@@ -169,6 +172,31 @@ export async function generatePDF(
         (data as any).serial_number ??
         (data as any).serialNumber,
     ),
+    registrationNumber: toText(
+      (data as any).registrationNumber ??
+        (data as any).registration_number ??
+        (data as any).vehicleRegistrationNumber,
+    ),
+    driverName: toText(
+      (data as any).driverName ??
+        (data as any).name_of_driver ??
+        (data as any).nameOfDriver,
+    ),
+    grossVehicleWeight: toText(
+      (data as any).grossVehicleWeight ??
+        (data as any).gross_vehicle_weight ??
+        (data as any).grossVehicleWeightInTonne,
+    ),
+    carryingCapacity: toText(
+      (data as any).carryingCapacity ??
+        (data as any).carrying_capacity ??
+        (data as any).carryingCapacityInTonne,
+    ),
+    driverMobile: toText(
+      (data as any).driverMobile ??
+        (data as any).mobile_number_of_driver ??
+        (data as any).mobileNumberOfDriver,
+    ),
   };
 
   renderCopy(
@@ -202,8 +230,9 @@ export async function generatePDF(
 /* ================= COPY RENDERER ================= */
 
 function setFontForText(pdf: jsPDF, text: string, bold: boolean = false) {
-  const weight = bold ? "bold" : "normal";
-  if (DEVANAGARI_REGEX.test(text)) {
+  const hasDevanagari = DEVANAGARI_REGEX.test(text);
+  const weight = hasDevanagari ? "normal" : "bold";
+  if (hasDevanagari) {
     try {
       // @ts-ignore
       pdf.setFont("NotoSansDeva", weight);
@@ -219,6 +248,12 @@ function setFontForText(pdf: jsPDF, text: string, bold: boolean = false) {
   pdf.setFont("helvetica", weight);
 }
 
+function normalizeDevanagariText(text: string): string {
+  if (!DEVANAGARI_REGEX.test(text)) return text;
+  // Reorder pre-base vowel sign (ि) before its consonant cluster for jsPDF.
+  return text.replace(/([क-ह](?:्[क-ह])*)\u093F/g, "ि$1");
+}
+
 function drawText(
   pdf: jsPDF,
   text: string,
@@ -226,18 +261,49 @@ function drawText(
   y: number,
   bold: boolean = false,
 ) {
-  setFontForText(pdf, text, bold);
-  pdf.text(text, x, y);
+  const normalizedText = normalizeDevanagariText(text);
+  setFontForText(pdf, normalizedText, bold);
+  pdf.text(normalizedText, x, y);
+}
+
+function drawWrappedText(
+  pdf: jsPDF,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  bold: boolean = false,
+): number {
+  const normalizedText = normalizeDevanagariText(text);
+  setFontForText(pdf, normalizedText, bold);
+  const lines = pdf.splitTextToSize(normalizedText, maxWidth);
+  pdf.text(lines, x, y);
+  return lines.length;
 }
 
 function renderHindiTitle(pdf: jsPDF, text: string, y: number) {
-  pdf.setFontSize(9);
-  setFontForText(pdf, text, true);
+  const normalizedText = normalizeDevanagariText(text);
+  pdf.setFontSize(TITLE_FONT_SIZE);
+  setFontForText(pdf, normalizedText, false);
   // Center the text on the page (A4 width is 210mm, center is 105mm)
   const pageWidth = 210;
-  const textWidth = pdf.getTextWidth(text);
+  const textWidth = pdf.getTextWidth(normalizedText);
   const centeredX = (pageWidth - textWidth) / 2;
-  pdf.text(text, centeredX, y);
+  pdf.text(normalizedText, centeredX, y);
+}
+
+function renderCenteredText(
+  pdf: jsPDF,
+  text: string,
+  y: number,
+  bold: boolean = false,
+) {
+  const normalizedText = normalizeDevanagariText(text);
+  setFontForText(pdf, normalizedText, bold);
+  const pageWidth = 210;
+  const textWidth = pdf.getTextWidth(normalizedText);
+  const centeredX = (pageWidth - textWidth) / 2;
+  pdf.text(normalizedText, centeredX, y);
 }
 
 function renderCopy(
@@ -253,33 +319,32 @@ function renderCopy(
 
   // Add QR code at top-right near header if available
   if (qrCodeDataUrl && qrCodeDataUrl.startsWith("data:image")) {
-    pdf.addImage(qrCodeDataUrl, "PNG", 165, y - 3, 30, 30);
+    const qrSize = 22;
+    const qrX = 210 - PAGE_MARGIN_X - qrSize;
+    pdf.addImage(qrCodeDataUrl, "PNG", qrX, y - 3, qrSize, qrSize);
   }
 
-  y += 6;
+  y += 5;
 
-  pdf.setFontSize(9);
+  pdf.setFontSize(BODY_FONT_SIZE);
 
   row(pdf, y, `1. eForm-C No.: ${d.formNo}`, `2. Licensee Id: ${d.licenseeId}`);
   y += LINE_HEIGHT;
 
-  drawText(pdf, "3. Name of Licensee:", PAGE_MARGIN_X, y);
-  y += LINE_HEIGHT;
-  drawText(pdf, d.licenseeName, PAGE_MARGIN_X + 6, y);
+  drawText(pdf, `3. Name of Licensee: ${d.licenseeName}`, PAGE_MARGIN_X, y);
   y += LINE_HEIGHT;
 
   drawText(pdf, `4. Mobile Number Of Licensee: ${d.mobile}`, PAGE_MARGIN_X, y);
   y += LINE_HEIGHT;
 
-  drawText(
-    pdf,
-    "5. Licensee Details [Address, Village, (Gata/Khand), Area]:",
-    PAGE_MARGIN_X,
-    y,
-  );
-  y += LINE_HEIGHT;
-  manualWrap(pdf, d.address, PAGE_MARGIN_X + 6, y);
-  y += LINE_HEIGHT * 2;
+  y +=
+    drawWrappedText(
+      pdf,
+      `5. Licensee Details [Address, Village, (Gata/Khand), Area]: ${d.address}`,
+      PAGE_MARGIN_X,
+      y,
+      CONTENT_WIDTH,
+    ) * LINE_HEIGHT;
 
   row(
     pdf,
@@ -297,10 +362,14 @@ function renderCopy(
   );
   y += LINE_HEIGHT;
 
-  drawText(pdf, "9. Name Of Mineral:", PAGE_MARGIN_X, y);
-  y += LINE_HEIGHT;
-  manualWrap(pdf, d.mineral, PAGE_MARGIN_X + 6, y);
-  y += LINE_HEIGHT;
+  y +=
+    drawWrappedText(
+      pdf,
+      `9. Name Of Mineral: ${d.mineral}`,
+      PAGE_MARGIN_X,
+      y,
+      CONTENT_WIDTH,
+    ) * LINE_HEIGHT;
 
   row(
     pdf,
@@ -335,6 +404,28 @@ function renderCopy(
   y += LINE_HEIGHT;
 
   drawText(pdf, `18. Serial Number: ${d.serialNo}`, PAGE_MARGIN_X, y);
+  y += LINE_HEIGHT;
+
+  renderCenteredText(pdf, "Details Of Registered Vehicle", y, true);
+  y += LINE_HEIGHT;
+
+  row(
+    pdf,
+    y,
+    `Registration Number: ${d.registrationNumber}`,
+    `Name Of Driver: ${d.driverName}`,
+  );
+  y += LINE_HEIGHT;
+
+  row(
+    pdf,
+    y,
+    `Gross Vehicle Weight in Tonne: ${d.grossVehicleWeight}`,
+    `Carrying capacity of vehicle in Tonne: ${d.carryingCapacity}`,
+  );
+  y += LINE_HEIGHT;
+
+  drawText(pdf, `Mobile Number Of Driver: ${d.driverMobile}`, PAGE_MARGIN_X, y);
 }
 
 /* ================= HELPERS ================= */
