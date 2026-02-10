@@ -76,11 +76,6 @@ function PendingRequestContent() {
 }
 
 export default function PendingRequest() {
-	const searchParams = useSearchParams();
-	const { effectiveTheme } = useTheme();
-	const email = searchParams.get('email');
-	const isDark = effectiveTheme === 'dark';
-
 	return (
 		<Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
 			<PendingRequestContent />
