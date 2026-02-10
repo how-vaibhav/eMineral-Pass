@@ -116,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			}
 
 			// Auto-logout on session expiry
-			if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+			if (event === 'SIGNED_OUT') {
 				setSession(null);
 				setUser(null);
 				setAuthHint(false);
