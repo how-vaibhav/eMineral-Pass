@@ -16,6 +16,7 @@
 - [Tech Stack](#tech-stack)
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
+- [UI Screenshots](#ui-screenshots)
 - [Advanced Features](#advanced-features)
 - [API Documentation](#api-documentation)
 - [Authentication System](#authentication-system)
@@ -31,7 +32,10 @@
 
 **eMineral Pass** is a sophisticated digital platform designed to streamline mineral transportation authorization in India. The system combines government compliance, QR-based verification, real-time analytics, and secure PDF generation to create an efficient, transparent, and secure transportation permit ecosystem.
 
+This project was delivered as a freelance engagement.
+
 ### Core Objectives
+
 - **Regulatory Compliance**: Adheres to UP Minerals Rules 2018
 - **Digital Transformation**: Replace paper-based permits with digital passes
 - **Real-time Tracking**: Monitor mineral transportation with QR code verification
@@ -43,6 +47,7 @@
 ## ✨ Key Features
 
 ### For Transport Users
+
 - 📝 **Government Form Compliance**: Official eForm-C template with validation
 - 🆔 **Auto-Generated QR Codes**: Unique QR pass for every submission
 - 📄 **PDF Generation**: Government-standard documentation with digital signatures
@@ -52,6 +57,7 @@
 - 🌙 **Dark/Light Mode**: Theme toggle with persistent storage
 
 ### For License Hosts (Admin)
+
 - 🏢 **Portal Dashboard**: Centralized management system
 - 📈 **Analytics**: Track issued passes, active permits, monthly trends
 - 🔐 **Role-Based Access**: View and download pass PDFs only (no creation)
@@ -60,6 +66,7 @@
 - 🎛️ **Settings Management**: Configure portal preferences
 
 ### Universal Features
+
 - 🎨 **Professional UI/UX**: Smooth animations and transitions
 - 🌍 **Multi-Role Support**: Host and User authentication flows
 - 🔐 **Secure Authentication**: Role-based access control (RBAC)
@@ -115,6 +122,7 @@
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Framework**: [Next.js 16.1.6](https://nextjs.org) - React-based framework with SSR/SSG
 - **UI/Styling**: [TailwindCSS](https://tailwindcss.com) - Utility-first CSS framework
 - **Animations**: [Framer Motion](https://www.framer.com/motion) - Production-quality animations
@@ -124,12 +132,14 @@
 - **Type Safety**: TypeScript with strict mode
 
 ### Backend
+
 - **Database**: [Supabase](https://supabase.com) - PostgreSQL with real-time features
 - **Authentication**: Supabase Auth + JWT tokens + Google OAuth
 - **File Storage**: Supabase Storage for PDF files
 - **API Layer**: Next.js API routes with edge computing
 
 ### Development & DevOps
+
 - **Package Manager**: npm (v9+)
 - **Build Tool**: Turbopack (Next.js 16)
 - **Linting**: ESLint with TypeScript support
@@ -141,6 +151,7 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 ```bash
 - Node.js 18+ (LTS recommended)
 - npm or yarn package manager
@@ -151,12 +162,14 @@
 ### Installation
 
 1. **Clone the Repository**
+
 ```bash
 git clone https://github.com/yourusername/form-qr-pdf-app.git
 cd form-qr-pdf-app
 ```
 
 2. **Install Dependencies**
+
 ```bash
 npm install
 # or
@@ -164,11 +177,13 @@ yarn install
 ```
 
 3. **Configure Environment Variables**
+
 ```bash
 cp .env.example .env.local
 ```
 
 Edit `.env.local`:
+
 ```env
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -184,6 +199,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
 
 4. **Run Development Server**
+
 ```bash
 npm run dev
 ```
@@ -191,6 +207,7 @@ npm run dev
 Server runs at **[http://localhost:3000](http://localhost:3000)**
 
 5. **Build for Production**
+
 ```bash
 npm run build
 npm start
@@ -264,29 +281,47 @@ form-qr-pdf-app/
 
 ---
 
+## 🖼️ UI Screenshots
+
+Screenshots are stored in the [Screenshots](Screenshots) folder.
+
+![UI Screenshot 1](<Screenshots/eMineral%20(1).png>)
+![UI Screenshot 2](<Screenshots/eMineral%20(2).png>)
+![UI Screenshot 3](<Screenshots/eMineral%20(3).png>)
+![UI Screenshot 4](<Screenshots/eMineral%20(4).png>)
+![UI Screenshot 5](<Screenshots/eMineral%20(5).png>)
+![UI Screenshot 6](<Screenshots/eMineral%20(6).png>)
+![UI Screenshot 7](<Screenshots/eMineral%20(7).png>)
+
+---
+
 ## 🎨 Advanced Features
 
 ### 1. **Responsive Design**
+
 - Mobile-first approach with breakpoints: `sm`, `md`, `lg`, `xl`, `2xl`
 - Flexible grid layouts adapting to screen size
 - Touch-friendly buttons and inputs
 - Optimized for all device sizes
 
 ### 2. **Theme System**
+
 ```typescript
 // Automatic detection of system preference
 // Options: 'light' | 'dark' | 'system'
 // Persisted to localStorage for consistency
-const { effectiveTheme, toggleTheme } = useTheme()
+const { effectiveTheme, toggleTheme } = useTheme();
 ```
 
 ### 3. **Professional Animations**
+
 - **Page entrance**: Staggered animations with Framer Motion
 - **Button interactions**: Scale and tap animations
 - **Loading states**: Spinning loaders with visual feedback
 - **Transitions**: Smooth page switches with AnimatePresence
 
 ### 4. **Form Validation**
+
 ```typescript
 // Multi-level validation strategy
 1. Client-side: Real-time validation as user types
@@ -296,12 +331,14 @@ const { effectiveTheme, toggleTheme } = useTheme()
 ```
 
 ### 5. **QR Code System**
+
 - Unique QR generation for each pass
 - Encoded with pass metadata
 - Public verification endpoint
 - Scan logging and analytics
 
 ### 6. **PDF Generation**
+
 - Government-compliant document format
 - Official eForm-C template
 - Dynamic data insertion
@@ -309,6 +346,7 @@ const { effectiveTheme, toggleTheme } = useTheme()
 - Ready for printing and archival
 
 ### 7. **Authentication Flow**
+
 ```
 User Registration/Login
          ↓
@@ -328,11 +366,13 @@ Dashboard Access (Role-based)
 ## 📡 API Documentation
 
 ### Health Check
+
 ```bash
 GET /api/health
 ```
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -342,14 +382,17 @@ GET /api/health
 ```
 
 ### Public Record Verification
+
 ```bash
 GET /api/public/records/[publicToken]
 ```
 
 **Parameters:**
+
 - `publicToken` (string): Public verification token
 
 **Response:**
+
 ```json
 {
   "id": "pass-id",
@@ -363,6 +406,7 @@ GET /api/public/records/[publicToken]
 ```
 
 ### Error Responses
+
 ```json
 {
   "error": "Pass not found or expired",
@@ -378,6 +422,7 @@ GET /api/public/records/[publicToken]
 ### User Roles & Permissions
 
 **Transport User**
+
 - ✅ Create and submit eForm-C
 - ✅ Generate QR passes
 - ✅ Download own PDFs
@@ -386,6 +431,7 @@ GET /api/public/records/[publicToken]
 - ❌ Cannot view host analytics
 
 **License Host**
+
 - ✅ View all transportation passes
 - ✅ Download pass PDFs
 - ✅ Filter and search passes
@@ -394,6 +440,7 @@ GET /api/public/records/[publicToken]
 - ❌ Cannot modify submitted data
 
 ### Security Measures
+
 - JWT token-based authentication
 - Secure password hashing with bcrypt
 - CORS protection on API routes
@@ -408,6 +455,7 @@ GET /api/public/records/[publicToken]
 ### Core Tables
 
 **users**
+
 ```sql
 id: UUID (Primary Key)
 email: VARCHAR (Unique)
@@ -418,6 +466,7 @@ updated_at: TIMESTAMP
 ```
 
 **passes**
+
 ```sql
 id: UUID (Primary Key)
 user_id: UUID (Foreign Key)
@@ -432,6 +481,7 @@ valid_upto: TIMESTAMP
 ```
 
 **scan_logs**
+
 ```sql
 id: UUID (Primary Key)
 pass_id: UUID (Foreign Key)
@@ -445,6 +495,7 @@ scanned_at: TIMESTAMP
 ## 🌍 Environment Configuration
 
 ### Development (.env.local)
+
 ```env
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
@@ -458,6 +509,7 @@ DEBUG=true
 ```
 
 ### Production (.env.production)
+
 ```env
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://project.supabase.co
@@ -476,6 +528,7 @@ SENTRY_DSN=your-sentry-dsn
 ## 🚀 Deployment Guide
 
 ### Vercel Deployment (Recommended)
+
 ```bash
 # Install Vercel CLI
 npm install -g vercel
@@ -487,6 +540,7 @@ vercel
 ```
 
 ### Docker Deployment
+
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -499,6 +553,7 @@ CMD ["npm", "start"]
 ```
 
 ### Manual Server Deployment
+
 ```bash
 # Build
 npm run build
@@ -523,6 +578,7 @@ Contributions are welcome! Please follow these guidelines:
 5. Open a Pull Request
 
 ### Code Standards
+
 - Follow TypeScript strict mode
 - Use ESLint rules
 - Write meaningful commit messages
@@ -539,6 +595,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 📞 Support & Contact
 
 For issues, questions, or suggestions:
+
 - 📧 **Email**: support@emineral-pass.gov.in
 - 🐛 **Bug Reports**: [GitHub Issues](https://github.com/yourusername/form-qr-pdf-app/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/form-qr-pdf-app/discussions)
