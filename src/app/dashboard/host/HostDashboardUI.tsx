@@ -18,7 +18,7 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { parseTimestampFlexible } from '@/lib/timestamp-utils';
 
-interface Record {
+interface HostRecord {
 	id: string;
 	form_data: any;
 	status: string;
@@ -37,7 +37,7 @@ export default function HostDashboardUI() {
 	>('All');
 	const [dateFrom, setDateFrom] = useState('');
 	const [dateTo, setDateTo] = useState('');
-	const [records, setRecords] = useState<Record[]>([]);
+	const [records, setRecords] = useState<HostRecord[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [totalUsers, setTotalUsers] = useState(0);
 	const [now, setNow] = useState(() => new Date());
@@ -49,7 +49,7 @@ export default function HostDashboardUI() {
 		return () => clearInterval(interval);
 	}, []);
 
-	const getValidUptoDate = (record: Record) => {
+	const getValidUptoDate = (record: HostRecord) => {
 		const formValidUpto = record.form_data?.eform_c_valid_upto;
 		if (typeof formValidUpto === 'string' && formValidUpto.trim()) {
 			const parsedForm = parseTimestampFlexible(formValidUpto);
@@ -64,7 +64,7 @@ export default function HostDashboardUI() {
 		return null;
 	};
 
-	const getEffectiveStatus = (record: Record) => {
+	const getEffectiveStatus = (record: HostRecord) => {
 		if (record.status === 'archived') return 'archived';
 		if (!record.valid_upto && !record.form_data?.eform_c_valid_upto) {
 			return record.status;
@@ -113,7 +113,7 @@ export default function HostDashboardUI() {
 	};
 
 	const getFormValue = (
-		formData: Record<string, any>,
+		formData: { [key: string]: any },
 		keys: string[],
 		fallback = '-',
 	) => {

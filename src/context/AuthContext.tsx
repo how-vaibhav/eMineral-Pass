@@ -10,6 +10,7 @@ import {
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import type { UserRole } from '@/types/auth';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
 	session: Session | null;
@@ -66,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const [user, setUser] = useState<User | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const router = useRouter();
 
 	useEffect(() => {
 		// Check current session
@@ -105,8 +107,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		} = supabase.auth.onAuthStateChange(async (event, currentSession) => {
 			setSession(currentSession);
 			setUser(currentSession?.user ?? null);
-			setIsLoading(false);
 			setAuthHint(!!currentSession?.user);
+			setIsLoading(false);
 
 			// Handle token refresh
 			if (event === 'TOKEN_REFRESHED') {
@@ -114,45 +116,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			}
 
 			// Auto-logout on session expiry
-			if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+			if (event === 'SIGNED_OUT') {
 				setSession(null);
 				setUser(null);
 				setAuthHint(false);
 			}
 		});
 
-		// Check token expiry every minute
-		const interval = setInterval(async () => {
-			try {
-				const {
-					data: { session: currentSession },
-				} = await supabase.auth.getSession();
-
-				if (currentSession) {
-					const expiresAt = currentSession.expires_at;
-					if (expiresAt && Date.now() / 1000 >= expiresAt) {
-						// Token expired, sign out
-						await signOut();
-					}
-				}
-			} catch (err) {
-				// Silently handle token check errors
-				if (
-					err instanceof Error &&
-					err.message.includes('Refresh Token Not Found')
-				) {
-					console.warn('Refresh token invalid during check, signing out');
-					clearCorruptedAuthTokens();
-					setSession(null);
-					setUser(null);
-					setAuthHint(false);
-				}
-			}
-		}, 60000); // Check every 60 seconds
-
 		return () => {
 			subscription?.unsubscribe();
-			clearInterval(interval);
 		};
 	}, []);
 
@@ -244,11 +216,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			setSession(null);
 			setUser(null);
 			setAuthHint(false);
+
+			router.replace('/');
 		} catch (err) {
 			// Even if signOut fails, clear local state to prevent stuck login
 			setSession(null);
 			setUser(null);
 			setAuthHint(false);
+			router.replace('/');
 
 			const message = err instanceof Error ? err.message : 'Sign out failed';
 
@@ -262,6 +237,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				setError(message);
 				throw err;
 			}
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
