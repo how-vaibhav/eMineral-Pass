@@ -37,12 +37,10 @@ function isInvalidRefreshTokenError(message: string) {
   );
 }
 
-// Helper to safely clear corrupted auth tokens
 function clearCorruptedAuthTokens() {
   if (typeof window === "undefined") return;
 
   try {
-    // Clear all localStorage keys that might contain Supabase auth data
     const keysToRemove = Object.keys(localStorage).filter(
       (key) =>
         key.includes("sb_") || key.includes("supabase") || key.includes("auth"),
@@ -88,7 +86,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Check current session
     const checkSession = async () => {
       try {
         const {
@@ -112,7 +109,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(currentSession?.user ?? null);
         setAuthHint(!!currentSession?.user);
       } catch (err) {
-        // Handle invalid refresh token error gracefully
         if (err instanceof Error && isInvalidRefreshTokenError(err.message)) {
           clearCorruptedAuthTokens();
           setSession(null);
@@ -129,7 +125,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     checkSession();
 
-    // Subscribe to auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
@@ -138,20 +133,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       setAuthHint(!!currentSession?.user);
 
-      // Handle token refresh
       if (event === "TOKEN_REFRESHED") {
         console.log("Token refreshed successfully");
       }
 
-      // Auto-logout on session expiry
-      if (event === "SIGNED_OUT" || event === "USER_DELETED") {
+      if (event === "SIGNED_OUT") {
         setSession(null);
         setUser(null);
         setAuthHint(false);
       }
     });
 
-    // Check token expiry every minute
     const interval = setInterval(async () => {
       try {
         const {
@@ -174,12 +166,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (currentSession) {
           const expiresAt = currentSession.expires_at;
           if (expiresAt && Date.now() / 1000 >= expiresAt) {
-            // Token expired, sign out
             await signOut();
           }
         }
       } catch (err) {
-        // Silently handle token check errors
         if (err instanceof Error && isInvalidRefreshTokenError(err.message)) {
           clearCorruptedAuthTokens();
           setSession(null);
@@ -187,7 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setAuthHint(false);
         }
       }
-    }, 60000); // Check every 60 seconds
+    }, 60000);
 
     return () => {
       subscription?.unsubscribe();
@@ -220,12 +210,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (currentRole !== role) {
         await supabase.auth.signOut();
         throw new Error(
-          `This account is registered as a ${currentRole}.
-			Please sign in using the correct role.`,
+          `This account is registered as a ${currentRole}.\nPlease sign in using the correct role.`,
         );
       }
 
-      // Immediately update state with the session data
       if (data.session) {
         setSession(data.session);
         setUser(data.session.user);
@@ -257,7 +245,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       if (error) throw error;
 
-      // Immediately update state with the session data
       if (data.session) {
         setSession(data.session);
         setUser(data.session.user);
@@ -279,19 +266,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(null);
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      // Ensure state is cleared
       setSession(null);
       setUser(null);
       setAuthHint(false);
     } catch (err) {
-      // Even if signOut fails, clear local state to prevent stuck login
       setSession(null);
       setUser(null);
       setAuthHint(false);
 
       const message = err instanceof Error ? err.message : "Sign out failed";
 
-      // Don't throw if it's just a token issue - user should still be able to continue
       if (
         message.includes("Refresh Token Not Found") ||
         message.includes("Invalid Refresh Token")

@@ -7,11 +7,12 @@ import { MailCheck, ArrowLeft } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { Suspense } from 'react';
 
-function PendingVerificationContent() {
+function PendingRequestContent() {
 	const searchParams = useSearchParams();
 	const { effectiveTheme } = useTheme();
 	const email = searchParams.get('email');
 	const isDark = effectiveTheme === 'dark';
+
 	return (
 		<div
 			className={`min-h-screen pt-20 ${
@@ -43,13 +44,12 @@ function PendingVerificationContent() {
 							<MailCheck className="w-6 h-6" />
 						</div>
 						<h1 className="text-2xl sm:text-3xl font-bold">
-							Verify your email
+							Your Host status will be verified shortly!
 						</h1>
 					</div>
 
 					<p className={isDark ? 'text-slate-300' : 'text-slate-600'}>
-						We sent a verification link to your email address. Please open the
-						link to activate your account.
+						Please wait while we review your submission.
 					</p>
 
 					{email && (
@@ -60,7 +60,7 @@ function PendingVerificationContent() {
 
 					<div className="mt-6 space-y-2 text-sm">
 						<p className={isDark ? 'text-slate-400' : 'text-slate-600'}>
-							After verification, return and sign in to access your dashboard.
+							After authorization, return and sign in to access your dashboard.
 						</p>
 						<Link
 							href="/auth/signin"
@@ -75,10 +75,10 @@ function PendingVerificationContent() {
 	);
 }
 
-export default function VerifyEmailPage() {
+export default function PendingRequest() {
 	return (
 		<Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
-			<PendingVerificationContent />
+			<PendingRequestContent />
 		</Suspense>
 	);
 }

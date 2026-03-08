@@ -15,12 +15,7 @@ export default async function HostPage() {
 		return;
 	}
 
-	const { data: roleData } = await supabase
-		.from('user_roles')
-		.select('role')
-		.eq('user_id', user.id)
-		.single();
-	console.log(roleData, user);
-	if (roleData?.role !== 'host') notFound();
+	const { data: isHost } = await supabase.rpc('is_host');
+	if (!isHost) notFound();
 	return <HostDashboardUI />;
 }

@@ -15,7 +15,6 @@ interface PublicRecordPageProps {
 }
 
 export default function PublicRecordPage({ params }: PublicRecordPageProps) {
-  // Unwrap the params Promise using React.use()
   const { recordId } = use(params);
   const [record, setRecord] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,14 +41,11 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
   useEffect(() => {
     const fetchRecord = async () => {
       try {
-        // Try to fetch by ID first (UUID format), otherwise by public token
         let result;
 
-        // Check if it's a UUID (has dashes) - likely a record ID
         if (recordId.includes("-")) {
           result = await getRecordById(recordId);
         } else {
-          // Otherwise treat as public token
           result = await getPublicRecord(recordId);
         }
 
@@ -378,7 +374,6 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
         .main-form-table td.tdrow {
           font-weight: bold;
           background-color: #6d0d0d;
-          opacity: 0.8;
           padding: 4px;
           color: #ffffff;
           font-variant: petite-caps;

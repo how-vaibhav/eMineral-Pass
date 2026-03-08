@@ -1,444 +1,445 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useMemo } from "react";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/Button";
+import { useState, useCallback, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/Button';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/Card";
-import { Input, TextArea, Select } from "@/components/ui/Input";
-import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
-import { createRecord } from "@/lib/records.server";
-import { validateFormSubmission } from "@/lib/validation";
-import { FormSubmissionData } from "@/types";
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/Card';
+import { Input, TextArea, Select } from '@/components/ui/Input';
+import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext';
+import { createRecord } from '@/lib/records.server';
+import { validateFormSubmission } from '@/lib/validation';
+import { FormSubmissionData } from '@/types';
 import {
-  EFORM_C_SCHEMA,
-  getEditableFields,
-  getFormSections,
-  EFORM_C_HEADER,
-  VEHICLE_SECTION_HEADER,
-  getMainFormFields,
-  getVehicleFields,
-} from "@/lib/eform-c-official";
+	EFORM_C_SCHEMA,
+	getEditableFields,
+	getFormSections,
+	EFORM_C_HEADER,
+	VEHICLE_SECTION_HEADER,
+	getMainFormFields,
+	getVehicleFields,
+} from '@/lib/eform-c-official';
 
 export default function FormPage() {
-  const { user } = useAuth();
-  const { effectiveTheme } = useTheme();
-  const [formData, setFormData] = useState<FormSubmissionData>({});
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [generatedRecord, setGeneratedRecord] = useState<any>(null);
-  const isDark = effectiveTheme === "dark";
+	const { user } = useAuth();
+	const { effectiveTheme } = useTheme();
+	const [formData, setFormData] = useState<FormSubmissionData>({});
+	const [errors, setErrors] = useState<Record<string, string>>({});
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [successMessage, setSuccessMessage] = useState('');
+	const [generatedRecord, setGeneratedRecord] = useState<any>(null);
+	const isDark = effectiveTheme === 'dark';
 
-  // Memoize form fields to prevent recalculation
-  const mainFormFields = useMemo(() => getMainFormFields(), []);
-  const vehicleFields = useMemo(() => getVehicleFields(), []);
-  const editableFields = useMemo(() => getEditableFields(), []);
+	// Memoize form fields to prevent recalculation
+	const mainFormFields = useMemo(() => getMainFormFields(), []);
+	const vehicleFields = useMemo(() => getVehicleFields(), []);
+	const editableFields = useMemo(() => getEditableFields(), []);
 
-  const handleInputChange = useCallback(
-    (fieldName: string, value: any) => {
-      setFormData((prev) => ({
-        ...prev,
-        [fieldName]: value,
-      }));
-      // Clear error when user starts typing
-      if (errors[fieldName]) {
-        setErrors((prev) => ({
-          ...prev,
-          [fieldName]: "",
-        }));
-      }
-    },
-    [errors],
-  );
+	const handleInputChange = useCallback(
+		(fieldName: string, value: any) => {
+			setFormData((prev) => ({
+				...prev,
+				[fieldName]: value,
+			}));
+			// Clear error when user starts typing
+			if (errors[fieldName]) {
+				setErrors((prev) => ({
+					...prev,
+					[fieldName]: '',
+				}));
+			}
+		},
+		[errors],
+	);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
 
-    if (!user) {
-      alert("Please log in first");
-      return;
-    }
+		if (!user) {
+			alert('Please log in first');
+			return;
+		}
 
-    // Client-side validation - only validate editable fields
-    const validation = validateFormSubmission(formData, editableFields);
+		// Client-side validation - only validate editable fields
+		const validation = validateFormSubmission(formData, editableFields);
 
-    if (!validation.valid) {
-      setErrors(validation.errors);
+		if (!validation.valid) {
+			setErrors(validation.errors);
 
-      const firstErrorField = Object.keys(validation.errors)[0];
-      if (firstErrorField) {
-        const fieldElement = document.querySelector(
-          `[name="${firstErrorField}"]`,
-        ) as HTMLElement | null;
-        if (fieldElement) {
-          fieldElement.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-          fieldElement.focus();
-        }
-      }
+			const firstErrorField = Object.keys(validation.errors)[0];
+			if (firstErrorField) {
+				const fieldElement = document.querySelector(
+					`[name="${firstErrorField}"]`,
+				) as HTMLElement | null;
+				if (fieldElement) {
+					fieldElement.scrollIntoView({
+						behavior: 'smooth',
+						block: 'center',
+					});
+					fieldElement.focus();
+				}
+			}
 
-      return;
-    }
+			return;
+		}
 
-    setIsSubmitting(true);
-    setSuccessMessage("");
+		setIsSubmitting(true);
+		setSuccessMessage('');
 
-    try {
-      // Call server action to create record
-      const result = await createRecord({
-        userId: user.id,
-        formData,
-        fields: EFORM_C_SCHEMA.fields,
-        validityHours: EFORM_C_SCHEMA.validityHours,
-      });
+		try {
+			// Call server action to create record
+			const result = await createRecord({
+				userId: user.id,
+				formData,
+				fields: EFORM_C_SCHEMA.fields,
+				validityHours: EFORM_C_SCHEMA.validityHours,
+			});
 
-      if (result.success) {
-        setGeneratedRecord(result.record);
-        setSuccessMessage("Record created successfully!");
-        setFormData({});
-        setErrors({});
-      } else {
-        alert(`Error: ${result.error}`);
-      }
-    } catch (error) {
-      console.error("Form submission error:", error);
-      alert("Failed to submit form");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+			if (result.success) {
+				setGeneratedRecord(result.record);
+				setSuccessMessage('Record created successfully!');
+				setFormData({});
+				setErrors({});
+			} else {
+				alert(`Error: ${result.error}`);
+			}
+		} catch (error) {
+			console.error('Form submission error:', error);
+			alert('Failed to submit form');
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
 
-  const handleCreateNewEntry = () => {
-    setGeneratedRecord(null);
-    setSuccessMessage("");
-    setFormData({});
-    setErrors({});
-  };
+	const handleCreateNewEntry = () => {
+		setGeneratedRecord(null);
+		setSuccessMessage('');
+		setFormData({});
+		setErrors({});
+	};
 
-  // Render field based on type and read-only status (memoized with useCallback)
-  const renderField = useCallback(
-    (field: any) => {
-      const isAutoGenerated =
-        field.readOnly &&
-        (field.name === "eform_c_no" ||
-          field.name === "eform_c_generated_on" ||
-          field.name === "eform_c_valid_upto");
+	// Render field based on type and read-only status (memoized with useCallback)
+	const renderField = useCallback(
+		(field: any) => {
+			const isAutoGenerated =
+				field.readOnly &&
+				(field.name === 'eform_c_no' ||
+					field.name === 'eform_c_generated_on' ||
+					field.name === 'eform_c_valid_upto');
 
-      if (isAutoGenerated) {
-        return (
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-foreground">
-              {field.label}
-            </label>
-            <div className="w-full px-3 py-2 bg-muted/70 border border-border/70 rounded-md text-sm text-muted-foreground font-mono">
-              {formData[field.name] || "(Auto-generated upon submission)"}
-            </div>
-          </div>
-        );
-      }
+			if (isAutoGenerated) {
+				return (
+					<div className="space-y-1">
+						<label className="block text-sm font-medium text-foreground">
+							{field.label}
+						</label>
+						<div className="w-full px-3 py-2 bg-muted/70 border border-border/70 rounded-md text-sm text-muted-foreground font-mono">
+							{formData[field.name]?.toString() ||
+								'(Auto-generated upon submission)'}
+						</div>
+					</div>
+				);
+			}
 
-      if (field.type === "textarea") {
-        return (
-          <TextArea
-            id={field.name}
-            name={field.name}
-            label={field.label}
-            placeholder={field.placeholder}
-            value={String(formData[field.name] || "")}
-            onChange={(e) => handleInputChange(field.name, e.target.value)}
-            error={errors[field.name]}
-            required={field.required}
-          />
-        );
-      }
+			if (field.type === 'textarea') {
+				return (
+					<TextArea
+						id={field.name}
+						name={field.name}
+						label={field.label}
+						placeholder={field.placeholder}
+						value={String(formData[field.name] || '')}
+						onChange={(e) => handleInputChange(field.name, e.target.value)}
+						error={errors[field.name]}
+						required={field.required}
+					/>
+				);
+			}
 
-      if (field.type === "select") {
-        return (
-          <Select
-            id={field.name}
-            name={field.name}
-            label={field.label}
-            options={field.options || []}
-            value={String(formData[field.name] || "")}
-            onChange={(e) => handleInputChange(field.name, e.target.value)}
-            error={errors[field.name]}
-            required={field.required}
-          />
-        );
-      }
+			if (field.type === 'select') {
+				return (
+					<Select
+						id={field.name}
+						name={field.name}
+						label={field.label}
+						options={field.options || []}
+						value={String(formData[field.name] || '')}
+						onChange={(e) => handleInputChange(field.name, e.target.value)}
+						error={errors[field.name]}
+						required={field.required}
+					/>
+				);
+			}
 
-      return (
-        <Input
-          id={field.name}
-          name={field.name}
-          label={field.label}
-          type={field.type}
-          placeholder={field.placeholder}
-          value={String(formData[field.name] || "")}
-          onChange={(e) => handleInputChange(field.name, e.target.value)}
-          error={errors[field.name]}
-          required={field.required}
-        />
-      );
-    },
-    [formData, errors, handleInputChange],
-  );
+			return (
+				<Input
+					id={field.name}
+					name={field.name}
+					label={field.label}
+					type={field.type}
+					placeholder={field.placeholder}
+					value={String(formData[field.name] || '')}
+					onChange={(e) => handleInputChange(field.name, e.target.value)}
+					error={errors[field.name]}
+					required={field.required}
+				/>
+			);
+		},
+		[formData, errors, handleInputChange],
+	);
 
-  return (
-    <div className="min-h-screen pt-20 pb-10 px-4 sm:px-6 lg:px-10 bg-background bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(59,130,246,0.18),transparent)] dark:bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(14,116,144,0.22),transparent)]">
-      <div className="max-w-6xl mx-auto">
-        {/* Success State */}
-        {generatedRecord && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-6 p-6 sm:p-8 bg-white dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/70 rounded-2xl shadow-[0_16px_40px_rgba(16,185,129,0.12)]"
-          >
-            <div className="flex items-start gap-4 mb-4">
-              <div className="text-4xl">✓</div>
-              <div>
-                <h2 className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mb-1">
-                  eForm-C Generated Successfully
-                </h2>
-                <p
-                  className={`text-sm ${isDark ? "text-emerald-400" : "text-slate-700"}`}
-                >
-                  Your pass for transportation of minor mineral has been
-                  created.
-                </p>
-              </div>
-            </div>
+	return (
+		<div className="min-h-screen pt-20 pb-10 px-4 sm:px-6 lg:px-10 bg-background bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(59,130,246,0.18),transparent)] dark:bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(14,116,144,0.22),transparent)]">
+			<div className="max-w-6xl mx-auto">
+				{/* Success State */}
+				{generatedRecord && (
+					<motion.div
+						initial={{ opacity: 0, scale: 0.95 }}
+						animate={{ opacity: 1, scale: 1 }}
+						className="mb-6 p-6 sm:p-8 bg-white dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/70 rounded-2xl shadow-[0_16px_40px_rgba(16,185,129,0.12)]"
+					>
+						<div className="flex items-start gap-4 mb-4">
+							<div className="text-4xl">✓</div>
+							<div>
+								<h2 className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mb-1">
+									eForm-C Generated Successfully
+								</h2>
+								<p
+									className={`text-sm ${isDark ? 'text-emerald-400' : 'text-slate-700'}`}
+								>
+									Your pass for transportation of minor mineral has been
+									created.
+								</p>
+							</div>
+						</div>
 
-            <div className="space-y-4">
-              {/* Record Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 sm:p-5 bg-slate-50 dark:bg-slate-900/70 border border-emerald-200/70 dark:border-emerald-900/60 rounded-xl">
-                <div>
-                  <p
-                    className={`text-xs font-semibold mb-1 ${
-                      isDark ? "text-muted-foreground" : "text-slate-600"
-                    }`}
-                  >
-                    Record ID
-                  </p>
-                  <p
-                    className={`font-mono text-sm font-semibold break-all ${
-                      isDark ? "text-foreground" : "text-slate-900"
-                    }`}
-                  >
-                    {generatedRecord.id}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    className={`text-xs font-semibold mb-1 ${
-                      isDark ? "text-muted-foreground" : "text-slate-600"
-                    }`}
-                  >
-                    eForm-C No.
-                  </p>
-                  <p
-                    className={`font-mono text-sm font-semibold ${
-                      isDark ? "text-foreground" : "text-slate-900"
-                    }`}
-                  >
-                    {generatedRecord.eform_c_no ||
-                      generatedRecord.id.slice(0, 8)}
-                  </p>
-                </div>
-                {generatedRecord.eform_c_generated_on && (
-                  <div>
-                    <p
-                      className={`text-xs font-semibold mb-1 ${
-                        isDark ? "text-muted-foreground" : "text-slate-600"
-                      }`}
-                    >
-                      Generated On
-                    </p>
-                    <p
-                      className={`font-mono text-sm ${
-                        isDark ? "text-foreground" : "text-slate-900"
-                      }`}
-                    >
-                      {generatedRecord.eform_c_generated_on}
-                    </p>
-                  </div>
-                )}
-                {generatedRecord.eform_c_valid_upto && (
-                  <div>
-                    <p
-                      className={`text-xs font-semibold mb-1 ${
-                        isDark ? "text-muted-foreground" : "text-slate-600"
-                      }`}
-                    >
-                      Valid Upto
-                    </p>
-                    <p
-                      className={`font-mono text-sm ${
-                        isDark ? "text-foreground" : "text-slate-900"
-                      }`}
-                    >
-                      {generatedRecord.eform_c_valid_upto}
-                    </p>
-                  </div>
-                )}
-              </div>
+						<div className="space-y-4">
+							{/* Record Info */}
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 sm:p-5 bg-slate-50 dark:bg-slate-900/70 border border-emerald-200/70 dark:border-emerald-900/60 rounded-xl">
+								<div>
+									<p
+										className={`text-xs font-semibold mb-1 ${
+											isDark ? 'text-muted-foreground' : 'text-slate-600'
+										}`}
+									>
+										Record ID
+									</p>
+									<p
+										className={`font-mono text-sm font-semibold break-all ${
+											isDark ? 'text-foreground' : 'text-slate-900'
+										}`}
+									>
+										{generatedRecord.id}
+									</p>
+								</div>
+								<div>
+									<p
+										className={`text-xs font-semibold mb-1 ${
+											isDark ? 'text-muted-foreground' : 'text-slate-600'
+										}`}
+									>
+										eForm-C No.
+									</p>
+									<p
+										className={`font-mono text-sm font-semibold ${
+											isDark ? 'text-foreground' : 'text-slate-900'
+										}`}
+									>
+										{generatedRecord.eform_c_no ||
+											generatedRecord.id.slice(0, 8)}
+									</p>
+								</div>
+								{generatedRecord.eform_c_generated_on && (
+									<div>
+										<p
+											className={`text-xs font-semibold mb-1 ${
+												isDark ? 'text-muted-foreground' : 'text-slate-600'
+											}`}
+										>
+											Generated On
+										</p>
+										<p
+											className={`font-mono text-sm ${
+												isDark ? 'text-foreground' : 'text-slate-900'
+											}`}
+										>
+											{generatedRecord.eform_c_generated_on}
+										</p>
+									</div>
+								)}
+								{generatedRecord.eform_c_valid_upto && (
+									<div>
+										<p
+											className={`text-xs font-semibold mb-1 ${
+												isDark ? 'text-muted-foreground' : 'text-slate-600'
+											}`}
+										>
+											Valid Upto
+										</p>
+										<p
+											className={`font-mono text-sm ${
+												isDark ? 'text-foreground' : 'text-slate-900'
+											}`}
+										>
+											{generatedRecord.eform_c_valid_upto}
+										</p>
+									</div>
+								)}
+							</div>
 
-              {/* QR Code and Actions */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {generatedRecord.qr_code_url && (
-                  <div className="flex flex-col items-center justify-center p-4 bg-white/90 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-700 rounded-xl">
-                    <p className="text-xs text-muted-foreground mb-3 font-semibold">
-                      QR Code
-                    </p>
-                    <img
-                      src={generatedRecord.qr_code_url}
-                      alt="eForm-C QR Code"
-                      className="w-40 h-40 sm:w-48 sm:h-48 p-2 border border-slate-300/80 dark:border-slate-600 rounded-xl bg-white"
-                    />
-                  </div>
-                )}
+							{/* QR Code and Actions */}
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								{generatedRecord.qr_code_url && (
+									<div className="flex flex-col items-center justify-center p-4 bg-white/90 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-700 rounded-xl">
+										<p className="text-xs text-muted-foreground mb-3 font-semibold">
+											QR Code
+										</p>
+										<img
+											src={generatedRecord.qr_code_url}
+											alt="eForm-C QR Code"
+											className="w-40 h-40 sm:w-48 sm:h-48 p-2 border border-slate-300/80 dark:border-slate-600 rounded-xl bg-white"
+										/>
+									</div>
+								)}
 
-                <div className="flex flex-col justify-center gap-3">
-                  {generatedRecord.pdf_url ? (
-                    <a
-                      href={generatedRecord.pdf_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button className="w-full">📄 Download PDF Pass</Button>
-                    </a>
-                  ) : (
-                    <Button className="w-full" disabled>
-                      ⏳ PDF is generating...
-                    </Button>
-                  )}
+								<div className="flex flex-col justify-center gap-3">
+									{generatedRecord.pdf_url ? (
+										<a
+											href={generatedRecord.pdf_url}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											<Button className="w-full">📄 Download PDF Pass</Button>
+										</a>
+									) : (
+										<Button className="w-full" disabled>
+											⏳ PDF is generating...
+										</Button>
+									)}
 
-                  {generatedRecord.public_token && (
-                    <a
-                      href={`/records/${generatedRecord.public_token}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button className="w-full" variant="secondary">
-                        🔗 View Record
-                      </Button>
-                    </a>
-                  )}
+									{generatedRecord.public_token && (
+										<a
+											href={`/records/${generatedRecord.public_token}`}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											<Button className="w-full" variant="secondary">
+												🔗 View Record
+											</Button>
+										</a>
+									)}
 
-                  <Button onClick={handleCreateNewEntry} className="w-full">
-                    ➕ Create New Entry
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
+									<Button onClick={handleCreateNewEntry} className="w-full">
+										➕ Create New Entry
+									</Button>
+								</div>
+							</div>
+						</div>
+					</motion.div>
+				)}
 
-        {/* Form */}
-        {!generatedRecord && (
-          <div className="bg-card border border-border/70 rounded-2xl shadow-[0_20px_60px_rgba(15,23,42,0.12)] dark:shadow-[0_20px_60px_rgba(2,6,23,0.55)] overflow-hidden">
-            {/* Government Form Header */}
-            <div className="border-b border-border/70 p-6 md:p-8 text-center bg-muted/60 dark:bg-muted/30">
-              <p className="text-xs md:text-sm font-semibold text-foreground tracking-wide mb-2">
-                {EFORM_C_HEADER.line1}
-              </p>
-              <p className="text-xs text-muted-foreground mb-4">
-                {EFORM_C_HEADER.line2}
-              </p>
-              <p className="text-sm font-semibold text-foreground mb-1">
-                {EFORM_C_HEADER.line3}
-              </p>
-              <hr className="my-4 border-border/70" />
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2">
-                {EFORM_C_HEADER.title}
-              </h1>
-              <p className="text-xs md:text-sm text-muted-foreground font-semibold">
-                {EFORM_C_HEADER.subtitle}
-              </p>
-            </div>
+				{/* Form */}
+				{!generatedRecord && (
+					<div className="bg-card border border-border/70 rounded-2xl shadow-[0_20px_60px_rgba(15,23,42,0.12)] dark:shadow-[0_20px_60px_rgba(2,6,23,0.55)] overflow-hidden">
+						{/* Government Form Header */}
+						<div className="border-b border-border/70 p-6 md:p-8 text-center bg-muted/60 dark:bg-muted/30">
+							<p className="text-xs md:text-sm font-semibold text-foreground tracking-wide mb-2">
+								{EFORM_C_HEADER.line1}
+							</p>
+							<p className="text-xs text-muted-foreground mb-4">
+								{EFORM_C_HEADER.line2}
+							</p>
+							<p className="text-sm font-semibold text-foreground mb-1">
+								{EFORM_C_HEADER.line3}
+							</p>
+							<hr className="my-4 border-border/70" />
+							<h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2">
+								{EFORM_C_HEADER.title}
+							</h1>
+							<p className="text-xs md:text-sm text-muted-foreground font-semibold">
+								{EFORM_C_HEADER.subtitle}
+							</p>
+						</div>
 
-            {/* Form Content */}
-            <div className="p-6 md:p-8">
-              {Object.keys(errors).length > 0 && (
-                <div
-                  className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200"
-                  role="alert"
-                >
-                  Please fix the highlighted fields. First issue:{" "}
-                  <span className="font-semibold">
-                    {errors[Object.keys(errors)[0]]}
-                  </span>
-                </div>
-              )}
-              <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Main Form Fields */}
-                <div className="space-y-6">
-                  {/* Render main fields in 2-column grid */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                    {mainFormFields.map((field) => (
-                      <div
-                        key={field.id}
-                        className={
-                          field.name === "licensee_details_address"
-                            ? "lg:col-span-2"
-                            : ""
-                        }
-                      >
-                        {renderField(field)}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+						{/* Form Content */}
+						<div className="p-6 md:p-8">
+							{Object.keys(errors).length > 0 && (
+								<div
+									className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200"
+									role="alert"
+								>
+									Please fix the highlighted fields. First issue:{' '}
+									<span className="font-semibold">
+										{errors[Object.keys(errors)[0]]}
+									</span>
+								</div>
+							)}
+							<form onSubmit={handleSubmit} className="space-y-8">
+								{/* Main Form Fields */}
+								<div className="space-y-6">
+									{/* Render main fields in 2-column grid */}
+									<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+										{mainFormFields.map((field) => (
+											<div
+												key={field.id}
+												className={
+													field.name === 'licensee_details_address'
+														? 'lg:col-span-2'
+														: ''
+												}
+											>
+												{renderField(field)}
+											</div>
+										))}
+									</div>
+								</div>
 
-                {/* Vehicle Details Section */}
-                <div className="pt-6 border-t border-border/70">
-                  <h2 className="text-lg font-bold text-foreground mb-6 pb-2 border-b-2 border-primary">
-                    {VEHICLE_SECTION_HEADER}
-                  </h2>
+								{/* Vehicle Details Section */}
+								<div className="pt-6 border-t border-border/70">
+									<h2 className="text-lg font-bold text-foreground mb-6 pb-2 border-b-2 border-primary">
+										{VEHICLE_SECTION_HEADER}
+									</h2>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                    {vehicleFields.map((field) => (
-                      <div
-                        key={field.id}
-                        className={
-                          field.name === "mobile_number_of_driver"
-                            ? "lg:col-span-2 lg:w-1/2"
-                            : ""
-                        }
-                      >
-                        {renderField(field)}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+									<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+										{vehicleFields.map((field) => (
+											<div
+												key={field.id}
+												className={
+													field.name === 'mobile_number_of_driver'
+														? 'lg:col-span-2 lg:w-1/2'
+														: ''
+												}
+											>
+												{renderField(field)}
+											</div>
+										))}
+									</div>
+								</div>
 
-                {/* Submit Button */}
-                <div className="pt-6 border-t border-border/70">
-                  <Button
-                    type="submit"
-                    isLoading={isSubmitting}
-                    disabled={isSubmitting}
-                    className="w-full h-12 sm:h-14 font-semibold text-base sm:text-lg"
-                  >
-                    {isSubmitting
-                      ? "Generating eForm-C..."
-                      : "Generate eForm-C Pass"}
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+								{/* Submit Button */}
+								<div className="pt-6 border-t border-border/70">
+									<Button
+										type="submit"
+										isLoading={isSubmitting}
+										disabled={isSubmitting}
+										className="w-full h-12 sm:h-14 font-semibold text-base sm:text-lg"
+									>
+										{isSubmitting
+											? 'Generating eForm-C...'
+											: 'Generate eForm-C Pass'}
+									</Button>
+								</div>
+							</form>
+						</div>
+					</div>
+				)}
+			</div>
+		</div>
+	);
 }
