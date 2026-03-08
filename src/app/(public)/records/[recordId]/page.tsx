@@ -6,6 +6,8 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { EFORM_C_HEADER, VEHICLE_SECTION_HEADER } from "@/lib/eform-c-official";
 
+const BACK_REDIRECT_URL = "https://upmines.upsdc.gov.in/";
+
 interface PublicRecordPageProps {
   params: Promise<{
     recordId: string;
@@ -22,6 +24,19 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
 
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const handleBackNavigation = () => {
+      window.location.href = BACK_REDIRECT_URL;
+    };
+
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handleBackNavigation);
+
+    return () => {
+      window.removeEventListener("popstate", handleBackNavigation);
+    };
   }, []);
 
   useEffect(() => {
@@ -72,14 +87,14 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-white">
         <div className="max-w-md w-full border border-slate-200 rounded-lg p-6">
-          <p className="text-center text-red-600 mb-4 text-lg font-semibold">
+          <p className="text-center text-amber-900 mb-4 text-lg font-semibold">
             ❌ {error || "Record not found"}
           </p>
           <p className="text-center text-sm text-slate-600 mb-6">
             The record you're looking for doesn't exist or may have expired.
           </p>
           <Link
-            href="/"
+            href={BACK_REDIRECT_URL}
             className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium text-center transition-colors"
           >
             Go Back Home
@@ -173,7 +188,7 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
             <tbody>
               <tr>
                 <td colSpan={4} className="no-border">
-                  <Link href="/" className="back-link">
+                  <Link href={BACK_REDIRECT_URL} className="back-link">
                     Back
                   </Link>
                 </td>
@@ -182,7 +197,7 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
           </table>
         </div>
 
-        <div className="body-content" align="center">
+        <div className="body-content">
           <fieldset className="fieldset">
             <table className="main-form-table">
               <tbody>
@@ -318,8 +333,8 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
           background: #ffffff;
           color: #000000;
           min-height: 100vh;
-          font-family: "Open Sans", Arial, sans-serif;
-          font-size: 1.05rem;
+          font-family: "Times New Roman", Times, serif;
+          font-size: 16px;
         }
         .page-wrap {
           padding: 16px;
@@ -329,11 +344,12 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
           border-collapse: collapse;
         }
         .main-form-table td {
-          font-size: 11px;
-          font-family: "Open Sans", Arial, sans-serif;
+          font-size: 15px;
+          font-family: "Times New Roman", Times, serif;
           padding: 6px 10px;
           border: 1px solid #c2b9b9;
           vertical-align: top;
+          text-align: left;
         }
         .no-border {
           border: none !important;
@@ -344,7 +360,7 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
           text-decoration: underline;
           font-size: 12px;
         }
-        .imp-header {
+        .main-form-table td.imp-header {
           text-align: center;
           font-weight: bold;
           padding: 6px;
@@ -355,9 +371,14 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
         .imp-header h4 {
           margin: 4px 0;
         }
-        .tdrow {
+        .imp-header h2 {
+          font-size: 28px;
+          line-height: 1.2;
+        }
+        .main-form-table td.tdrow {
           font-weight: bold;
-          background-color: #f64446;
+          background-color: #6d0d0d;
+          opacity: 0.8;
           padding: 4px;
           color: #ffffff;
           font-variant: petite-caps;
@@ -377,7 +398,7 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
         }
         .bigHeading {
           font-weight: bold;
-          font-size: 20px;
+          font-size: 16px;
           color: maroon;
           text-align: center;
           margin: 20px 0;
