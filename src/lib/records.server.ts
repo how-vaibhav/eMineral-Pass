@@ -23,6 +23,14 @@ interface CreateRecordInput {
   validityHours?: number;
 }
 
+function generateNumericEformCNo(): string {
+  const timestampPart = Date.now().toString();
+  const randomPart = Math.floor(Math.random() * 10000)
+    .toString()
+    .padStart(4, "0");
+  return `${timestampPart}${randomPart}`;
+}
+
 /**
  * Server action to create a new record with QR and PDF
  * Called after form validation on the server
@@ -42,6 +50,7 @@ export async function createRecord({
   try {
     const recordId = uuidv4();
     const publicToken = generatePublicToken();
+    const eformCNo = generateNumericEformCNo();
 
     // Generate timestamps using official format (DD-MM-YYYY HH:MM:SS AM/PM)
     const generatedOn = new Date();
@@ -53,6 +62,7 @@ export async function createRecord({
     // Include generated fields in form data using the correct field names
     const completeFormData: FormSubmissionData = {
       ...formData,
+      eform_c_no: eformCNo,
       eform_c_generated_on: generatedOnFormatted,
       eform_c_valid_upto: validUptoFormatted,
     };
@@ -156,6 +166,7 @@ export async function createRecord({
         ...(record as any),
         qr_code_url: qrCodeUrl,
         pdf_url: pdfUrl,
+        eform_c_no: eformCNo,
         generated_on: generatedOnFormatted,
         valid_upto: validUptoFormatted,
         eform_c_generated_on: generatedOnFormatted,
