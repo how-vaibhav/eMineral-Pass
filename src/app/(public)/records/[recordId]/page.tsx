@@ -329,7 +329,8 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
           background: #ffffff;
           color: #000000;
           min-height: 100vh;
-          font-family: "Times New Roman", Times, serif;
+          font-family:
+            var(--font-noto-devanagari), "Times New Roman", Times, serif;
           font-size: 16px;
         }
         .page-wrap {
@@ -341,7 +342,8 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
         }
         .main-form-table td {
           font-size: 15px;
-          font-family: "Times New Roman", Times, serif;
+          font-family:
+            var(--font-noto-devanagari), "Times New Roman", Times, serif;
           padding: 6px 10px;
           border: 1px solid #c2b9b9;
           vertical-align: top;
