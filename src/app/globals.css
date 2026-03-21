@@ -1,36 +1,5 @@
 @import "tailwindcss";
 
-/* Noto Sans Devanagari - For Hindi/Devanagari text support */
-@font-face {
-  font-family: "NotoSansDevanagari";
-  src: url("https://fonts.gstatic.com/s/notosansdevanagari/v26/ga-ei_CFd6WTpBXYVewdKp2_EzcPO05EnoZoNlWlMFOa.woff2")
-    format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  unicode-range:
-    U+0900- U+097F,
-    U+0A00- U+0A7F,
-    U+0A80- U+0AFF,
-    U+0B00- U+0B7F,
-    U+0B80- U+0BFF;
-}
-
-@font-face {
-  font-family: "NotoSansDevanagari";
-  src: url("https://fonts.gstatic.com/s/notosansdevanagari/v26/ga-ei_CFd6WTpBXYVewdKp3DwzcPO05EnoZoNlWlMFOa.woff2")
-    format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-  unicode-range:
-    U+0900- U+097F,
-    U+0A00- U+0A7F,
-    U+0A80- U+0AFF,
-    U+0B00- U+0B7F,
-    U+0B80- U+0BFF;
-}
-
 :root {
   --background: #f8fafc;
   --foreground: #0f172a;
@@ -99,7 +68,7 @@ body {
   color: var(--foreground);
   font-family:
     var(--font-geist-sans),
-    "NotoSansDevanagari",
+    var(--font-noto-devanagari),
     ui-sans-serif,
     system-ui,
     -apple-system,
@@ -110,12 +79,5 @@ body {
 /* Utility class for Hindi/Devanagari text - prioritizes proper font rendering */
 .font-hindi,
 .font-devanagari {
-  font-family:
-    "NotoSansDevanagari",
-    var(--font-geist-sans),
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    sans-serif !important;
+  font-family: var(--font-noto-devanagari), var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif !important;
 }
