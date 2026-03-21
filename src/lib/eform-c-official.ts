@@ -244,6 +244,15 @@ export const EFORM_C_VEHICLE_FIELDS: FormFieldDefinition[] = [
     validation: { minLength: 1, maxLength: 50 },
   },
   {
+    id: "field_type_of_vehicle",
+    name: "type_of_vehicle",
+    label: "Type Of Vehicle",
+    type: "text",
+    required: true,
+    placeholder: "e.g., Truck, Dumper, Tractor",
+    validation: { minLength: 2, maxLength: 50 },
+  },
+  {
     id: "field_name_of_driver",
     name: "name_of_driver",
     label: "Name Of Driver",
@@ -254,6 +263,15 @@ export const EFORM_C_VEHICLE_FIELDS: FormFieldDefinition[] = [
   },
 
   // Row 2
+  {
+    id: "field_dl_number_of_driver",
+    name: "dl_number_of_driver",
+    label: "DL Number (Driver License)",
+    type: "text",
+    required: true,
+    placeholder: "Driver license number",
+    validation: { minLength: 8, maxLength: 20 },
+  },
   {
     id: "field_gross_vehicle_weight",
     name: "gross_vehicle_weight",

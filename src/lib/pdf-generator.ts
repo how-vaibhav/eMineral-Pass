@@ -3,17 +3,27 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { format } from "date-fns";
 import fs from "fs";
 import path from "path";
+import { createCanvas } from "canvas";
 
-/* ================= CONFIG ================= */
+/* ================= CONFIG & CONSTANTS ================= */
 
-const PAGE_MARGIN_X = 12;
-const COLUMN_RIGHT_X = 110;
-const LINE_HEIGHT = 4.5;
-const COPY_GAP = 8;
-const DEVANAGARI_REGEX = /[\u0900-\u097F]/;
-const CONTENT_WIDTH = 210 - PAGE_MARGIN_X * 2;
-const BODY_FONT_SIZE = 8.5;
-const TITLE_FONT_SIZE = 8.5;
+const PAGE_MARGIN_X = 10;
+const COPY_HEIGHT = 86; // Reduced slightly to tighten layout
+const COPY_GAP = 3;
+
+// 3-Column Grid System (Tightened spacing between columns)
+const COL_1_X = 12;
+const COL_1_WIDTH = 61;
+
+const COL_2_X = 75;
+const COL_2_WIDTH = 61;
+
+const COL_3_X = 138;
+const COL_3_WIDTH = 61;
+
+const FONT_SIZE_BODY = 7.5;
+const FONT_SIZE_TITLE_HINDI = 10;
+const FONT_SIZE_TITLE_ENG = 8.5;
 
 /* ================= TYPES ================= */
 
@@ -21,62 +31,662 @@ interface PDFGenerationOptions {
   qrCodeDataUrl?: string;
 }
 
-let cachedDevaFontBase64: string | null = null;
+/* ================= FILE LOADERS ================= */
 
-function getDevanagariFontBase64(): string | null {
-  if (cachedDevaFontBase64) return cachedDevaFontBase64;
+let cachedDevanagariBase64: string | null = null;
+let devanagariLoadAttempted = false;
+let cachedLogoBase64: string | null = null;
+
+// Cache for rendered Hindi canvas images (avoid re-rendering per PDF)
+const hindiCanvasCache = new Map<string, string>();
+
+/**
+ * Load small Devanagari font (647KB) for Hindi text rendering
+ * Uses NotoSansDevanagari-Regular.ttf instead of large Nirmala.ttc (5.3MB)
+ */
+function getDevanagariFont(): string | null {
+  if (cachedDevanagariBase64) {
+    console.log("[PDF-Font] Returning cached Devanagari font");
+    return cachedDevanagariBase64;
+  }
+  if (devanagariLoadAttempted) {
+    console.log(
+      "[PDF-Font] Devanagari font already attempted to load, returning null",
+    );
+    return null;
+  }
 
   try {
-    // Use Noto Sans Devanagari font (locally available)
-    const localFontPath = path.join(
+    const fontPath = path.join(
       process.cwd(),
       "public",
       "fonts",
       "NotoSansDevanagari-Regular.ttf",
     );
 
-    console.log("[PDF-Font] Loading Noto Sans Devanagari font:", localFontPath);
-    const fontBuffer = fs.readFileSync(localFontPath);
+    if (!fs.existsSync(fontPath)) {
+      console.warn("[PDF-Font] Font file not found at:", fontPath);
+      devanagariLoadAttempted = true;
+      return null;
+    }
+
+    console.log("[PDF-Font] Reading font file from:", fontPath);
+    const fontBuffer = fs.readFileSync(fontPath);
     console.log(
-      "[PDF-Font] ✓ Font loaded successfully, size:",
-      fontBuffer.length,
-      "bytes",
+      "[PDF-Font] Font file size:",
+      Math.round(fontBuffer.length / 1024),
+      "KB",
     );
 
-    cachedDevaFontBase64 = fontBuffer.toString("base64");
+    cachedDevanagariBase64 = fontBuffer.toString("base64");
+    devanagariLoadAttempted = true;
     console.log(
-      "[PDF-Font] Font base64 encoded, length:",
-      cachedDevaFontBase64.length,
+      "[PDF-Font] ✓ Devanagari font loaded and cached, base64 length:",
+      cachedDevanagariBase64.length,
     );
-    return cachedDevaFontBase64;
+    return cachedDevanagariBase64;
   } catch (error) {
-    console.error(
-      "[PDF-Font] ❌ Noto Sans Devanagari font not found. Hindi text may not render correctly.",
-      error,
-    );
+    devanagariLoadAttempted = true;
+    console.error("[PDF-Font] Failed to load Devanagari font:", error);
     return null;
   }
 }
 
-function ensureDevanagariFont(pdf: jsPDF) {
-  const base64 = getDevanagariFontBase64();
-  if (!base64) {
-    console.log("[PDF-Font] No font loaded, using default Helvetica");
-    return;
+function registerDevanagariFont(pdf: jsPDF) {
+  try {
+    console.log("[PDF-Font] Starting Devanagari font registration...");
+    const base64 = getDevanagariFont();
+    if (!base64) {
+      console.warn(
+        "[PDF-Font] ⚠️ No Devanagari font data available, Hindi text may not render",
+      );
+      return;
+    }
+
+    console.log("[PDF-Font] Adding font to jsPDF VFS...");
+    // @ts-ignore
+    pdf.addFileToVFS("NotoSansDevanagari.ttf", base64);
+
+    console.log("[PDF-Font] Registering normal weight...");
+    // @ts-ignore
+    pdf.addFont("NotoSansDevanagari.ttf", "DevanagariFont", "normal");
+
+    console.log("[PDF-Font] Registering bold weight...");
+    // @ts-ignore
+    pdf.addFont("NotoSansDevanagari.ttf", "DevanagariFont", "bold");
+
+    console.log("[PDF-Font] ✓ Devanagari font successfully registered!");
+  } catch (error) {
+    console.error("[PDF-Font] ❌ Failed to register Devanagari font:", error);
+  }
+}
+
+/**
+ * Check if text contains Hindi/Devanagari characters
+ */
+function hasDevanagari(text: string): boolean {
+  return /[\u0900-\u097F]/.test(text);
+}
+
+/**
+ * Set font based on text content
+ */
+function setFontForText(pdf: jsPDF, text: string, bold = false) {
+  const weight = bold ? "bold" : "normal";
+
+  if (hasDevanagari(text)) {
+    try {
+      // @ts-ignore
+      pdf.setFont("DevanagariFont", weight);
+      console.log("[PDF-Font] Using DevanagariFont for Hindi text");
+      return;
+    } catch (err) {
+      console.warn(
+        "[PDF-Font] Could not use DevanagariFont:",
+        err,
+        "- falling back to helvetica",
+      );
+    }
+  }
+
+  pdf.setFont("helvetica", weight);
+}
+
+function getLogoBase64(): string | null {
+  if (cachedLogoBase64) return cachedLogoBase64;
+  try {
+    const logoPath = path.join(process.cwd(), "public", "logo.png");
+    const logoBuffer = fs.readFileSync(logoPath);
+    cachedLogoBase64 = `data:image/png;base64,${logoBuffer.toString("base64")}`;
+    return cachedLogoBase64;
+  } catch (error) {
+    console.warn("[PDF-Logo] ⚠️ logo.png not found in public folder.", error);
+    return null;
+  }
+}
+
+/**
+ * Render Hindi text on canvas for perfect Devanagari rendering
+ * Canvas handles Devanagari ligatures correctly, unlike jsPDF text rendering
+ * CACHED to avoid re-rendering same text multiple times per PDF
+ */
+function renderHindiTextToCanvas(text: string, fontSize: number = 10): string {
+  // Check cache first
+  const cacheKey = `heading_${text}_${fontSize}`;
+  if (hindiCanvasCache.has(cacheKey)) {
+    console.log("[PDF-Canvas] Using cached image for:", text.substring(0, 30));
+    return hindiCanvasCache.get(cacheKey)!;
   }
 
   try {
-    // @ts-ignore - jsPDF VFS font registration
-    pdf.addFileToVFS("NotoSansDevanagari-Regular.ttf", base64);
-    // @ts-ignore - jsPDF font registration
-    pdf.addFont("NotoSansDevanagari-Regular.ttf", "NotoSansDeva", "normal");
-    // Use the same font file for bold to avoid fallback to Helvetica for Hindi.
-    // @ts-ignore - jsPDF font registration
-    pdf.addFont("NotoSansDevanagari-Regular.ttf", "NotoSansDeva", "bold");
-    console.log("[PDF-Font] ✓ Noto Sans Devanagari font registered with jsPDF");
-  } catch (err) {
-    console.error("[PDF-Font] ❌ Failed to register font:", err);
+    console.log("[PDF-Canvas] Rendering Hindi heading to canvas:", text);
+
+    // Create high-resolution canvas with larger text
+    const scale = 3; // Optimized balance between quality and performance
+    const canvasWidth = 1800 * scale;
+    const canvasHeight = 150 * scale;
+    const canvas = createCanvas(canvasWidth, canvasHeight);
+    const ctx = canvas.getContext("2d");
+
+    // Transparent background
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    // Enable antialiasing for crisp text
+    ctx.antialias = "subpixel";
+
+    // Set font - increased multiplier from 1.5 to 2.0 for larger text
+    const scaledFontSize = fontSize * scale * 2.0;
+    ctx.font = `bold ${scaledFontSize}pt 'Noto Sans Devanagari', 'Nirmala UI', 'DejaVu Sans', sans-serif`;
+    ctx.fillStyle = "rgb(230, 180, 10)"; // Medium yellow (balanced)
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    // Draw text at center
+    ctx.fillText(text, canvasWidth / 2, canvasHeight / 2);
+
+    // Convert to PNG data URL (high quality)
+    const pngBuffer = canvas.toBuffer("image/png");
+    const dataUrl = `data:image/png;base64,${pngBuffer.toString("base64")}`;
+
+    // Cache the result
+    hindiCanvasCache.set(cacheKey, dataUrl);
+    console.log("[PDF-Canvas] ✓ Hindi heading rendered and cached");
+    return dataUrl;
+  } catch (error) {
+    console.error("[PDF-Canvas] Failed to render Hindi text:", error);
+    return "";
   }
+}
+
+/**
+ * Render Hindi copy titles to canvas (smaller version for subtitle)
+ * CACHED to avoid re-rendering same text multiple times per PDF
+ */
+function renderHindiCopyTitleToCanvas(
+  text: string,
+  fontSize: number = 7.5,
+): string {
+  // Check cache first
+  const cacheKey = `title_${text}_${fontSize}`;
+  if (hindiCanvasCache.has(cacheKey)) {
+    console.log("[PDF-Canvas] Using cached image for copy title");
+    return hindiCanvasCache.get(cacheKey)!;
+  }
+
+  try {
+    console.log(
+      "[PDF-Canvas] Rendering Hindi copy title to canvas:",
+      text.substring(0, 30),
+    );
+
+    // Create high-resolution canvas for copy title (smaller than main heading)
+    const scale = 2.5; // Optimized balance between quality and performance
+    const canvasWidth = 1600 * scale;
+    const canvasHeight = 100 * scale;
+    const canvas = createCanvas(canvasWidth, canvasHeight);
+    const ctx = canvas.getContext("2d");
+
+    // Transparent background
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    // Enable antialiasing
+    ctx.antialias = "subpixel";
+
+    // Set font - increased multiplier from 1.3 to 1.8 for larger text
+    const scaledFontSize = fontSize * scale * 1.8;
+    ctx.font = `bold ${scaledFontSize}pt 'Noto Sans Devanagari', 'Nirmala UI', 'DejaVu Sans', sans-serif`;
+    ctx.fillStyle = "rgb(0, 0, 0)"; // Black for copy title
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    // Draw text at center
+    ctx.fillText(text, canvasWidth / 2, canvasHeight / 2);
+
+    // Convert to PNG data URL
+    const pngBuffer = canvas.toBuffer("image/png");
+    const dataUrl = `data:image/png;base64,${pngBuffer.toString("base64")}`;
+
+    // Cache the result
+    hindiCanvasCache.set(cacheKey, dataUrl);
+    console.log("[PDF-Canvas] ✓ Hindi copy title rendered and cached");
+    return dataUrl;
+  } catch (error) {
+    console.error("[PDF-Canvas] Failed to render Hindi copy title:", error);
+    return "";
+  }
+}
+
+/* ================= UTILS ================= */
+
+function generate19DigitNumber(): string {
+  let result = "";
+  for (let i = 0; i < 19; i++) {
+    result += Math.floor(Math.random() * 10).toString();
+  }
+  return result;
+}
+
+/* ================= DRAWING HELPERS ================= */
+
+function drawCombinedField(
+  pdf: jsPDF,
+  label: string,
+  value: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+) {
+  const safeValue = value || "-";
+
+  // Ensure label ends with colon for professional look
+  const formattedLabel = label.endsWith(":") ? label : label + ":";
+
+  // Set font for label
+  setFontForText(pdf, formattedLabel, true);
+  pdf.setFontSize(FONT_SIZE_BODY);
+
+  // Calculate label width to position value appropriately
+  const labelWidth = pdf.getTextWidth(formattedLabel);
+
+  // Draw label
+  pdf.text(formattedLabel, x, y);
+
+  // Add gap of 2mm after label, then draw value
+  const gapSize = 2;
+  const valueX = x + labelWidth + gapSize;
+
+  // Set font for value (use bold weight for values)
+  setFontForText(pdf, safeValue, true);
+  pdf.setFontSize(FONT_SIZE_BODY);
+
+  // Draw value with wrapping if needed
+  const remainingWidth = maxWidth - labelWidth - gapSize;
+  if (remainingWidth > 10) {
+    const valueLines = pdf.splitTextToSize(safeValue, remainingWidth);
+    pdf.text(valueLines, valueX, y);
+  } else {
+    // If space too tight, wrap to next line
+    const valueLines = pdf.splitTextToSize(safeValue, maxWidth - 5);
+    pdf.text(valueLines, x + 5, y + 5);
+  }
+}
+
+function renderCenteredText(
+  pdf: jsPDF,
+  text: string,
+  y: number,
+  color?: number[],
+) {
+  const safeText = text || "";
+
+  console.log(
+    "[PDF-Text] Rendering centered text:",
+    safeText.substring(0, 50),
+    "hasDevanagari:",
+    hasDevanagari(safeText),
+  );
+
+  // Set font FIRST before any other text operations
+  setFontForText(pdf, safeText, true);
+  console.log("[PDF-Text] Font set");
+
+  if (color) pdf.setTextColor(color[0], color[1], color[2]);
+  else pdf.setTextColor(0, 0, 0);
+
+  const pageWidth = 210;
+
+  // For Devanagari text, use splitTextToSize for better rendering
+  let textWidth: number;
+  let centeredX: number;
+
+  if (hasDevanagari(safeText)) {
+    // Devanagari text may have different metrics
+    const lines = pdf.splitTextToSize(safeText, pageWidth - PAGE_MARGIN_X * 2);
+    if (lines.length > 0) {
+      textWidth = pdf.getTextWidth(lines[0]);
+    } else {
+      textWidth = 0;
+    }
+  } else {
+    textWidth = pdf.getTextWidth(safeText);
+  }
+
+  centeredX = (pageWidth - textWidth) / 2;
+  console.log(
+    "[PDF-Text] Position:",
+    centeredX,
+    y,
+    "Width:",
+    textWidth,
+    "Text width from PDF:",
+    pdf.getTextWidth(safeText),
+  );
+
+  pdf.text(safeText, centeredX, y);
+  console.log("[PDF-Text] ✓ Text rendered");
+
+  pdf.setTextColor(0, 0, 0);
+}
+
+function drawTopBar(pdf: jsPDF) {
+  const boxWidth = 210 - PAGE_MARGIN_X * 2;
+
+  // Draw light border box
+  pdf.setLineWidth(0.3);
+  pdf.setDrawColor(200, 200, 200);
+  pdf.rect(PAGE_MARGIN_X, 5, boxWidth, 8, "S");
+
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(8.5);
+
+  // Print Text (70% opacity look using grey color)
+  pdf.setTextColor(130, 130, 130);
+  pdf.text("Print", PAGE_MARGIN_X + 5, 10.2);
+
+  // Back Text (Black)
+  pdf.setTextColor(0, 0, 0);
+  const backWidth = pdf.getTextWidth("Back");
+  pdf.text("Back", 210 - PAGE_MARGIN_X - backWidth - 5, 10.2);
+
+  pdf.setTextColor(0, 0, 0);
+}
+
+/* ================= COPY RENDERER ================= */
+
+function renderCopy(
+  pdf: jsPDF,
+  startY: number,
+  copyTitle: string,
+  d: any,
+  options: PDFGenerationOptions,
+) {
+  const boxWidth = 210 - PAGE_MARGIN_X * 2;
+
+  // 1. Draw Drop Shadow
+  pdf.setFillColor(160, 160, 160);
+  pdf.rect(PAGE_MARGIN_X + 1.2, startY + 1.2, boxWidth, COPY_HEIGHT, "F");
+
+  // 2. Draw Main White Box with Thick Black Border
+  pdf.setLineWidth(0.8);
+  pdf.setDrawColor(0, 0, 0);
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(PAGE_MARGIN_X, startY, boxWidth, COPY_HEIGHT, "FD");
+
+  let y = startY;
+
+  // 3. Header Section (Shorter Logo & QR)
+  const logoData = getLogoBase64();
+  if (logoData) {
+    // Reduced logo dimensions
+    pdf.addImage(logoData, "PNG", PAGE_MARGIN_X + 4, y + 2, 12, 18);
+  }
+
+  if (options.qrCodeDataUrl) {
+    // Reduced QR code size
+    const qrSize = 15;
+    const qrX = 210 - PAGE_MARGIN_X - qrSize - 4;
+    pdf.addImage(options.qrCodeDataUrl, "PNG", qrX, y + 2, qrSize, qrSize);
+  }
+
+  pdf.setFontSize(FONT_SIZE_TITLE_HINDI);
+  // Render Hindi heading as canvas image for perfect Devanagari rendering
+  const hindiHeadingImage = renderHindiTextToCanvas(
+    "भूतत्व एवं खनिकर्म निदेशालय उत्तर प्रदेश",
+    FONT_SIZE_TITLE_HINDI,
+  );
+  if (hindiHeadingImage) {
+    // Larger image: width 165mm, height 16mm for maximum visibility (increased from 13mm)
+    pdf.addImage(hindiHeadingImage, "PNG", 22.5, y + 1.5, 165, 16);
+  }
+
+  pdf.setFontSize(FONT_SIZE_TITLE_ENG);
+  // English heading positioned below Hindi with clear gap
+  renderCenteredText(
+    pdf,
+    "DIRECTORATE OF GEOLOGY AND MINING UTTAR PRADESH",
+    y + 15.5,
+    [230, 180, 10],
+  );
+
+  pdf.setFontSize(7.5);
+  // Render Hindi copy title as canvas image for perfect Devanagari rendering
+  const copyTitleImage = renderHindiCopyTitleToCanvas(copyTitle, 7.5);
+  if (copyTitleImage) {
+    // Image positioned below English heading: width 155mm, height 10mm (increased from 7.5mm)
+    pdf.addImage(copyTitleImage, "PNG", 27.5, y + 17, 155, 10);
+  }
+
+  // 4. Grid Data Section (Consistent 5mm Y-spacing for all rows)
+  // Pushed down 5mm to leave more space at top for logo/scanner area
+  pdf.setFontSize(FONT_SIZE_BODY);
+
+  // Row 1 (Fields 1-2)
+  y = startY + 34;
+  drawCombinedField(pdf, "1. eForm-C No.", d.formNo, COL_2_X, y, COL_2_WIDTH);
+  drawCombinedField(
+    pdf,
+    "2. Licensee Id:",
+    d.licenseeId,
+    COL_3_X,
+    y,
+    COL_3_WIDTH,
+  );
+
+  // Row 2 (Fields 3-5)
+  y = startY + 39;
+  drawCombinedField(
+    pdf,
+    "3. Name of Licensee:",
+    d.licenseeName,
+    COL_1_X,
+    y,
+    COL_1_WIDTH,
+  );
+  drawCombinedField(
+    pdf,
+    "4. Mobile Number Of Licensee:",
+    d.mobile,
+    COL_2_X,
+    y,
+    COL_2_WIDTH,
+  );
+  drawCombinedField(
+    pdf,
+    "5. Licensee Details:",
+    d.address,
+    COL_3_X,
+    y,
+    COL_3_WIDTH,
+  );
+
+  // Row 3 (Fields 6-8)
+  y = startY + 44;
+  drawCombinedField(
+    pdf,
+    "6. Tehsil Of License:",
+    d.tehsil,
+    COL_1_X,
+    y,
+    COL_1_WIDTH,
+  );
+  drawCombinedField(
+    pdf,
+    "7. District Of License:",
+    d.district,
+    COL_2_X,
+    y,
+    COL_2_WIDTH,
+  );
+  drawCombinedField(
+    pdf,
+    "8. QTY Transported In:",
+    d.qty,
+    COL_3_X,
+    y,
+    COL_3_WIDTH,
+  );
+
+  // Row 4 (Fields 9-11)
+  y = startY + 49;
+  drawCombinedField(
+    pdf,
+    "9. Name Of Mineral:",
+    d.mineral,
+    COL_1_X,
+    y,
+    COL_1_WIDTH,
+  );
+  drawCombinedField(
+    pdf,
+    "10. Loading From:",
+    d.loadingFrom,
+    COL_2_X,
+    y,
+    COL_2_WIDTH,
+  );
+  drawCombinedField(
+    pdf,
+    "11. Destination (Delivery Address):",
+    d.destination,
+    COL_3_X,
+    y,
+    COL_3_WIDTH,
+  );
+
+  // Row 5 (Fields 12-14)
+  y = startY + 54;
+  drawCombinedField(
+    pdf,
+    "12. Distance(Approx in K.M.):",
+    d.distance,
+    COL_1_X,
+    y,
+    COL_1_WIDTH,
+  );
+  drawCombinedField(
+    pdf,
+    "13. eForm-C Generated On:",
+    d.generatedOn,
+    COL_2_X,
+    y,
+    COL_2_WIDTH,
+  );
+  drawCombinedField(
+    pdf,
+    "14. eForm-C Valid Upto:",
+    d.validUpto,
+    COL_3_X,
+    y,
+    COL_3_WIDTH,
+  );
+
+  // Row 6 (Fields 15-16)
+  y = startY + 59;
+  drawCombinedField(
+    pdf,
+    "15. Destination District:",
+    d.district,
+    COL_1_X,
+    y,
+    COL_1_WIDTH,
+  );
+  drawCombinedField(
+    pdf,
+    "16. Traveling Duration:",
+    d.travelingDuration,
+    COL_2_X,
+    y,
+    COL_2_WIDTH,
+  );
+
+  // Row 7 (Fields 17-18)
+  y = startY + 64;
+  drawCombinedField(
+    pdf,
+    "17. Selling Price (Rs per Cubic Meter Ton for Silica sand/Diaspore/Pyrophylite):",
+    d.sellingPrice,
+    COL_1_X,
+    y,
+    COL_1_WIDTH + COL_2_WIDTH,
+  );
+  drawCombinedField(
+    pdf,
+    "18. Serial Number:",
+    d.serialNo,
+    COL_3_X,
+    y,
+    COL_3_WIDTH,
+  );
+
+  // 5. Vehicle Details Section
+  y = startY + 70;
+  pdf.setFontSize(8);
+  renderCenteredText(pdf, "Details Of Registered Vehicle", y);
+
+  pdf.setFontSize(FONT_SIZE_BODY);
+  y += 5;
+  drawCombinedField(
+    pdf,
+    "1. Registration Number:",
+    d.registrationNumber,
+    COL_1_X + 5,
+    y,
+    COL_1_WIDTH,
+  );
+  drawCombinedField(
+    pdf,
+    "2. Type Of Vehicle:",
+    d.vehicleType,
+    COL_2_X + 5,
+    y,
+    COL_2_WIDTH,
+  );
+  drawCombinedField(
+    pdf,
+    "3. Name Of Driver:",
+    d.driverName,
+    COL_3_X,
+    y,
+    COL_3_WIDTH,
+  );
+
+  y += 5;
+  drawCombinedField(
+    pdf,
+    "4. Mobile Number Of Driver:",
+    d.driverMobile,
+    COL_1_X + 5,
+    y,
+    COL_1_WIDTH,
+  );
+  drawCombinedField(
+    pdf,
+    "5. DL Number Of Driver:",
+    d.dlNumber,
+    COL_2_X + 5,
+    y,
+    COL_2_WIDTH,
+  );
 }
 
 /* ================= CORE PDF ================= */
@@ -88,359 +698,163 @@ export async function generatePDF(
   validUpto: Date,
   options: PDFGenerationOptions = {},
 ): Promise<Buffer> {
-  console.log("[PDF] generatePDF called for recordId:", recordId);
-  const toText = (value: unknown, fallback = "-") => {
-    if (value === null || value === undefined || value === "") return fallback;
-    return String(value);
-  };
+  try {
+    console.log("[PDF] Starting PDF generation");
+    const toText = (value: unknown, fallback = "-") => {
+      if (value === null || value === undefined || value === "")
+        return fallback;
+      return String(value);
+    };
 
-  const pdf = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4",
-  });
-  console.log("[PDF] jsPDF instance created");
+    console.log("[PDF] Creating jsPDF instance");
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
 
-  pdf.setFont("helvetica", "normal");
-  ensureDevanagariFont(pdf);
-  console.log("[PDF] Fonts configured");
+    // Set default font to Helvetica for fast rendering
+    pdf.setFont("helvetica", "normal");
 
-  console.log(data);
+    console.log("[PDF] Registering Devanagari font for Hindi text");
+    registerDevanagariFont(pdf);
 
-  const commonData = {
-    formNo: recordId,
-    licenseeId: toText((data as any).licenseeId ?? (data as any).licensee_id),
-    licenseeName: toText(
-      (data as any).licenseeName ??
-        (data as any).name_of_licensee ??
-        (data as any).nameOfLicenseeOfLease,
-    ),
-    mobile: toText(
-      (data as any).mobile ??
-        (data as any).mobile_number_of_licensee ??
-        (data as any).mobileNumberOfLicensee,
-    ),
-    address: toText(
-      (data as any).address ??
-        (data as any).licensee_details_address ??
-        (data as any).licenseeDetailsAddress,
-    ),
-    tehsil: toText(
-      (data as any).tehsil ??
-        (data as any).tehsil_of_license ??
-        (data as any).tehsilOfLicense,
-    ),
-    district: toText(
-      (data as any).district ??
-        (data as any).district_of_license ??
-        (data as any).districtOfLicense,
-    ),
-    qty: toText(
-      (data as any).quantity_transported ??
-        (data as any).quantity_in_ton ??
-        (data as any).quantityInTonnes,
-    ),
-    mineral: toText(
-      (data as any).mineral ??
-        (data as any).name_of_mineral ??
-        (data as any).mineralName,
-    ),
-    loadingFrom: toText(
-      (data as any).loadingFrom ??
-        (data as any).loading_from ??
-        (data as any).placeOfLoading,
-    ),
-    destination: toText(
-      (data as any).destination_delivery_address ??
-        (data as any).name_of_consignee ??
-        (data as any).nameOfConsignee,
-    ),
-    distance: toText(
-      (data as any).distance_approx ??
-        (data as any).distance_km ??
-        (data as any).distanceInKm,
-    ),
-    generatedOn: format(generatedOn, "dd-MM-yyyy hh:mm:ss a"),
-    validUpto: format(validUpto, "dd-MM-yyyy hh:mm:ss a"),
-    sellingPrice: toText(
-      (data as any).sellingPrice ??
-        (data as any).selling_price ??
-        (data as any).sellingPriceRs,
-    ),
-    serialNo: toText(
-      (data as any).serialNo ??
-        (data as any).serial_number ??
-        (data as any).serialNumber,
-    ),
-    registrationNumber: toText(
-      (data as any).registrationNumber ??
-        (data as any).registration_number ??
-        (data as any).vehicleRegistrationNumber,
-    ),
-    driverName: toText(
-      (data as any).driverName ??
+    // Added broader fallback checks for vehicleType and dlNumber to catch missing data
+    const commonData = {
+      formNo: generate19DigitNumber(),
+      licenseeId: toText((data as any).licenseeId ?? (data as any).licensee_id),
+      licenseeName: toText(
+        (data as any).licenseeName ??
+          (data as any).name_of_licensee ??
+          (data as any).nameOfLicenseeOfLease,
+      ),
+      mobile: toText(
+        (data as any).mobile ??
+          (data as any).mobile_number_of_licensee ??
+          (data as any).mobileNumberOfLicensee,
+      ),
+      address: toText(
+        (data as any).address ??
+          (data as any).licensee_details_address ??
+          (data as any).licenseeDetailsAddress,
+      ),
+      tehsil: toText(
+        (data as any).tehsil ??
+          (data as any).tehsil_of_license ??
+          (data as any).tehsilOfLicense,
+      ),
+      district: toText(
+        (data as any).district ??
+          (data as any).district_of_license ??
+          (data as any).districtOfLicense,
+      ),
+      qty: toText(
+        (data as any).quantity_transported ??
+          (data as any).quantity_in_ton ??
+          (data as any).quantityInTonnes,
+      ),
+      mineral: toText(
+        (data as any).mineral ??
+          (data as any).name_of_mineral ??
+          (data as any).mineralName,
+      ),
+      loadingFrom: toText(
+        (data as any).loadingFrom ??
+          (data as any).loading_from ??
+          (data as any).placeOfLoading,
+      ),
+      destination: toText(
+        (data as any).destination_delivery_address ??
+          (data as any).name_of_consignee ??
+          (data as any).nameOfConsignee,
+      ),
+      distance: toText(
+        (data as any).distance_approx ??
+          (data as any).distance_km ??
+          (data as any).distanceInKm,
+      ),
+      generatedOn: format(generatedOn, "dd-MM-yyyy hh:mm:ss a"),
+      validUpto: format(validUpto, "dd-MM-yyyy hh:mm:ss a"),
+      sellingPrice: toText(
+        (data as any).sellingPrice ??
+          (data as any).selling_price ??
+          (data as any).sellingPriceRs,
+      ),
+      serialNo: toText(
+        (data as any).serialNo ??
+          (data as any).serial_number ??
+          (data as any).serialNumber,
+      ),
+      registrationNumber: toText(
+        (data as any).registrationNumber ??
+          (data as any).registration_number ??
+          (data as any).vehicleRegistrationNumber,
+      ),
+      vehicleType: toText(
+        (data as any).type_of_vehicle ??
+          (data as any).vehicleType ??
+          (data as any).typeOfVehicle,
+      ),
+      driverName: toText(
         (data as any).name_of_driver ??
-        (data as any).nameOfDriver,
-    ),
-    grossVehicleWeight: toText(
-      (data as any).grossVehicleWeight ??
-        (data as any).gross_vehicle_weight ??
-        (data as any).grossVehicleWeightInTonne,
-    ),
-    carryingCapacity: toText(
-      (data as any).carryingCapacity ??
-        (data as any).carrying_capacity ??
-        (data as any).carryingCapacityInTonne,
-    ),
-    driverMobile: toText(
-      (data as any).driverMobile ??
+          (data as any).driverName ??
+          (data as any).nameOfDriver,
+      ),
+      driverMobile: toText(
         (data as any).mobile_number_of_driver ??
-        (data as any).mobileNumberOfDriver,
-    ),
-  };
+          (data as any).driverMobile ??
+          (data as any).mobileNumberOfDriver,
+      ),
+      dlNumber: toText(
+        (data as any).dl_number_of_driver ??
+          (data as any).dlNumber ??
+          (data as any).dlNumberOfDriver,
+      ),
+      travelingDuration: toText(
+        (data as any).traveling_duration ??
+          (data as any).travelingDuration ??
+          (data as any).journeyDuration,
+      ),
+    };
 
-  renderCopy(
-    pdf,
-    14 + COPY_GAP * 0,
-    "प्रथम प्रति ( पट्टा धारक हेतु )",
-    commonData,
-    options.qrCodeDataUrl,
-  );
-  renderCopy(
-    pdf,
-    102 + COPY_GAP * 1,
-    "द्वितीय प्रति ( परिवहनकर्ता / उपभोक्ता / भण्डारण / कार्यदायी संस्था हेतु )",
-    commonData,
-    options.qrCodeDataUrl,
-  );
-  renderCopy(
-    pdf,
-    190 + COPY_GAP * 2,
-    "तृतीय प्रति ( जाँचकर्ता हेतु )",
-    commonData,
-    options.qrCodeDataUrl,
-  );
+    // Draw Top Actions Bar
+    drawTopBar(pdf);
 
-  console.log("[PDF] All copies rendered successfully");
-  const pdfBuffer = Buffer.from(pdf.output("arraybuffer"));
-  console.log("[PDF] PDF buffer created, size:", pdfBuffer.length, "bytes");
-  return pdfBuffer;
-}
+    // Shifted starting Y down to account for the Print/Back bar
+    const START_Y_1 = 15;
+    const START_Y_2 = START_Y_1 + COPY_HEIGHT + COPY_GAP;
+    const START_Y_3 = START_Y_2 + COPY_HEIGHT + COPY_GAP;
 
-/* ================= COPY RENDERER ================= */
-
-function setFontForText(pdf: jsPDF, text: string, bold: boolean = false) {
-  const hasDevanagari = DEVANAGARI_REGEX.test(text);
-  const weight = hasDevanagari ? "normal" : "bold";
-  if (hasDevanagari) {
-    try {
-      // @ts-ignore
-      pdf.setFont("NotoSansDeva", weight);
-      return;
-    } catch (err) {
-      // Fall through to default font if custom font is not registered
-      console.log(
-        "[PDF-Font] Could not set NotoSansDeva font, using Helvetica:",
-        err,
-      );
-    }
-  }
-  pdf.setFont("helvetica", weight);
-}
-
-function normalizeDevanagariText(text: string): string {
-  if (!DEVANAGARI_REGEX.test(text)) return text;
-  // Reorder pre-base vowel sign (ि) before its consonant cluster for jsPDF.
-  return text.replace(/([क-ह](?:्[क-ह])*)\u093F/g, "ि$1");
-}
-
-function drawText(
-  pdf: jsPDF,
-  text: string,
-  x: number,
-  y: number,
-  bold: boolean = false,
-) {
-  const normalizedText = normalizeDevanagariText(text);
-  setFontForText(pdf, normalizedText, bold);
-  pdf.text(normalizedText, x, y);
-}
-
-function drawWrappedText(
-  pdf: jsPDF,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  bold: boolean = false,
-): number {
-  const normalizedText = normalizeDevanagariText(text);
-  setFontForText(pdf, normalizedText, bold);
-  const lines = pdf.splitTextToSize(normalizedText, maxWidth);
-  pdf.text(lines, x, y);
-  return lines.length;
-}
-
-function renderHindiTitle(pdf: jsPDF, text: string, y: number) {
-  const normalizedText = normalizeDevanagariText(text);
-  pdf.setFontSize(TITLE_FONT_SIZE);
-  setFontForText(pdf, normalizedText, false);
-  // Center the text on the page (A4 width is 210mm, center is 105mm)
-  const pageWidth = 210;
-  const textWidth = pdf.getTextWidth(normalizedText);
-  const centeredX = (pageWidth - textWidth) / 2;
-  pdf.text(normalizedText, centeredX, y);
-}
-
-function renderCenteredText(
-  pdf: jsPDF,
-  text: string,
-  y: number,
-  bold: boolean = false,
-) {
-  const normalizedText = normalizeDevanagariText(text);
-  setFontForText(pdf, normalizedText, bold);
-  const pageWidth = 210;
-  const textWidth = pdf.getTextWidth(normalizedText);
-  const centeredX = (pageWidth - textWidth) / 2;
-  pdf.text(normalizedText, centeredX, y);
-}
-
-function renderCopy(
-  pdf: jsPDF,
-  startY: number,
-  title: string,
-  d: any,
-  qrCodeDataUrl?: string,
-) {
-  let y = startY;
-
-  renderHindiTitle(pdf, title, y);
-
-  // Add QR code at top-right near header if available
-  if (qrCodeDataUrl && qrCodeDataUrl.startsWith("data:image")) {
-    const qrSize = 22;
-    const qrX = 210 - PAGE_MARGIN_X - qrSize;
-    pdf.addImage(qrCodeDataUrl, "PNG", qrX, y - 3, qrSize, qrSize);
-  }
-
-  y += 5;
-
-  pdf.setFontSize(BODY_FONT_SIZE);
-
-  row(pdf, y, `1. eForm-C No.: ${d.formNo}`, `2. Licensee Id: ${d.licenseeId}`);
-  y += LINE_HEIGHT;
-
-  drawText(pdf, `3. Name of Licensee: ${d.licenseeName}`, PAGE_MARGIN_X, y);
-  y += LINE_HEIGHT;
-
-  drawText(pdf, `4. Mobile Number Of Licensee: ${d.mobile}`, PAGE_MARGIN_X, y);
-  y += LINE_HEIGHT;
-
-  y +=
-    drawWrappedText(
+    renderCopy(
       pdf,
-      `5. Licensee Details [Address, Village, (Gata/Khand), Area]: ${d.address}`,
-      PAGE_MARGIN_X,
-      y,
-      CONTENT_WIDTH,
-    ) * LINE_HEIGHT;
-
-  row(
-    pdf,
-    y,
-    `6. Tehsil Of License: ${d.tehsil}`,
-    `7. District Of License: ${d.district}`,
-  );
-  y += LINE_HEIGHT;
-
-  drawText(
-    pdf,
-    `8. QTY Transported In (Cubic Meter/Ton for Silica sand/Diaspore/Pyrophylite): ${d.qty}`,
-    PAGE_MARGIN_X,
-    y,
-  );
-  y += LINE_HEIGHT;
-
-  y +=
-    drawWrappedText(
+      START_Y_1,
+      "प्रथम प्रति ( पट्टा धारक हेतु )",
+      commonData,
+      options,
+    );
+    renderCopy(
       pdf,
-      `9. Name Of Mineral: ${d.mineral}`,
-      PAGE_MARGIN_X,
-      y,
-      CONTENT_WIDTH,
-    ) * LINE_HEIGHT;
+      START_Y_2,
+      "द्वितीय प्रति ( परिवहनकर्ता/उपभोक्ता/भण्डारण/कार्यदायी संस्था हेतु )",
+      commonData,
+      options,
+    );
+    renderCopy(
+      pdf,
+      START_Y_3,
+      "तृतीय प्रति ( जाँचकर्ता हेतु )",
+      commonData,
+      options,
+    );
 
-  row(
-    pdf,
-    y,
-    `10. Loading From: ${d.loadingFrom}`,
-    `11. Destination: ${d.destination}`,
-  );
-  y += LINE_HEIGHT;
-
-  row(
-    pdf,
-    y,
-    `12. Distance (Approx in K.M.): ${d.distance}`,
-    `13. eForm-C Generated On: ${d.generatedOn}`,
-  );
-  y += LINE_HEIGHT;
-
-  row(
-    pdf,
-    y,
-    `14. eForm-C Valid Upto: ${d.validUpto}`,
-    `15. Destination District: ${d.district}`,
-  );
-  y += LINE_HEIGHT;
-
-  row(
-    pdf,
-    y,
-    "16. Traveling Duration: 7",
-    `17. Selling Price (Rs): ${d.sellingPrice}`,
-  );
-  y += LINE_HEIGHT;
-
-  drawText(pdf, `18. Serial Number: ${d.serialNo}`, PAGE_MARGIN_X, y);
-  y += LINE_HEIGHT;
-
-  renderCenteredText(pdf, "Details Of Registered Vehicle", y, true);
-  y += LINE_HEIGHT;
-
-  row(
-    pdf,
-    y,
-    `Registration Number: ${d.registrationNumber}`,
-    `Name Of Driver: ${d.driverName}`,
-  );
-  y += LINE_HEIGHT;
-
-  row(
-    pdf,
-    y,
-    `Gross Vehicle Weight in Tonne: ${d.grossVehicleWeight}`,
-    `Carrying capacity of vehicle in Tonne: ${d.carryingCapacity}`,
-  );
-  y += LINE_HEIGHT;
-
-  drawText(pdf, `Mobile Number Of Driver: ${d.driverMobile}`, PAGE_MARGIN_X, y);
-}
-
-/* ================= HELPERS ================= */
-
-function row(pdf: jsPDF, y: number, left: string, right: string) {
-  drawText(pdf, left, PAGE_MARGIN_X, y);
-  drawText(pdf, right, COLUMN_RIGHT_X, y);
-}
-
-function manualWrap(pdf: jsPDF, text: string, x: number, y: number) {
-  const safeText = text || "";
-  const lines = safeText.split("\n");
-  lines.forEach((line, i) => {
-    drawText(pdf, line, x, y + i * LINE_HEIGHT);
-  });
+    console.log("[PDF] Creating buffer from PDF");
+    const pdfBuffer = Buffer.from(pdf.output("arraybuffer"));
+    console.log("[PDF] ✓ PDF generated successfully");
+    return pdfBuffer;
+  } catch (error) {
+    console.error("[PDF] ❌ PDF generation error:", error);
+    throw error;
+  }
 }
 
 /* ================= STORAGE ================= */
@@ -450,9 +864,7 @@ export async function uploadPDF(
   userId: string,
   pdfBuffer: Buffer,
 ): Promise<string> {
-  console.log("[PDF-Upload] Starting upload for record:", recordId);
   const path = `pdfs/${userId}/${recordId}.pdf`;
-  console.log("[PDF-Upload] Storage path:", path);
 
   const { data, error } = await supabaseAdmin.storage
     .from("pdfs")
@@ -461,23 +873,16 @@ export async function uploadPDF(
       upsert: false,
     });
 
-  if (error) {
-    console.error("[PDF-Upload] ❌ Upload failed:", error);
-    throw error;
-  }
-
-  console.log("[PDF-Upload] File uploaded successfully:", data.path);
+  if (error) throw error;
 
   const signed = await supabaseAdmin.storage
     .from("pdfs")
     .createSignedUrl(data.path, 2592000);
 
   if (!signed.data?.signedUrl) {
-    console.error("[PDF-Upload] ❌ Signed URL generation failed");
     throw new Error("Signed URL generation failed");
   }
 
-  console.log("[PDF-Upload] ✓ Signed URL created successfully");
   return signed.data.signedUrl;
 }
 
@@ -490,28 +895,28 @@ export async function generateAndStorePDF(
   options: PDFGenerationOptions = {},
 ): Promise<string> {
   try {
-    console.log("[PDF-Main] Starting PDF generation and storage");
-    // Generate the PDF buffer
-    const pdfBuffer = await generatePDF(
-      recordId,
-      formData,
-      generatedOn,
-      validUpto,
-      options,
+    console.log("[PDF] generateAndStorePDF started for recordId:", recordId);
+
+    // Set a 30-second timeout for PDF generation (canvas rendering can be slow with large scales)
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(
+        () => reject(new Error("PDF generation timeout: exceeded 30 seconds")),
+        30000,
+      ),
     );
 
-    console.log("[PDF-Main] PDF generated, uploading to storage...");
-    // Upload to storage and get signed URL
-    const pdfUrl = await uploadPDF(recordId, userId, pdfBuffer);
+    const pdfBuffer = await Promise.race([
+      generatePDF(recordId, formData, generatedOn, validUpto, options),
+      timeoutPromise,
+    ]);
 
-    console.log("[PDF-Main] ✓ PDF generation and storage complete");
+    console.log("[PDF] PDF buffer generated, uploading...");
+    const pdfUrl = await uploadPDF(recordId, userId, pdfBuffer);
+    console.log("[PDF] ✓ PDF stored successfully");
     return pdfUrl;
   } catch (error) {
-    console.error("[PDF-Main] ❌ Error generating and storing PDF:", error);
-    throw new Error(
-      `Failed to generate PDF: ${
-        error instanceof Error ? error.message : "Unknown error"
-      }`,
-    );
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
+    console.error("[PDF] ❌ PDF generation/storage failed:", errorMsg);
+    throw new Error(`Failed to generate PDF: ${errorMsg}`);
   }
 }
