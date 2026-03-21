@@ -7,7 +7,7 @@ import { GlobalFooter } from "@/components/GlobalFooter";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
 });
 
 const geistMono = Geist_Mono({
