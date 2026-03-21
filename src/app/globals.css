@@ -79,5 +79,12 @@ body {
 /* Utility class for Hindi/Devanagari text - prioritizes proper font rendering */
 .font-hindi,
 .font-devanagari {
-  font-family: var(--font-noto-devanagari), var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif !important;
+  font-family:
+    var(--font-noto-devanagari),
+    var(--font-geist-sans),
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif !important;
 }
