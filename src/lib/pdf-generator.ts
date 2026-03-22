@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import fs from "fs";
 import path from "path";
 import { createCanvas } from "canvas";
+import { loadDevanagariFont } from "@/lib/font-loader";
 
 /* ================= CONFIG & CONSTANTS ================= */
 
@@ -41,103 +42,29 @@ let cachedLogoBase64: string | null = null;
 const hindiCanvasCache = new Map<string, string>();
 
 /**
- * Load small Devanagari font (647KB) for Hindi text rendering
- * Uses NotoSansDevanagari-Regular.ttf instead of large Nirmala.ttc (5.3MB)
- *
- * Strategy:
- * 1. Try local file system (development)
- * 2. Fallback to jsDelivr CDN fetch (Vercel/production)
+ * Register Devanagari font with jsPDF
+ * Loads from filesystem or CDN as needed
  */
-async function getDevanagariFont(): Promise<string | null> {
-  if (cachedDevanagariBase64) {
-    console.log("[PDF-Font] Returning cached Devanagari font");
-    return cachedDevanagariBase64;
-  }
-  if (devanagariLoadAttempted) {
-    console.log(
-      "[PDF-Font] Devanagari font already attempted to load, returning null",
-    );
-    return null;
-  }
-
-  try {
-    // STRATEGY 1: Try file system (local development)
-    try {
-      const fontPath = path.join(
-        process.cwd(),
-        "public",
-        "fonts",
-        "NotoSansDevanagari-Regular.ttf",
-      );
-
-      if (fs.existsSync(fontPath)) {
-        console.log("[PDF-Font] Loading from local file:", fontPath);
-        const fontBuffer = fs.readFileSync(fontPath);
-        console.log(
-          "[PDF-Font] Font file size:",
-          Math.round(fontBuffer.length / 1024),
-          "KB",
-        );
-
-        cachedDevanagariBase64 = fontBuffer.toString("base64");
-        devanagariLoadAttempted = true;
-        console.log(
-          "[PDF-Font] ✓ Local Devanagari font loaded, base64 length:",
-          cachedDevanagariBase64.length,
-        );
-        return cachedDevanagariBase64;
-      }
-    } catch (fileError) {
-      console.log("[PDF-Font] File system attempt failed:", fileError);
-    }
-
-    // STRATEGY 2: Fallback to CDN fetch (Vercel/production)
-    console.log("[PDF-Font] Attempting to fetch from jsDelivr CDN...");
-    const cdnUrl =
-      "https://cdn.jsdelivr.net/npm/noto-sans-devanagari@1.0.0/NotoSansDevanagari-Regular.ttf";
-
-    const response = await fetch(cdnUrl);
-    if (!response.ok) {
-      throw new Error(`CDN fetch failed with status ${response.status}`);
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-    const fontBuffer = Buffer.from(arrayBuffer);
-
-    console.log(
-      "[PDF-Font] Font fetched from CDN, size:",
-      Math.round(fontBuffer.length / 1024),
-      "KB",
-    );
-
-    cachedDevanagariBase64 = fontBuffer.toString("base64");
-    devanagariLoadAttempted = true;
-    console.log(
-      "[PDF-Font] ✓ CDN Devanagari font loaded, base64 length:",
-      cachedDevanagariBase64.length,
-    );
-    return cachedDevanagariBase64;
-  } catch (error) {
-    devanagariLoadAttempted = true;
-    console.error("[PDF-Font] ❌ All font loading strategies failed:", error);
-    return null;
-  }
-}
-
 async function registerDevanagariFont(pdf: jsPDF) {
   try {
     console.log("[PDF-Font] Starting Devanagari font registration...");
-    const base64 = await getDevanagariFont();
-    if (!base64) {
+
+    // Use new font-loader utility
+    const fontResult = await loadDevanagariFont();
+    if (!fontResult) {
       console.warn(
         "[PDF-Font] ⚠️ No Devanagari font data available, Hindi text may not render",
       );
       return;
     }
 
+    console.log(
+      `[PDF-Font] Using font from ${fontResult.source} (${fontResult.size}KB)`,
+    );
+
     console.log("[PDF-Font] Adding font to jsPDF VFS...");
     // @ts-ignore
-    pdf.addFileToVFS("NotoSansDevanagari.ttf", base64);
+    pdf.addFileToVFS("NotoSansDevanagari.ttf", fontResult.data);
 
     console.log("[PDF-Font] Registering normal weight...");
     // @ts-ignore
