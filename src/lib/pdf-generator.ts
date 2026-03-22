@@ -8,9 +8,17 @@ import { loadDevanagariFont } from "@/lib/font-loader";
 
 /* ================= CONFIG & CONSTANTS ================= */
 
-const PAGE_MARGIN_X = 10;
-const COPY_HEIGHT = 86; // Reduced slightly to tighten layout
-const COPY_GAP = 3;
+const PAGE_MARGIN_X = 10; // Left/right margins (10-12 mm)
+const TOP_MARGIN = 15; // Top margin (12-15 mm)
+const COPY_HEIGHT = 95; // Each section height (optimized for 3 equal sections)
+const COPY_GAP = 0; // Gap between sections on same page
+const HEADER_HEIGHT = 38; // Header area within each section (35-40 mm)
+const ROW_SPACING = 5; // Vertical spacing between data rows (4-5 mm)
+const BORDER_WIDTH = 0.5; // Thin border for sections
+
+// QR Code positioning
+const QR_SIZE = 15; // QR code size in mm (reduced)
+const QR_OFFSET = 14; // Offset from top-right corner (moved down more)
 
 // 3-Column Grid System (Tightened spacing between columns)
 const COL_1_X = 12;
@@ -37,6 +45,11 @@ interface PDFGenerationOptions {
 let cachedDevanagariBase64: string | null = null;
 let devanagariLoadAttempted = false;
 let cachedLogoBase64: string | null = null;
+
+// Cache for heading images (1, 2, 3)
+let cachedHeadingImage1: string | null = null;
+let cachedHeadingImage2: string | null = null;
+let cachedHeadingImage3: string | null = null;
 
 // Cache for rendered Hindi canvas images (avoid re-rendering per PDF)
 const hindiCanvasCache = new Map<string, string>();
@@ -120,6 +133,38 @@ function getLogoBase64(): string | null {
     return cachedLogoBase64;
   } catch (error) {
     console.warn("[PDF-Logo] ⚠️ logo.png not found in public folder.", error);
+    return null;
+  }
+}
+
+/**
+ * Load heading images (1.jpg.jpeg, 2.jpg.jpeg, 3.jpg.jpeg)
+ */
+function getHeadingImageBase64(imageNumber: 1 | 2 | 3): string | null {
+  const cacheVar = `cachedHeadingImage${imageNumber}` as const;
+  const cached = eval(cacheVar);
+
+  if (cached) return cached;
+
+  try {
+    const imagePath = path.join(
+      process.cwd(),
+      "public",
+      `${imageNumber}.jpg.jpeg`,
+    );
+    const imageBuffer = fs.readFileSync(imagePath);
+    const base64Image = `data:image/jpeg;base64,${imageBuffer.toString("base64")}`;
+
+    if (imageNumber === 1) cachedHeadingImage1 = base64Image;
+    else if (imageNumber === 2) cachedHeadingImage2 = base64Image;
+    else if (imageNumber === 3) cachedHeadingImage3 = base64Image;
+
+    return base64Image;
+  } catch (error) {
+    console.warn(
+      `[PDF-Image] ⚠️ ${imageNumber}.jpg.jpeg not found in public folder.`,
+      error,
+    );
     return null;
   }
 }
@@ -316,26 +361,7 @@ function renderCenteredText(
 }
 
 function drawTopBar(pdf: jsPDF) {
-  const boxWidth = 210 - PAGE_MARGIN_X * 2;
-
-  // Draw light border box
-  pdf.setLineWidth(0.3);
-  pdf.setDrawColor(200, 200, 200);
-  pdf.rect(PAGE_MARGIN_X, 5, boxWidth, 8, "S");
-
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(8.5);
-
-  // Print Text (70% opacity look using grey color)
-  pdf.setTextColor(130, 130, 130);
-  pdf.text("Print", PAGE_MARGIN_X + 5, 10.2);
-
-  // Back Text (Black)
-  pdf.setTextColor(0, 0, 0);
-  const backWidth = pdf.getTextWidth("Back");
-  pdf.text("Back", 210 - PAGE_MARGIN_X - backWidth - 5, 10.2);
-
-  pdf.setTextColor(0, 0, 0);
+  // Print/Back box removed - no longer needed
 }
 
 /* ================= COPY RENDERER ================= */
@@ -346,38 +372,63 @@ function renderCopy(
   copyTitle: string,
   d: any,
   options: PDFGenerationOptions,
+  headingImageNumber?: 1 | 2 | 3,
 ) {
   const boxWidth = 210 - PAGE_MARGIN_X * 2;
 
-  // 1. Draw Drop Shadow
-  pdf.setFillColor(160, 160, 160);
-  pdf.rect(PAGE_MARGIN_X + 1.2, startY + 1.2, boxWidth, COPY_HEIGHT, "F");
-
-  // 2. Draw Main White Box with Thick Black Border
-  pdf.setLineWidth(0.8);
-  pdf.setDrawColor(0, 0, 0);
-  pdf.setFillColor(255, 255, 255);
-  pdf.rect(PAGE_MARGIN_X, startY, boxWidth, COPY_HEIGHT, "FD");
+  // Black border removed
 
   let y = startY;
 
-  // 3. Header Section (QR Code only - Logo and yellow headings removed)
+  // 3. Header Section (QR Code only - positioned at top-right)
   if (options.qrCodeDataUrl) {
-    // Reduced QR code size
-    const qrSize = 15;
-    const qrX = 210 - PAGE_MARGIN_X - qrSize - 4;
-    pdf.addImage(options.qrCodeDataUrl, "PNG", qrX, y + 2, qrSize, qrSize);
+    const qrX = 210 - PAGE_MARGIN_X - QR_SIZE - QR_OFFSET;
+    const qrY = startY + QR_OFFSET;
+    pdf.addImage(options.qrCodeDataUrl, "PNG", qrX, qrY, QR_SIZE, QR_SIZE);
   }
 
-  pdf.setFontSize(7.5);
-  // Render Hindi copy title directly using registered DevanagariFont
-  renderHindiCopyTitleToPDF(pdf, copyTitle, 105, y + 4, 7.5);
-
-  // 4. Grid Data Section (Consistent 5mm Y-spacing for all rows)
+  // 4. Grid Data Section starts after header
   pdf.setFontSize(FONT_SIZE_BODY);
+  y = startY + HEADER_HEIGHT;
+
+  // Render heading image positioned above first field
+  if (headingImageNumber) {
+    const headingImage = getHeadingImageBase64(headingImageNumber);
+    if (headingImage) {
+      // Reduced image dimensions for compact look
+      const imageWidth = 70; // Reduced from 90mm
+      // Only image 1 is shorter (6mm), images 2 and 3 keep original size (8mm)
+      const imageHeight = headingImageNumber === 1 ? 6 : 8;
+      const imageX = (210 - imageWidth) / 2; // Center horizontally
+      // Position just above the first field with small gap
+      const imageY = y - imageHeight - 1; // 1mm gap between image and field
+
+      try {
+        pdf.addImage(
+          headingImage,
+          "JPEG",
+          imageX,
+          imageY,
+          imageWidth,
+          imageHeight,
+        );
+        console.log(
+          `[PDF-Image] Heading image ${headingImageNumber} rendered successfully`,
+        );
+      } catch (err) {
+        console.error(
+          `[PDF-Image] Failed to render heading image ${headingImageNumber}:`,
+          err,
+        );
+      }
+    } else {
+      console.warn(
+        `[PDF-Image] Heading image ${headingImageNumber} not available, skipping`,
+      );
+    }
+  }
 
   // Row 1 (Fields 1-2)
-  y = startY + 10;
   drawCombinedField(pdf, "1. eForm-C No.", d.formNo, COL_2_X, y, COL_2_WIDTH);
   drawCombinedField(
     pdf,
@@ -389,7 +440,7 @@ function renderCopy(
   );
 
   // Row 2 (Fields 3-5)
-  y = startY + 15;
+  y += ROW_SPACING;
   drawCombinedField(
     pdf,
     "3. Name of Licensee:",
@@ -416,7 +467,7 @@ function renderCopy(
   );
 
   // Row 3 (Fields 6-8)
-  y = startY + 20;
+  y += ROW_SPACING;
   drawCombinedField(
     pdf,
     "6. Tehsil Of License:",
@@ -443,7 +494,7 @@ function renderCopy(
   );
 
   // Row 4 (Fields 9-11)
-  y = startY + 25;
+  y += ROW_SPACING;
   drawCombinedField(
     pdf,
     "9. Name Of Mineral:",
@@ -470,7 +521,7 @@ function renderCopy(
   );
 
   // Row 5 (Fields 12-14)
-  y = startY + 30;
+  y += ROW_SPACING;
   drawCombinedField(
     pdf,
     "12. Distance(Approx in K.M.):",
@@ -497,7 +548,7 @@ function renderCopy(
   );
 
   // Row 6 (Fields 15-16)
-  y = startY + 35;
+  y += ROW_SPACING + 2; // Extra space between field 13 and 16
   drawCombinedField(
     pdf,
     "15. Destination District:",
@@ -516,7 +567,7 @@ function renderCopy(
   );
 
   // Row 7 (Fields 17-18)
-  y = startY + 40;
+  y += ROW_SPACING;
   drawCombinedField(
     pdf,
     "17. Selling Price (Rs per Cubic Meter Ton for Silica sand/Diaspore/Pyrophylite):",
@@ -535,7 +586,7 @@ function renderCopy(
   );
 
   // 5. Vehicle Details Section
-  y = startY + 46;
+  y += ROW_SPACING + 2; // Extra space before vehicle section
   pdf.setFontSize(8);
   renderCenteredText(pdf, "Details Of Registered Vehicle", y);
 
@@ -728,8 +779,8 @@ export async function generatePDF(
     // Draw Top Actions Bar
     drawTopBar(pdf);
 
-    // Shifted starting Y down to account for the Print/Back bar
-    const START_Y_1 = 15;
+    // Adjusted starting Y positions - 3 equal sections with proper spacing
+    const START_Y_1 = TOP_MARGIN;
     const START_Y_2 = START_Y_1 + COPY_HEIGHT + COPY_GAP;
     const START_Y_3 = START_Y_2 + COPY_HEIGHT + COPY_GAP;
 
@@ -739,6 +790,7 @@ export async function generatePDF(
       "प्रथम प्रति ( पट्टा धारक हेतु )",
       commonData,
       options,
+      1,
     );
     renderCopy(
       pdf,
@@ -746,6 +798,7 @@ export async function generatePDF(
       "द्वितीय प्रति ( परिवहनकर्ता/उपभोक्ता/भण्डारण/कार्यदायी संस्था हेतु )",
       commonData,
       options,
+      2,
     );
     renderCopy(
       pdf,
@@ -753,6 +806,7 @@ export async function generatePDF(
       "तृतीय प्रति ( जाँचकर्ता हेतु )",
       commonData,
       options,
+      3,
     );
 
     console.log("[PDF] Creating buffer from PDF");
