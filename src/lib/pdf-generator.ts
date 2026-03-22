@@ -43,8 +43,12 @@ const hindiCanvasCache = new Map<string, string>();
 /**
  * Load small Devanagari font (647KB) for Hindi text rendering
  * Uses NotoSansDevanagari-Regular.ttf instead of large Nirmala.ttc (5.3MB)
+ * 
+ * Strategy:
+ * 1. Try local file system (development)
+ * 2. Fallback to jsDelivr CDN fetch (Vercel/production)
  */
-function getDevanagariFont(): string | null {
+async function getDevanagariFont(): Promise<string | null> {
   if (cachedDevanagariBase64) {
     console.log("[PDF-Font] Returning cached Devanagari font");
     return cachedDevanagariBase64;
@@ -57,23 +61,51 @@ function getDevanagariFont(): string | null {
   }
 
   try {
-    const fontPath = path.join(
-      process.cwd(),
-      "public",
-      "fonts",
-      "NotoSansDevanagari-Regular.ttf",
-    );
+    // STRATEGY 1: Try file system (local development)
+    try {
+      const fontPath = path.join(
+        process.cwd(),
+        "public",
+        "fonts",
+        "NotoSansDevanagari-Regular.ttf",
+      );
 
-    if (!fs.existsSync(fontPath)) {
-      console.warn("[PDF-Font] Font file not found at:", fontPath);
-      devanagariLoadAttempted = true;
-      return null;
+      if (fs.existsSync(fontPath)) {
+        console.log("[PDF-Font] Loading from local file:", fontPath);
+        const fontBuffer = fs.readFileSync(fontPath);
+        console.log(
+          "[PDF-Font] Font file size:",
+          Math.round(fontBuffer.length / 1024),
+          "KB",
+        );
+
+        cachedDevanagariBase64 = fontBuffer.toString("base64");
+        devanagariLoadAttempted = true;
+        console.log(
+          "[PDF-Font] ✓ Local Devanagari font loaded, base64 length:",
+          cachedDevanagariBase64.length,
+        );
+        return cachedDevanagariBase64;
+      }
+    } catch (fileError) {
+      console.log("[PDF-Font] File system attempt failed:", fileError);
     }
 
-    console.log("[PDF-Font] Reading font file from:", fontPath);
-    const fontBuffer = fs.readFileSync(fontPath);
+    // STRATEGY 2: Fallback to CDN fetch (Vercel/production)
+    console.log("[PDF-Font] Attempting to fetch from jsDelivr CDN...");
+    const cdnUrl =
+      "https://cdn.jsdelivr.net/npm/noto-sans-devanagari@1.0.0/NotoSansDevanagari-Regular.ttf";
+
+    const response = await fetch(cdnUrl);
+    if (!response.ok) {
+      throw new Error(`CDN fetch failed with status ${response.status}`);
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const fontBuffer = Buffer.from(arrayBuffer);
+
     console.log(
-      "[PDF-Font] Font file size:",
+      "[PDF-Font] Font fetched from CDN, size:",
       Math.round(fontBuffer.length / 1024),
       "KB",
     );
@@ -81,21 +113,21 @@ function getDevanagariFont(): string | null {
     cachedDevanagariBase64 = fontBuffer.toString("base64");
     devanagariLoadAttempted = true;
     console.log(
-      "[PDF-Font] ✓ Devanagari font loaded and cached, base64 length:",
+      "[PDF-Font] ✓ CDN Devanagari font loaded, base64 length:",
       cachedDevanagariBase64.length,
     );
     return cachedDevanagariBase64;
   } catch (error) {
     devanagariLoadAttempted = true;
-    console.error("[PDF-Font] Failed to load Devanagari font:", error);
+    console.error("[PDF-Font] ❌ All font loading strategies failed:", error);
     return null;
   }
 }
 
-function registerDevanagariFont(pdf: jsPDF) {
+async function registerDevanagariFont(pdf: jsPDF) {
   try {
     console.log("[PDF-Font] Starting Devanagari font registration...");
-    const base64 = getDevanagariFont();
+    const base64 = await getDevanagariFont();
     if (!base64) {
       console.warn(
         "[PDF-Font] ⚠️ No Devanagari font data available, Hindi text may not render",
@@ -717,7 +749,7 @@ export async function generatePDF(
     pdf.setFont("helvetica", "normal");
 
     console.log("[PDF] Registering Devanagari font for Hindi text");
-    registerDevanagariFont(pdf);
+    await registerDevanagariFont(pdf);
 
     // Added broader fallback checks for vehicleType and dlNumber to catch missing data
     const commonData = {
