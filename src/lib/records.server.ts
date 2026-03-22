@@ -24,11 +24,12 @@ interface CreateRecordInput {
 }
 
 function generateNumericEformCNo(): string {
+  // Start with "31" (Uttar Pradesh state code), followed by timestamp and random number
   const timestampPart = Date.now().toString();
   const randomPart = Math.floor(Math.random() * 10000)
     .toString()
     .padStart(4, "0");
-  return `${timestampPart}${randomPart}`;
+  return `31${timestampPart}${randomPart}`;
 }
 
 /**
@@ -59,12 +60,16 @@ export async function createRecord({
     const validUptoFormatted =
       calculateValidityExpiration(generatedOnFormatted);
 
+    // Use user-provided valid_upto if available, otherwise use auto-generated
+    const userProvidedValidUpto =
+      formData.eform_c_valid_upto || formData.valid_upto;
+
     // Include generated fields in form data using the correct field names
     const completeFormData: FormSubmissionData = {
       ...formData,
       eform_c_no: eformCNo,
       eform_c_generated_on: generatedOnFormatted,
-      eform_c_valid_upto: validUptoFormatted,
+      eform_c_valid_upto: userProvidedValidUpto || validUptoFormatted,
     };
 
     // 1. Create record in database
@@ -168,9 +173,9 @@ export async function createRecord({
         pdf_url: pdfUrl,
         eform_c_no: eformCNo,
         generated_on: generatedOnFormatted,
-        valid_upto: validUptoFormatted,
+        valid_upto: userProvidedValidUpto || validUptoFormatted,
         eform_c_generated_on: generatedOnFormatted,
-        eform_c_valid_upto: validUptoFormatted,
+        eform_c_valid_upto: userProvidedValidUpto || validUptoFormatted,
       },
       publicToken,
     };

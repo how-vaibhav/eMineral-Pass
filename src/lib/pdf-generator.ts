@@ -205,8 +205,9 @@ function renderHindiCopyTitleToPDF(
 /* ================= UTILS ================= */
 
 function generate19DigitNumber(): string {
-  let result = "";
-  for (let i = 0; i < 19; i++) {
+  // Generate number starting with "31" (Uttar Pradesh state code)
+  let result = "31";
+  for (let i = 2; i < 19; i++) {
     result += Math.floor(Math.random() * 10).toString();
   }
   return result;
@@ -360,13 +361,7 @@ function renderCopy(
 
   let y = startY;
 
-  // 3. Header Section (Shorter Logo & QR)
-  const logoData = getLogoBase64();
-  if (logoData) {
-    // Reduced logo dimensions
-    pdf.addImage(logoData, "PNG", PAGE_MARGIN_X + 4, y + 2, 12, 18);
-  }
-
+  // 3. Header Section (QR Code only - Logo and yellow headings removed)
   if (options.qrCodeDataUrl) {
     // Reduced QR code size
     const qrSize = 15;
@@ -374,37 +369,15 @@ function renderCopy(
     pdf.addImage(options.qrCodeDataUrl, "PNG", qrX, y + 2, qrSize, qrSize);
   }
 
-  pdf.setFontSize(FONT_SIZE_TITLE_HINDI);
-  // Render Hindi heading directly using registered DevanagariFont
-  renderHindiTextToPDF(
-    pdf,
-    "भूतत्व एवं खनिकर्म निदेशालय उत्तर प्रदेश",
-    105,
-    y + 20,
-    FONT_SIZE_TITLE_HINDI,
-    true,
-    [230, 180, 10],
-  );
-
-  pdf.setFontSize(FONT_SIZE_TITLE_ENG);
-  // English heading positioned below Hindi with clear gap
-  renderCenteredText(
-    pdf,
-    "DIRECTORATE OF GEOLOGY AND MINING UTTAR PRADESH",
-    y + 25.5,
-    [230, 180, 10],
-  );
-
   pdf.setFontSize(7.5);
   // Render Hindi copy title directly using registered DevanagariFont
-  renderHindiCopyTitleToPDF(pdf, copyTitle, 105, y + 29.5, 7.5);
+  renderHindiCopyTitleToPDF(pdf, copyTitle, 105, y + 4, 7.5);
 
   // 4. Grid Data Section (Consistent 5mm Y-spacing for all rows)
-  // Pushed down 5mm to leave more space at top for logo/scanner area
   pdf.setFontSize(FONT_SIZE_BODY);
 
   // Row 1 (Fields 1-2)
-  y = startY + 34;
+  y = startY + 10;
   drawCombinedField(pdf, "1. eForm-C No.", d.formNo, COL_2_X, y, COL_2_WIDTH);
   drawCombinedField(
     pdf,
@@ -416,7 +389,7 @@ function renderCopy(
   );
 
   // Row 2 (Fields 3-5)
-  y = startY + 39;
+  y = startY + 15;
   drawCombinedField(
     pdf,
     "3. Name of Licensee:",
@@ -443,7 +416,7 @@ function renderCopy(
   );
 
   // Row 3 (Fields 6-8)
-  y = startY + 44;
+  y = startY + 20;
   drawCombinedField(
     pdf,
     "6. Tehsil Of License:",
@@ -470,7 +443,7 @@ function renderCopy(
   );
 
   // Row 4 (Fields 9-11)
-  y = startY + 49;
+  y = startY + 25;
   drawCombinedField(
     pdf,
     "9. Name Of Mineral:",
@@ -497,7 +470,7 @@ function renderCopy(
   );
 
   // Row 5 (Fields 12-14)
-  y = startY + 54;
+  y = startY + 30;
   drawCombinedField(
     pdf,
     "12. Distance(Approx in K.M.):",
@@ -524,7 +497,7 @@ function renderCopy(
   );
 
   // Row 6 (Fields 15-16)
-  y = startY + 59;
+  y = startY + 35;
   drawCombinedField(
     pdf,
     "15. Destination District:",
@@ -543,7 +516,7 @@ function renderCopy(
   );
 
   // Row 7 (Fields 17-18)
-  y = startY + 64;
+  y = startY + 40;
   drawCombinedField(
     pdf,
     "17. Selling Price (Rs per Cubic Meter Ton for Silica sand/Diaspore/Pyrophylite):",
@@ -562,7 +535,7 @@ function renderCopy(
   );
 
   // 5. Vehicle Details Section
-  y = startY + 70;
+  y = startY + 46;
   pdf.setFontSize(8);
   renderCenteredText(pdf, "Details Of Registered Vehicle", y);
 
@@ -644,7 +617,11 @@ export async function generatePDF(
 
     // Added broader fallback checks for vehicleType and dlNumber to catch missing data
     const commonData = {
-      formNo: generate19DigitNumber(),
+      formNo: toText(
+        (data as any).eform_c_no ??
+          (data as any).formNo ??
+          generate19DigitNumber(),
+      ),
       licenseeId: toText((data as any).licenseeId ?? (data as any).licensee_id),
       licenseeName: toText(
         (data as any).licenseeName ??
@@ -696,8 +673,16 @@ export async function generatePDF(
           (data as any).distance_km ??
           (data as any).distanceInKm,
       ),
-      generatedOn: format(generatedOn, "dd-MM-yyyy hh:mm:ss a"),
-      validUpto: format(validUpto, "dd-MM-yyyy hh:mm:ss a"),
+      generatedOn: toText(
+        (data as any).eform_c_generated_on ??
+          (data as any).generated_on ??
+          format(generatedOn, "dd-MM-yyyy hh:mm:ss a"),
+      ),
+      validUpto: toText(
+        (data as any).eform_c_valid_upto ??
+          (data as any).valid_upto ??
+          format(validUpto, "dd-MM-yyyy hh:mm:ss a"),
+      ),
       sellingPrice: toText(
         (data as any).sellingPrice ??
           (data as any).selling_price ??
