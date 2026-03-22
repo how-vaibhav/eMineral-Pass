@@ -135,11 +135,15 @@ function renderHindiTextToPDF(
   y: number,
   fontSize: number = 10,
   isBold: boolean = true,
+  color: number[] = [0, 0, 0],
 ): void {
   try {
     console.log(
       `[PDF-Hindi] Rendering directly: "${text.substring(0, 30)}..."`,
     );
+
+    // Set text color
+    pdf.setTextColor(color[0], color[1], color[2]);
 
     // Set font to DevanagariFont (already registered)
     setFontForText(pdf, text, isBold);
@@ -147,6 +151,9 @@ function renderHindiTextToPDF(
 
     // Draw text directly to PDF
     pdf.text(text, x, y, { align: "center" });
+
+    // Reset text color to black
+    pdf.setTextColor(0, 0, 0);
 
     console.log("[PDF-Hindi] ✓ Direct PDF rendering successful");
   } catch (error) {
@@ -167,9 +174,13 @@ function renderHindiCopyTitleToPDF(
   x: number,
   y: number,
   fontSize: number = 7.5,
+  color: number[] = [0, 0, 0],
 ): void {
   try {
     console.log(`[PDF-CopyTitle] Rendering: "${text.substring(0, 30)}..."`);
+
+    // Set text color
+    pdf.setTextColor(color[0], color[1], color[2]);
 
     // Set font to DevanagariFont
     setFontForText(pdf, text, true);
@@ -178,11 +189,16 @@ function renderHindiCopyTitleToPDF(
     // Draw text directly to PDF
     pdf.text(text, x, y, { align: "center" });
 
+    // Reset text color to black
+    pdf.setTextColor(0, 0, 0);
+
     console.log("[PDF-CopyTitle] ✓ Direct PDF rendering successful");
   } catch (error) {
     console.error("[PDF-CopyTitle] ❌ Failed to render copy title:", error);
     pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(color[0], color[1], color[2]);
     pdf.text("[Hindi Title]", x, y, { align: "center" });
+    pdf.setTextColor(0, 0, 0);
   }
 }
 
@@ -364,9 +380,10 @@ function renderCopy(
     pdf,
     "भूतत्व एवं खनिकर्म निदेशालय उत्तर प्रदेश",
     105,
-    y + 5,
+    y + 20,
     FONT_SIZE_TITLE_HINDI,
     true,
+    [230, 180, 10],
   );
 
   pdf.setFontSize(FONT_SIZE_TITLE_ENG);
@@ -374,13 +391,13 @@ function renderCopy(
   renderCenteredText(
     pdf,
     "DIRECTORATE OF GEOLOGY AND MINING UTTAR PRADESH",
-    y + 15.5,
+    y + 25.5,
     [230, 180, 10],
   );
 
   pdf.setFontSize(7.5);
   // Render Hindi copy title directly using registered DevanagariFont
-  renderHindiCopyTitleToPDF(pdf, copyTitle, 105, y + 19.5, 7.5);
+  renderHindiCopyTitleToPDF(pdf, copyTitle, 105, y + 29.5, 7.5);
 
   // 4. Grid Data Section (Consistent 5mm Y-spacing for all rows)
   // Pushed down 5mm to leave more space at top for logo/scanner area
