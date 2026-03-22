@@ -9,11 +9,11 @@ import { loadDevanagariFont } from "@/lib/font-loader";
 /* ================= CONFIG & CONSTANTS ================= */
 
 const PAGE_MARGIN_X = 10; // Left/right margins (10-12 mm)
-const TOP_MARGIN = 15; // Top margin (12-15 mm)
+const TOP_MARGIN = 8; // Top margin (reduced to move content up)
 const COPY_HEIGHT = 95; // Each section height (optimized for 3 equal sections)
 const COPY_GAP = 0; // Gap between sections on same page
-const HEADER_HEIGHT = 38; // Header area within each section (35-40 mm)
-const ROW_SPACING = 5; // Vertical spacing between data rows (4-5 mm)
+const HEADER_HEIGHT = 32; // Header area within each section (reduced)
+const ROW_SPACING = 3; // Vertical spacing between data rows (reduced)
 const BORDER_WIDTH = 0.5; // Thin border for sections
 
 // QR Code positioning
@@ -267,40 +267,62 @@ function drawCombinedField(
   x: number,
   y: number,
   maxWidth: number,
-) {
-  const safeValue = value || "-";
+): number {
+  // Returns the height consumed by this field
 
-  // Ensure label ends with colon for professional look
-  const formattedLabel = label.endsWith(":") ? label : label + ":";
+  const safeValue = (value || "-").toUpperCase();
+
+  // Check if label contains newline for multi-line support
+  const labelLines = label.split("\n");
+
+  // Ensure each line ends appropriately
+  const formattedLabelLines = labelLines.map((line, idx) => {
+    if (idx === labelLines.length - 1 && !line.endsWith(":")) {
+      return line + ":";
+    }
+    return line;
+  });
 
   // Set font for label
-  setFontForText(pdf, formattedLabel, true);
+  setFontForText(pdf, formattedLabelLines[0], true);
   pdf.setFontSize(FONT_SIZE_BODY);
 
-  // Calculate label width to position value appropriately
-  const labelWidth = pdf.getTextWidth(formattedLabel);
+  // Draw all label lines
+  let labelY = y;
+  const lineHeight = 4;
 
-  // Draw label
-  pdf.text(formattedLabel, x, y);
+  formattedLabelLines.forEach((line) => {
+    pdf.text(line, x, labelY);
+    labelY += lineHeight;
+  });
 
-  // Add gap of 2mm after label, then draw value
+  // For multi-line labels: use the LAST line for value positioning
+  const lastLine = formattedLabelLines[formattedLabelLines.length - 1];
+  const lastLineWidth = pdf.getTextWidth(lastLine);
+  const lastLineY = y + (formattedLabelLines.length - 1) * lineHeight;
+
+  // Add gap of 2mm after last line, then draw value
   const gapSize = 2;
-  const valueX = x + labelWidth + gapSize;
+  const valueX = x + lastLineWidth + gapSize;
+  const valueY = lastLineY;
 
   // Set font for value (use bold weight for values)
   setFontForText(pdf, safeValue, true);
   pdf.setFontSize(FONT_SIZE_BODY);
 
   // Draw value with wrapping if needed
-  const remainingWidth = maxWidth - labelWidth - gapSize;
+  const remainingWidth = maxWidth - lastLineWidth - gapSize;
   if (remainingWidth > 10) {
     const valueLines = pdf.splitTextToSize(safeValue, remainingWidth);
-    pdf.text(valueLines, valueX, y);
+    pdf.text(valueLines, valueX, valueY);
   } else {
     // If space too tight, wrap to next line
     const valueLines = pdf.splitTextToSize(safeValue, maxWidth - 5);
-    pdf.text(valueLines, x + 5, y + 5);
+    pdf.text(valueLines, x + 5, lastLineY + lineHeight + 2);
   }
+
+  // Return height consumed (label lines + line spacing)
+  return formattedLabelLines.length * lineHeight + 2;
 }
 
 function renderCenteredText(
@@ -459,7 +481,7 @@ function renderCopy(
   );
   drawCombinedField(
     pdf,
-    "5. Licensee Details:",
+    "5. Licensee Details\n[Address,Village,\n(Gata/Khand),Area]",
     d.address,
     COL_3_X,
     y,
@@ -467,7 +489,8 @@ function renderCopy(
   );
 
   // Row 3 (Fields 6-8)
-  y += ROW_SPACING;
+  // Field 5 has 3 lines (12mm height), so add more space to prevent overlap
+  y += ROW_SPACING + 10; // Total: 3 + 10 = 13mm to clear field 5 (3 lines × 4mm)
   drawCombinedField(
     pdf,
     "6. Tehsil Of License:",
@@ -486,7 +509,7 @@ function renderCopy(
   );
   drawCombinedField(
     pdf,
-    "8. QTY Transported In:",
+    "8. QTY Transported In (Cubic Meter/Ton for Silica\nsand/Diaspore/Pyrophylite)",
     d.qty,
     COL_3_X,
     y,
@@ -494,7 +517,8 @@ function renderCopy(
   );
 
   // Row 4 (Fields 9-11)
-  y += ROW_SPACING;
+  // Field 8 has 2 lines (8mm height), so add more space to prevent overlap
+  y += ROW_SPACING + 6; // Total: 3 + 6 = 9mm to clear field 8 (2 lines × 4mm)
   drawCombinedField(
     pdf,
     "9. Name Of Mineral:",
@@ -570,7 +594,7 @@ function renderCopy(
   y += ROW_SPACING;
   drawCombinedField(
     pdf,
-    "17. Selling Price (Rs per Cubic Meter Ton for Silica sand/Diaspore/Pyrophylite):",
+    "17. Selling Price (Rs per Cubic Meter Ton for Silica sand/\nDiaspore/Pyrophyllite):",
     d.sellingPrice,
     COL_1_X,
     y,
@@ -586,7 +610,7 @@ function renderCopy(
   );
 
   // 5. Vehicle Details Section
-  y += ROW_SPACING + 2; // Extra space before vehicle section
+  y += ROW_SPACING + 6; // Extra space before vehicle section (field 17 is 2 lines)
   pdf.setFontSize(8);
   renderCenteredText(pdf, "Details Of Registered Vehicle", y);
 

@@ -110,14 +110,38 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
         value !== null &&
         String(value).trim() !== ""
       ) {
-        return String(value);
+        return String(value).toUpperCase();
       }
     }
     return fallback;
   };
 
+  // Get value without uppercase conversion (for dates and timestamps)
+  const getValueAsIs = (keys: string[], fallback?: string) => {
+    for (const key of keys) {
+      const value = (formData as Record<string, any>)[key];
+      if (
+        value !== undefined &&
+        value !== null &&
+        String(value).trim() !== ""
+      ) {
+        return String(value);
+      }
+    }
+    return fallback || "-";
+  };
+
   const formatDateTime = (value: any) => {
     if (!value) return "-";
+
+    // If value is already a formatted date string (user input), return as-is
+    if (
+      typeof value === "string" &&
+      value.match(/\d{2}-\d{2}-\d{4}\s\d{2}:\d{2}:\d{2}\s(AM|PM)/)
+    ) {
+      return value;
+    }
+
     try {
       return format(new Date(value), "dd-MM-yyyy hh:mm:ss a");
     } catch {
@@ -134,6 +158,7 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
       (formData as Record<string, any>).licensee_area,
     ]
       .filter(Boolean)
+      .map((item) => String(item).toUpperCase())
       .join(", ") ||
     "-";
 
@@ -159,12 +184,8 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
   );
   const distanceApprox = getValue(["distance_approx"]);
   const travelingDuration = getValue(["traveling_duration"]);
-  const generatedOn = formatDateTime(
-    getValue(["eform_c_generated_on"], record.generated_on),
-  );
-  const validUpto = formatDateTime(
-    getValue(["eform_c_valid_upto"], record.valid_upto),
-  );
+  const generatedOn = formatDateTime(getValueAsIs(["eform_c_generated_on"]));
+  const validUpto = formatDateTime(getValueAsIs(["eform_c_valid_upto"]));
   const sellingPrice = getValue(["selling_price"]);
   const serialNumber = getValue(["serial_number", "serialNumber"]);
   const vehicleRegistration = getValue([
@@ -222,23 +243,17 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
                 </tr>
                 <tr>
                   <td className="stytd label">3. Name of Licensee:</td>
-                  <td className="stytd" colSpan={3}>
-                    {licenseeName}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="stytd label">4. Mobile No:</td>
+                  <td className="stytd">{licenseeName}</td>
+                  <td className="stytd label">4. Mobile Number Of Licensee:</td>
                   <td className="stytd">{licenseeMobile}</td>
-                  <td className="stytd label">5. Destination District :</td>
-                  <td className="stytd">{destinationDistrict}</td>
                 </tr>
                 <tr>
+                  <td className="stytd label">5. Destination District:</td>
+                  <td className="stytd">{destinationDistrict}</td>
                   <td className="stytd label">
                     6. Licensee Details [Address, Village, (Gata/Khand), Area]:
                   </td>
-                  <td className="stytd" colSpan={3}>
-                    {licenseeDetails}
-                  </td>
+                  <td className="stytd">{licenseeDetails}</td>
                 </tr>
                 <tr>
                   <td className="stytd label">7. Tehsil Of License:</td>
@@ -325,12 +340,19 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
       </div>
 
       <style jsx>{`
+        @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
+        @import url("https://fonts.googleapis.com/css2?family=Arial:wght@400;700&display=swap");
+
         .emineral-page {
           background: #ffffff;
           color: #000000;
           min-height: 100vh;
           font-family:
-            var(--font-noto-devanagari), "Times New Roman", Times, serif;
+            Roboto,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
           font-size: 16px;
         }
         .page-wrap {
@@ -343,11 +365,18 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
         .main-form-table td {
           font-size: 15px;
           font-family:
-            var(--font-noto-devanagari), "Times New Roman", Times, serif;
+            Roboto,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
+          font-weight: 400;
           padding: 6px 10px;
           border: 1px solid #c2b9b9;
           vertical-align: top;
           text-align: left;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
         }
         .no-border {
           border: none !important;
@@ -363,11 +392,25 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
           font-weight: bold;
           padding: 6px;
           background-color: #f2f2f2;
+          font-family:
+            Arial,
+            Helvetica,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
         }
         .imp-header h2,
         .imp-header h3,
         .imp-header h4 {
           margin: 4px 0;
+          font-family:
+            Arial,
+            Helvetica,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
         }
         .imp-header h2 {
           font-size: 28px;
@@ -380,10 +423,23 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
           color: #ffffff;
           font-variant: petite-caps;
           text-align: center;
+          font-family:
+            Roboto,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
         }
         .stytd.label {
           font-weight: bold;
-          width: 220px;
+          width: auto;
+          max-width: 45%;
+          font-family:
+            Roboto,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
         }
         .fieldset {
           width: 100%;
@@ -396,9 +452,15 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
         .bigHeading {
           font-weight: bold;
           font-size: 16px;
-          color: maroon;
+          color: black;
           text-align: center;
           margin: 20px 0;
+          font-family:
+            Roboto,
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            sans-serif;
         }
         @media (max-width: 640px) {
           .main-form-table td {
