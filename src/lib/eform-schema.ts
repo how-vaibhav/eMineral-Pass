@@ -271,14 +271,15 @@ export const EFORM_C_SCHEMA: FormSchema = {
       placeholder: "+91 XXXXX XXXXX",
     },
 
-    // ===== AUTO-GENERATED FIELDS (Read-only, set by server) =====
+    // ===== AUTO-GENERATED FIELDS (USER PROVIDED) =====
     {
       id: "field_generated_on",
       name: "generated_on",
       label: "Generated On",
-      type: "text", // Display only, no input
-      required: false,
-      placeholder: "DD-MM-YYYY HH:MM:SS AM/PM",
+      type: "text",
+      required: true,
+      placeholder: "e.g., 24-03-2026 05:30:45 AM",
+      validation: { minLength: 1, maxLength: 100 },
     },
 
     {

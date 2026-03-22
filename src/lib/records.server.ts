@@ -60,7 +60,9 @@ export async function createRecord({
     const validUptoFormatted =
       calculateValidityExpiration(generatedOnFormatted);
 
-    // Use user-provided valid_upto if available, otherwise use auto-generated
+    // Use user-provided values if available, otherwise use auto-generated
+    const userProvidedGeneratedOn =
+      formData.eform_c_generated_on || formData.generated_on;
     const userProvidedValidUpto =
       formData.eform_c_valid_upto || formData.valid_upto;
 
@@ -68,7 +70,7 @@ export async function createRecord({
     const completeFormData: FormSubmissionData = {
       ...formData,
       eform_c_no: eformCNo,
-      eform_c_generated_on: generatedOnFormatted,
+      eform_c_generated_on: userProvidedGeneratedOn || generatedOnFormatted,
       eform_c_valid_upto: userProvidedValidUpto || validUptoFormatted,
     };
 

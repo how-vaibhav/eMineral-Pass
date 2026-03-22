@@ -179,15 +179,15 @@ export const EFORM_C_MAIN_FIELDS: FormFieldDefinition[] = [
     validation: { minLength: 1, maxLength: 50 },
   },
 
-  // Row 8 - AUTO-GENERATED (READ-ONLY)
+  // Row 8 - USER PROVIDED
   {
     id: "field_eform_c_generated_on",
     name: "eform_c_generated_on",
     label: "eForm-C Generated On",
     type: "text",
-    required: false,
-    readOnly: true,
-    placeholder: "Auto-generated",
+    required: true,
+    placeholder: "e.g., 24-03-2026 05:30:45 AM",
+    validation: { minLength: 1, maxLength: 100 },
   },
   {
     id: "field_eform_c_valid_upto",
