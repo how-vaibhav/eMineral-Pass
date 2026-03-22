@@ -137,7 +137,9 @@ function renderHindiTextToPDF(
   isBold: boolean = true,
 ): void {
   try {
-    console.log(`[PDF-Hindi] Rendering directly: "${text.substring(0, 30)}..."`);
+    console.log(
+      `[PDF-Hindi] Rendering directly: "${text.substring(0, 30)}..."`,
+    );
 
     // Set font to DevanagariFont (already registered)
     setFontForText(pdf, text, isBold);
