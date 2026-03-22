@@ -125,113 +125,62 @@ function getLogoBase64(): string | null {
 }
 
 /**
- * Render Hindi text on canvas for perfect Devanagari rendering
- * Canvas handles Devanagari ligatures correctly, unlike jsPDF text rendering
- * CACHED to avoid re-rendering same text multiple times per PDF
+ * Render Hindi text directly using jsPDF's registered Devanagari font
+ * No canvas needed - works on all environments (local + Vercel)
  */
-function renderHindiTextToCanvas(text: string, fontSize: number = 10): string {
-  // Check cache first
-  const cacheKey = `heading_${text}_${fontSize}`;
-  if (hindiCanvasCache.has(cacheKey)) {
-    console.log("[PDF-Canvas] Using cached image for:", text.substring(0, 30));
-    return hindiCanvasCache.get(cacheKey)!;
-  }
-
+function renderHindiTextToPDF(
+  pdf: jsPDF,
+  text: string,
+  x: number,
+  y: number,
+  fontSize: number = 10,
+  isBold: boolean = true,
+): void {
   try {
-    console.log("[PDF-Canvas] Rendering Hindi heading to canvas:", text);
+    console.log(`[PDF-Hindi] Rendering directly: "${text.substring(0, 30)}..."`);
 
-    // Create high-resolution canvas with larger text
-    const scale = 3; // Optimized balance between quality and performance
-    const canvasWidth = 1800 * scale;
-    const canvasHeight = 150 * scale;
-    const canvas = createCanvas(canvasWidth, canvasHeight);
-    const ctx = canvas.getContext("2d");
+    // Set font to DevanagariFont (already registered)
+    setFontForText(pdf, text, isBold);
+    pdf.setFontSize(fontSize);
 
-    // Transparent background
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    // Draw text directly to PDF
+    pdf.text(text, x, y, { align: "center" });
 
-    // Enable antialiasing for crisp text
-    ctx.antialias = "subpixel";
-
-    // Set font - increased multiplier from 1.5 to 2.0 for larger text
-    const scaledFontSize = fontSize * scale * 2.0;
-    ctx.font = `bold ${scaledFontSize}pt 'Noto Sans Devanagari', 'Nirmala UI', 'DejaVu Sans', sans-serif`;
-    ctx.fillStyle = "rgb(230, 180, 10)"; // Medium yellow (balanced)
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    // Draw text at center
-    ctx.fillText(text, canvasWidth / 2, canvasHeight / 2);
-
-    // Convert to PNG data URL (high quality)
-    const pngBuffer = canvas.toBuffer("image/png");
-    const dataUrl = `data:image/png;base64,${pngBuffer.toString("base64")}`;
-
-    // Cache the result
-    hindiCanvasCache.set(cacheKey, dataUrl);
-    console.log("[PDF-Canvas] ✓ Hindi heading rendered and cached");
-    return dataUrl;
+    console.log("[PDF-Hindi] ✓ Direct PDF rendering successful");
   } catch (error) {
-    console.error("[PDF-Canvas] Failed to render Hindi text:", error);
-    return "";
+    console.error("[PDF-Hindi] ❌ Failed to render Hindi text:", error);
+    // Fallback: try with helvetica
+    pdf.setFont("helvetica", isBold ? "bold" : "normal");
+    pdf.text("[Hindi Text]", x, y, { align: "center" });
   }
 }
 
 /**
- * Render Hindi copy titles to canvas (smaller version for subtitle)
- * CACHED to avoid re-rendering same text multiple times per PDF
+ * Render Hindi copy title directly using jsPDF
+ * No canvas needed - works on all environments
  */
-function renderHindiCopyTitleToCanvas(
+function renderHindiCopyTitleToPDF(
+  pdf: jsPDF,
   text: string,
+  x: number,
+  y: number,
   fontSize: number = 7.5,
-): string {
-  // Check cache first
-  const cacheKey = `title_${text}_${fontSize}`;
-  if (hindiCanvasCache.has(cacheKey)) {
-    console.log("[PDF-Canvas] Using cached image for copy title");
-    return hindiCanvasCache.get(cacheKey)!;
-  }
-
+): void {
   try {
-    console.log(
-      "[PDF-Canvas] Rendering Hindi copy title to canvas:",
-      text.substring(0, 30),
-    );
+    console.log(`[PDF-CopyTitle] Rendering: "${text.substring(0, 30)}..."`);
 
-    // Create high-resolution canvas for copy title (smaller than main heading)
-    const scale = 2.5; // Optimized balance between quality and performance
-    const canvasWidth = 1600 * scale;
-    const canvasHeight = 100 * scale;
-    const canvas = createCanvas(canvasWidth, canvasHeight);
-    const ctx = canvas.getContext("2d");
+    // Set font to DevanagariFont
+    setFontForText(pdf, text, true);
+    pdf.setFontSize(fontSize);
 
-    // Transparent background
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    // Draw text directly to PDF
+    pdf.text(text, x, y, { align: "center" });
 
-    // Enable antialiasing
-    ctx.antialias = "subpixel";
-
-    // Set font - increased multiplier from 1.3 to 1.8 for larger text
-    const scaledFontSize = fontSize * scale * 1.8;
-    ctx.font = `bold ${scaledFontSize}pt 'Noto Sans Devanagari', 'Nirmala UI', 'DejaVu Sans', sans-serif`;
-    ctx.fillStyle = "rgb(0, 0, 0)"; // Black for copy title
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    // Draw text at center
-    ctx.fillText(text, canvasWidth / 2, canvasHeight / 2);
-
-    // Convert to PNG data URL
-    const pngBuffer = canvas.toBuffer("image/png");
-    const dataUrl = `data:image/png;base64,${pngBuffer.toString("base64")}`;
-
-    // Cache the result
-    hindiCanvasCache.set(cacheKey, dataUrl);
-    console.log("[PDF-Canvas] ✓ Hindi copy title rendered and cached");
-    return dataUrl;
+    console.log("[PDF-CopyTitle] ✓ Direct PDF rendering successful");
   } catch (error) {
-    console.error("[PDF-Canvas] Failed to render Hindi copy title:", error);
-    return "";
+    console.error("[PDF-CopyTitle] ❌ Failed to render copy title:", error);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("[Hindi Title]", x, y, { align: "center" });
   }
 }
 
@@ -408,15 +357,15 @@ function renderCopy(
   }
 
   pdf.setFontSize(FONT_SIZE_TITLE_HINDI);
-  // Render Hindi heading as canvas image for perfect Devanagari rendering
-  const hindiHeadingImage = renderHindiTextToCanvas(
+  // Render Hindi heading directly using registered DevanagariFont
+  renderHindiTextToPDF(
+    pdf,
     "भूतत्व एवं खनिकर्म निदेशालय उत्तर प्रदेश",
+    105,
+    y + 5,
     FONT_SIZE_TITLE_HINDI,
+    true,
   );
-  if (hindiHeadingImage) {
-    // Larger image: width 165mm, height 16mm for maximum visibility (increased from 13mm)
-    pdf.addImage(hindiHeadingImage, "PNG", 22.5, y + 1.5, 165, 16);
-  }
 
   pdf.setFontSize(FONT_SIZE_TITLE_ENG);
   // English heading positioned below Hindi with clear gap
@@ -428,12 +377,8 @@ function renderCopy(
   );
 
   pdf.setFontSize(7.5);
-  // Render Hindi copy title as canvas image for perfect Devanagari rendering
-  const copyTitleImage = renderHindiCopyTitleToCanvas(copyTitle, 7.5);
-  if (copyTitleImage) {
-    // Image positioned below English heading: width 155mm, height 10mm (increased from 7.5mm)
-    pdf.addImage(copyTitleImage, "PNG", 27.5, y + 17, 155, 10);
-  }
+  // Render Hindi copy title directly using registered DevanagariFont
+  renderHindiCopyTitleToPDF(pdf, copyTitle, 105, y + 19.5, 7.5);
 
   // 4. Grid Data Section (Consistent 5mm Y-spacing for all rows)
   // Pushed down 5mm to leave more space at top for logo/scanner area
