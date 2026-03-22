@@ -43,7 +43,7 @@ const hindiCanvasCache = new Map<string, string>();
 /**
  * Load small Devanagari font (647KB) for Hindi text rendering
  * Uses NotoSansDevanagari-Regular.ttf instead of large Nirmala.ttc (5.3MB)
- * 
+ *
  * Strategy:
  * 1. Try local file system (development)
  * 2. Fallback to jsDelivr CDN fetch (Vercel/production)
