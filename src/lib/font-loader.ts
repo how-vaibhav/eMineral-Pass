@@ -78,7 +78,9 @@ async function loadFromCDN(): Promise<FontLoadResult | null> {
 
     for (const { url, format: fmt } of cdnUrls) {
       try {
-        console.log(`[Font-Loader] Trying ${fmt} from: ${url.substring(0, 60)}...`);
+        console.log(
+          `[Font-Loader] Trying ${fmt} from: ${url.substring(0, 60)}...`,
+        );
 
         const response = await fetch(url, {
           headers: {
@@ -103,9 +105,7 @@ async function loadFromCDN(): Promise<FontLoadResult | null> {
           const base64 = fontBuffer.toString("base64");
           const sizeKB = Math.round(fontBuffer.length / 1024);
 
-          console.log(
-            `[Font-Loader] ✓ Loaded ${fmt} from CDN (${sizeKB}KB)`,
-          );
+          console.log(`[Font-Loader] ✓ Loaded ${fmt} from CDN (${sizeKB}KB)`);
           return {
             data: base64,
             source: "cdn",
