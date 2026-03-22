@@ -87,7 +87,6 @@ async function loadFromCDN(): Promise<FontLoadResult | null> {
             "User-Agent":
               "Mozilla/5.0 (Compatible) eMineral-Pass/1.0 (+http://emineral-pass.vercel.app)",
           },
-          timeout: 10000,
         });
 
         if (response.ok) {
