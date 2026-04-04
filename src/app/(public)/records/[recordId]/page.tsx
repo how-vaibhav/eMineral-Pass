@@ -358,6 +358,10 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
         .page-wrap {
           padding: 16px;
         }
+        .section,
+        .body-content {
+          width: 100%;
+        }
         .main-form-table {
           width: 100%;
           border-collapse: collapse;
@@ -463,12 +467,40 @@ export default function PublicRecordPage({ params }: PublicRecordPageProps) {
             sans-serif;
         }
         @media (max-width: 640px) {
+          .page-wrap {
+            padding: 8px 6px 12px;
+          }
+          .main-form-table {
+            width: 100%;
+            table-layout: fixed;
+          }
           .main-form-table td {
+            font-size: 10px;
+            line-height: 1.25;
+            padding: 5px 6px;
+            word-break: break-word;
+          }
+          .imp-header h2 {
+            font-size: 16px;
+          }
+          .imp-header h3 {
+            font-size: 13px;
+          }
+          .imp-header h4 {
             font-size: 11px;
-            padding: 6px 8px;
           }
           .stytd.label {
-            width: auto;
+            width: 30%;
+            max-width: 30%;
+          }
+          .back-link {
+            font-size: 13px;
+            display: inline-block;
+            padding: 4px 2px;
+          }
+          .bigHeading {
+            margin: 16px 0;
+            font-size: 12px;
           }
         }
       `}</style>
