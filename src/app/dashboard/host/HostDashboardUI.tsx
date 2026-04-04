@@ -44,22 +44,16 @@ export default function HostDashboardUI() {
 
   const isDark = effectiveTheme === "dark";
 
-  const handleDownloadPDF = (pdfUrl: string, recordId: string) => {
+  const handleDownloadPDF = (recordId: string) => {
     try {
-      // Create a temporary anchor element
+      // Create a link to the API download endpoint
+      const downloadUrl = `/api/records/${recordId}/download-pdf`;
       const link = document.createElement("a");
-      link.href = pdfUrl;
-      link.download = `eform-c-${recordId.slice(0, 8)}.pdf`;
-      link.setAttribute("target", "_blank");
-
-      // Append to body, click, and remove
-      document.body.appendChild(link);
+      link.href = downloadUrl;
       link.click();
-      document.body.removeChild(link);
     } catch (error) {
-      console.error("Error downloading PDF:", error);
-      // Fallback: open in new tab if download doesn't work
-      window.open(pdfUrl, "_blank");
+      console.error("Error initiating PDF download:", error);
+      alert("Failed to download PDF. Please try again.");
     }
   };
 
@@ -522,9 +516,7 @@ export default function HostDashboardUI() {
                           </Link>
                           {record.pdf_url ? (
                             <button
-                              onClick={() =>
-                                handleDownloadPDF(record.pdf_url!, record.id)
-                              }
+                              onClick={() => handleDownloadPDF(record.id)}
                               className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold ${
                                 isDark
                                   ? "bg-slate-800 text-slate-200 hover:bg-slate-700"

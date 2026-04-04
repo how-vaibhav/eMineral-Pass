@@ -308,11 +308,7 @@ export default function FormPage() {
 
                 <div className="flex flex-col justify-center gap-3">
                   {generatedRecord.pdf_url ? (
-                    <a
-                      href={generatedRecord.pdf_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a href={`/api/records/${generatedRecord.id}/download-pdf`}>
                       <Button className="w-full">📄 Download PDF Pass</Button>
                     </a>
                   ) : (
