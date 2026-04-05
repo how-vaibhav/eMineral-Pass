@@ -1,51 +1,55 @@
-import QRCode from 'qrcode'
-import { supabaseAdmin } from '@/lib/supabase'
-import { v4 as uuidv4 } from 'uuid'
+import QRCode from "qrcode";
+import { supabaseAdmin } from "@/lib/supabase";
+import { v4 as uuidv4 } from "uuid";
 
 interface GenerateQROptions {
-  width?: number
-  margin?: number
+  width?: number;
+  margin?: number;
   color?: {
-    dark?: string
-    light?: string
-  }
-  errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H'
+    dark?: string;
+    light?: string;
+  };
+  errorCorrectionLevel?: "L" | "M" | "Q" | "H";
 }
 
 function trimTrailingSlash(url: string): string {
-  return url.replace(/\/+$/, '')
+  return url.replace(/\/+$/, "");
 }
 
 function isPrivateOrLocalhost(hostname: string): boolean {
-  const normalized = hostname.toLowerCase()
+  const normalized = hostname.toLowerCase();
 
-  if (normalized === 'localhost' || normalized === '127.0.0.1' || normalized === '::1') {
-    return true
+  if (
+    normalized === "localhost" ||
+    normalized === "127.0.0.1" ||
+    normalized === "::1"
+  ) {
+    return true;
   }
 
   return (
     /^10\./.test(normalized) ||
     /^192\.168\./.test(normalized) ||
     /^172\.(1[6-9]|2\d|3[0-1])\./.test(normalized)
-  )
+  );
 }
 
 function normalizeBaseUrl(candidate?: string): string | null {
-  if (!candidate) return null
+  if (!candidate) return null;
 
-  const raw = candidate.trim()
-  if (!raw) return null
+  const raw = candidate.trim();
+  if (!raw) return null;
 
-  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
 
   try {
-    const parsed = new URL(withProtocol)
+    const parsed = new URL(withProtocol);
     if (!parsed.hostname || isPrivateOrLocalhost(parsed.hostname)) {
-      return null
+      return null;
     }
-    return trimTrailingSlash(parsed.origin)
+    return trimTrailingSlash(parsed.origin);
   } catch {
-    return null
+    return null;
   }
 }
 
@@ -56,14 +60,14 @@ function resolvePublicAppUrl(): string {
     process.env.NEXT_PUBLIC_SITE_URL,
     process.env.VERCEL_PROJECT_PRODUCTION_URL,
     process.env.VERCEL_URL,
-  ]
+  ];
 
   for (const candidate of candidates) {
-    const resolved = normalizeBaseUrl(candidate)
-    if (resolved) return resolved
+    const resolved = normalizeBaseUrl(candidate);
+    if (resolved) return resolved;
   }
 
-  return 'http://localhost:3000'
+  return "http://localhost:3000";
 }
 
 /**
@@ -72,21 +76,21 @@ function resolvePublicAppUrl(): string {
  */
 export async function generateQRCodeDataUrl(
   text: string,
-  options: GenerateQROptions = {}
+  options: GenerateQROptions = {},
 ): Promise<string> {
   const {
     width = 300,
     margin = 2,
-    color = { dark: '#000000', light: '#FFFFFF' },
-    errorCorrectionLevel = 'H',
-  } = options
+    color = { dark: "#000000", light: "#FFFFFF" },
+    errorCorrectionLevel = "H",
+  } = options;
 
   return QRCode.toDataURL(text, {
     width,
     margin,
     color,
     errorCorrectionLevel,
-  })
+  });
 }
 
 /**
@@ -94,22 +98,22 @@ export async function generateQRCodeDataUrl(
  */
 export async function generateQRCodeBuffer(
   text: string,
-  options: GenerateQROptions = {}
+  options: GenerateQROptions = {},
 ): Promise<Buffer> {
   const {
     width = 300,
     margin = 2,
-    color = { dark: '#000000', light: '#FFFFFF' },
-    errorCorrectionLevel = 'H',
-  } = options
+    color = { dark: "#000000", light: "#FFFFFF" },
+    errorCorrectionLevel = "H",
+  } = options;
 
   return QRCode.toBuffer(text, {
     width,
     margin,
     color,
     errorCorrectionLevel,
-    type: 'image/png',
-  })
+    type: "image/png",
+  });
 }
 
 /**
@@ -118,37 +122,37 @@ export async function generateQRCodeBuffer(
 export async function uploadQRCode(
   recordId: string,
   userId: string,
-  qrBuffer: Buffer
+  qrBuffer: Buffer,
 ): Promise<string> {
-  const filename = `${recordId}-${Date.now()}.png`
-  const path = `qr-codes/${userId}/${filename}`
+  const filename = `${recordId}-${Date.now()}.png`;
+  const path = `qr-codes/${userId}/${filename}`;
 
   const { data, error } = await supabaseAdmin.storage
-    .from('qr-codes')
+    .from("qr-codes")
     .upload(path, qrBuffer, {
-      contentType: 'image/png',
-      cacheControl: '31536000', // 1 year
+      contentType: "image/png",
+      cacheControl: "31536000", // 1 year
       upsert: false,
-    })
+    });
 
   if (error) {
-    throw new Error(`Failed to upload QR code: ${error.message}`)
+    throw new Error(`Failed to upload QR code: ${error.message}`);
   }
 
   // Return public URL
   const {
     data: { publicUrl },
-  } = supabaseAdmin.storage.from('qr-codes').getPublicUrl(data.path)
+  } = supabaseAdmin.storage.from("qr-codes").getPublicUrl(data.path);
 
-  return publicUrl
+  return publicUrl;
 }
 
 /**
  * Get public record URL (what goes in QR code)
  */
 export function getPublicRecordUrl(publicToken: string): string {
-  const baseUrl = resolvePublicAppUrl()
-  return `${baseUrl}/records/${publicToken}`
+  const baseUrl = resolvePublicAppUrl();
+  return `${baseUrl}/records/${publicToken}`;
 }
 
 /**
@@ -157,15 +161,15 @@ export function getPublicRecordUrl(publicToken: string): string {
 export async function generateAndStoreQRCode(
   recordId: string,
   userId: string,
-  publicToken: string
+  publicToken: string,
 ): Promise<string> {
   try {
-    const publicUrl = getPublicRecordUrl(publicToken)
-    const qrBuffer = await generateQRCodeBuffer(publicUrl)
-    const qrCodeUrl = await uploadQRCode(recordId, userId, qrBuffer)
-    return qrCodeUrl
+    const publicUrl = getPublicRecordUrl(publicToken);
+    const qrBuffer = await generateQRCodeBuffer(publicUrl);
+    const qrCodeUrl = await uploadQRCode(recordId, userId, qrBuffer);
+    return qrCodeUrl;
   } catch (error) {
-    console.error('QR code generation failed:', error)
-    throw error
+    console.error("QR code generation failed:", error);
+    throw error;
   }
 }
