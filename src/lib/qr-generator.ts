@@ -12,6 +12,60 @@ interface GenerateQROptions {
   errorCorrectionLevel?: 'L' | 'M' | 'Q' | 'H'
 }
 
+function trimTrailingSlash(url: string): string {
+  return url.replace(/\/+$/, '')
+}
+
+function isPrivateOrLocalhost(hostname: string): boolean {
+  const normalized = hostname.toLowerCase()
+
+  if (normalized === 'localhost' || normalized === '127.0.0.1' || normalized === '::1') {
+    return true
+  }
+
+  return (
+    /^10\./.test(normalized) ||
+    /^192\.168\./.test(normalized) ||
+    /^172\.(1[6-9]|2\d|3[0-1])\./.test(normalized)
+  )
+}
+
+function normalizeBaseUrl(candidate?: string): string | null {
+  if (!candidate) return null
+
+  const raw = candidate.trim()
+  if (!raw) return null
+
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`
+
+  try {
+    const parsed = new URL(withProtocol)
+    if (!parsed.hostname || isPrivateOrLocalhost(parsed.hostname)) {
+      return null
+    }
+    return trimTrailingSlash(parsed.origin)
+  } catch {
+    return null
+  }
+}
+
+function resolvePublicAppUrl(): string {
+  const candidates = [
+    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.APP_URL,
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    process.env.VERCEL_URL,
+  ]
+
+  for (const candidate of candidates) {
+    const resolved = normalizeBaseUrl(candidate)
+    if (resolved) return resolved
+  }
+
+  return 'http://localhost:3000'
+}
+
 /**
  * Generate QR code data URL
  * Used for client-side display and PDF embedding
@@ -93,7 +147,7 @@ export async function uploadQRCode(
  * Get public record URL (what goes in QR code)
  */
 export function getPublicRecordUrl(publicToken: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const baseUrl = resolvePublicAppUrl()
   return `${baseUrl}/records/${publicToken}`
 }
 
