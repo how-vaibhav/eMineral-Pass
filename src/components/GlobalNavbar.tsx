@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { Sun, Moon, LogOut, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
 function GlobalNavbarComponent() {
   const [mounted, setMounted] = useState(false);
@@ -17,11 +18,9 @@ function GlobalNavbarComponent() {
   const { user, signOut, isAuthenticated } = useAuth();
   const { effectiveTheme, toggleTheme } = useTheme();
 
-  // Determine if we should hide auth buttons (on homepage when not authenticated)
   const isHomepage = pathname === "/";
   const hideAuthButtons = isHomepage && !isAuthenticated;
 
-  // Prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
@@ -54,18 +53,15 @@ function GlobalNavbarComponent() {
             className={`text-lg sm:text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}
           >
             <Link href="/">
-              <span className="bg-linear-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
-                eMineral
-              </span>
-              <span
-                className={`ml-1 sm:ml-2 ${isDark ? "text-white" : "text-slate-900"}`}
-              >
-                Pass
-              </span>
+              <TextGenerateEffect
+                words="eMineral Pass"
+                className="bg-linear-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent"
+                duration={1.2}
+                filter={false}
+              />
             </Link>
           </motion.div>
 
-          {/* Desktop Menu */}
           <div className="hidden md:flex gap-3 lg:gap-4 items-center">
             <button
               onClick={toggleTheme}
@@ -123,20 +119,27 @@ function GlobalNavbarComponent() {
                         : "text-slate-600 hover:text-slate-900"
                     }`}
                   >
-                    Sign In
+                    <TextGenerateEffect
+                      words="Sign In"
+                      duration={0.9}
+                      filter={false}
+                    />
                   </Link>
                   <Link
                     href="/auth/signup"
                     className="px-4 lg:px-6 py-2 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white text-sm lg:text-base hover:shadow-lg hover:shadow-blue-500/30 transition-all"
                   >
-                    Get Started
+                    <TextGenerateEffect
+                      words="Get Started"
+                      duration={1}
+                      filter={false}
+                    />
                   </Link>
                 </>
               )
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="md:hidden flex gap-2 items-center">
             <button
               onClick={toggleTheme}
@@ -177,7 +180,6 @@ function GlobalNavbarComponent() {
         </div>
       </motion.nav>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
@@ -194,9 +196,7 @@ function GlobalNavbarComponent() {
               {isAuthenticated && user ? (
                 <>
                   <div
-                    className={`px-4 py-2 text-sm font-medium ${
-                      isDark ? "text-slate-300" : "text-slate-600"
-                    }`}
+                    className={`px-4 py-2 text-sm font-medium ${isDark ? "text-slate-300" : "text-slate-600"}`}
                   >
                     {user.user_metadata?.full_name || user.email}
                   </div>
@@ -215,7 +215,11 @@ function GlobalNavbarComponent() {
                         : "text-red-600 hover:bg-red-100"
                     }`}
                   >
-                    Sign Out
+                    <TextGenerateEffect
+                      words="Sign Out"
+                      duration={0.9}
+                      filter={false}
+                    />
                   </button>
                 </>
               ) : (
@@ -230,14 +234,22 @@ function GlobalNavbarComponent() {
                           : "text-slate-600 hover:bg-slate-100"
                       }`}
                     >
-                      Sign In
+                      <TextGenerateEffect
+                        words="Sign In"
+                        duration={0.9}
+                        filter={false}
+                      />
                     </Link>
                     <Link
                       href="/auth/signup"
                       onClick={() => setIsMenuOpen(false)}
                       className="block w-full px-4 py-2 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white text-sm hover:shadow-lg text-center transition-all"
                     >
-                      Get Started
+                      <TextGenerateEffect
+                        words="Get Started"
+                        duration={1}
+                        filter={false}
+                      />
                     </Link>
                   </>
                 )

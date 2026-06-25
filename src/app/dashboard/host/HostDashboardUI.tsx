@@ -20,7 +20,7 @@ import { parseTimestampFlexible } from "@/lib/timestamp-utils";
 
 interface HostRecord {
   id: string;
-  form_data: any;
+  form_data: Record<string, unknown> | null;
   status: string;
   created_at: string;
   valid_upto: string;
@@ -126,10 +126,12 @@ export default function HostDashboardUI() {
   };
 
   const getFormValue = (
-    formData: { [key: string]: any },
+    formData: Record<string, unknown> | null | undefined,
     keys: string[],
     fallback = "-",
   ) => {
+    if (!formData) return fallback;
+
     for (const key of keys) {
       const value = formData[key];
       if (
@@ -390,7 +392,7 @@ export default function HostDashboardUI() {
           </div>
 
           {/* Filter Buttons */}
-          <div className="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-2">
+          <div className="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-2 -mx-1 px-1">
             {(["All", "active", "expired", "archived"] as const).map(
               (status) => (
                 <button
@@ -493,7 +495,7 @@ export default function HostDashboardUI() {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
                         <span
                           className={`px-3 py-1 rounded-full text-sm font-semibold ${
                             effectiveStatus === "active"
@@ -507,17 +509,17 @@ export default function HostDashboardUI() {
                             effectiveStatus.slice(1)}
                         </span>
 
-                        <div className="flex gap-2">
+                        <div className="grid grid-cols-2 gap-2 sm:flex">
                           <Link
                             href={`/records/${record.id}`}
-                            className={`p-2 rounded-lg ${isDark ? "hover:bg-slate-800" : "hover:bg-slate-100"} transition-colors`}
+                            className={`p-2 rounded-lg flex items-center justify-center ${isDark ? "hover:bg-slate-800" : "hover:bg-slate-100"} transition-colors`}
                           >
                             <Eye className="w-4 h-4 text-slate-400 hover:text-cyan-400" />
                           </Link>
                           {record.pdf_url ? (
                             <button
                               onClick={() => handleDownloadPDF(record.id)}
-                              className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold ${
+                              className={`inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold w-full ${
                                 isDark
                                   ? "bg-slate-800 text-slate-200 hover:bg-slate-700"
                                   : "bg-slate-100 text-slate-700 hover:bg-slate-200"

@@ -22,7 +22,7 @@ import { parseTimestampFlexible } from "@/lib/timestamp-utils";
 
 interface UserRecord {
   id: string;
-  form_data: any;
+  form_data: Record<string, unknown> | null;
   status: string;
   created_at: string;
   valid_upto: string;
@@ -134,10 +134,12 @@ export default function UserDashboard() {
   };
 
   const getFormValue = (
-    formData: Record<string, any>,
+    formData: Record<string, unknown> | null | undefined,
     keys: string[],
     fallback = "-",
   ) => {
+    if (!formData) return fallback;
+
     for (const key of keys) {
       const value = formData[key];
       if (
@@ -289,7 +291,7 @@ export default function UserDashboard() {
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -50 }}
-          className={`fixed top-24 right-4 z-50 px-6 py-4 rounded-lg shadow-lg border-2 ${
+          className={`fixed top-4 left-4 right-4 sm:top-24 sm:left-auto sm:right-4 z-50 px-4 sm:px-6 py-4 rounded-lg shadow-lg border-2 ${
             notification.type === "success"
               ? "bg-green-50 dark:bg-green-950/90 border-green-500 text-green-700 dark:text-green-300"
               : "bg-red-50 dark:bg-red-950/90 border-red-500 text-red-700 dark:text-red-300"
@@ -435,7 +437,7 @@ export default function UserDashboard() {
         </div>
 
         {/* Filter Buttons */}
-        <div className="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-2">
+        <div className="flex flex-wrap gap-2 mb-6 overflow-x-auto pb-2 -mx-1 px-1">
           {(["All", "active", "expired", "archived"] as const).map((status) => (
             <button
               key={status}
@@ -532,7 +534,7 @@ export default function UserDashboard() {
                   key={record.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`${isDark ? "bg-slate-900 border-slate-800 hover:border-slate-700" : "bg-white border-slate-200 hover:border-slate-300"} border rounded-lg p-6 transition-all`}
+                  className={`${isDark ? "bg-slate-900 border-slate-800 hover:border-slate-700" : "bg-white border-slate-200 hover:border-slate-300"} border rounded-lg p-4 sm:p-6 transition-all`}
                 >
                   <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-start mb-4">
                     {/* Pass Info */}
@@ -595,10 +597,10 @@ export default function UserDashboard() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex flex-wrap gap-2 justify-start md:justify-end">
+                    <div className="grid grid-cols-3 gap-2 md:flex md:flex-wrap md:justify-end">
                       <Link
                         href={`/records/${record.id}`}
-                        className={`p-2 rounded-lg ${isDark ? "hover:bg-slate-800" : "hover:bg-slate-100"} transition-colors`}
+                        className={`p-2 rounded-lg flex items-center justify-center ${isDark ? "hover:bg-slate-800" : "hover:bg-slate-100"} transition-colors`}
                         title="View details"
                       >
                         <Eye className="w-5 h-5 text-slate-400 hover:text-cyan-400" />
@@ -606,7 +608,7 @@ export default function UserDashboard() {
                       {record.pdf_url ? (
                         <button
                           onClick={() => handleDownloadPDF(record.id)}
-                          className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold ${
+                          className={`inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold w-full ${
                             isDark
                               ? "bg-slate-800 text-slate-200 hover:bg-slate-700"
                               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -618,7 +620,7 @@ export default function UserDashboard() {
                         </button>
                       ) : (
                         <span
-                          className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold ${
+                          className={`inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold w-full ${
                             isDark
                               ? "bg-slate-800 text-slate-400"
                               : "bg-slate-100 text-slate-500"

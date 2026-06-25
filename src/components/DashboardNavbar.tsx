@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { Menu, X, Sun, Moon, LogOut } from "lucide-react";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
 function DashboardNavbarComponent() {
   const [mounted, setMounted] = useState(false);
@@ -44,7 +45,7 @@ function DashboardNavbarComponent() {
             className="flex items-center gap-2 font-bold text-lg bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent"
           >
             <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg" />
-            eForm-C
+            <TextGenerateEffect words="eForm-C" duration={0.9} filter={false} />
           </Link>
 
           {/* Desktop Menu */}
@@ -55,13 +56,21 @@ function DashboardNavbarComponent() {
                   href="/form"
                   className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition"
                 >
-                  New Form
+                  <TextGenerateEffect
+                    words="New Form"
+                    duration={0.8}
+                    filter={false}
+                  />
                 </Link>
                 <Link
                   href="/dashboard"
                   className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition"
                 >
-                  Dashboard
+                  <TextGenerateEffect
+                    words="Dashboard"
+                    duration={0.8}
+                    filter={false}
+                  />
                 </Link>
               </>
             )}
@@ -99,7 +108,11 @@ function DashboardNavbarComponent() {
                 href="/auth/login"
                 className="text-sm font-medium text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 px-4 py-2 rounded-lg transition"
               >
-                Sign In
+                <TextGenerateEffect
+                  words="Sign In"
+                  duration={0.8}
+                  filter={false}
+                />
               </Link>
             )}
           </div>
@@ -144,14 +157,22 @@ function DashboardNavbarComponent() {
                   className="block text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 py-2 transition"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  New Form
+                  <TextGenerateEffect
+                    words="New Form"
+                    duration={0.8}
+                    filter={false}
+                  />
                 </Link>
                 <Link
                   href="/dashboard"
                   className="block text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 py-2 transition"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Dashboard
+                  <TextGenerateEffect
+                    words="Dashboard"
+                    duration={0.8}
+                    filter={false}
+                  />
                 </Link>
               </>
             )}
@@ -165,7 +186,11 @@ function DashboardNavbarComponent() {
                   onClick={handleSignOut}
                   className="w-full text-left text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 py-2 transition"
                 >
-                  Sign Out
+                  <TextGenerateEffect
+                    words="Sign Out"
+                    duration={0.8}
+                    filter={false}
+                  />
                 </button>
               </>
             ) : (
@@ -174,7 +199,11 @@ function DashboardNavbarComponent() {
                 className="block text-sm font-medium text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 px-4 py-2 rounded-lg transition text-center"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Sign In
+                <TextGenerateEffect
+                  words="Sign In"
+                  duration={0.8}
+                  filter={false}
+                />
               </Link>
             )}
           </div>

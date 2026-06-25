@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "@/context/ThemeContext";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
 export function GlobalFooter() {
   const { effectiveTheme } = useTheme();
@@ -16,8 +17,11 @@ export function GlobalFooter() {
     >
       <div className="max-w-7xl mx-auto text-center text-sm">
         <p>
-          &copy; 2026 eMineral Pass. Digital pass system under Uttar Pradesh
-          Minerals Rules, 2018.
+          <TextGenerateEffect
+            words="© 2026 eMineral Pass. Digital pass system under Uttar Pradesh Minerals Rules, 2018."
+            duration={1.5}
+            filter={false}
+          />
         </p>
       </div>
     </footer>
