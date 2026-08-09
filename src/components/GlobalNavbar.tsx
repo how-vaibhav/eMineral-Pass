@@ -8,6 +8,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { Sun, Moon, LogOut, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { SparkleButton } from "@/components/ui/SparkleButton";
 
 function GlobalNavbarComponent() {
   const [mounted, setMounted] = useState(false);
@@ -125,16 +126,9 @@ function GlobalNavbarComponent() {
                       filter={false}
                     />
                   </Link>
-                  <Link
-                    href="/auth/signup"
-                    className="px-4 lg:px-6 py-2 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white text-sm lg:text-base hover:shadow-lg hover:shadow-blue-500/30 transition-all"
-                  >
-                    <TextGenerateEffect
-                      words="Get Started"
-                      duration={1}
-                      filter={false}
-                    />
-                  </Link>
+                  <SparkleButton href="/auth/signup" className="text-sm lg:text-base px-4 lg:px-6 py-2">
+                    Get Started
+                  </SparkleButton>
                 </>
               )
             )}
@@ -240,17 +234,13 @@ function GlobalNavbarComponent() {
                         filter={false}
                       />
                     </Link>
-                    <Link
+                    <SparkleButton
                       href="/auth/signup"
+                      className="w-full justify-center text-sm"
                       onClick={() => setIsMenuOpen(false)}
-                      className="block w-full px-4 py-2 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white text-sm hover:shadow-lg text-center transition-all"
                     >
-                      <TextGenerateEffect
-                        words="Get Started"
-                        duration={1}
-                        filter={false}
-                      />
-                    </Link>
+                      Get Started
+                    </SparkleButton>
                   </>
                 )
               )}

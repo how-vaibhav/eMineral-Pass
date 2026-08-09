@@ -1,359 +1,563 @@
 "use client";
 
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform, type Variants } from "framer-motion";
+import { useRef } from "react";
 import {
-  ArrowRight,
   CheckCircle2,
-  QrCode,
-  FileText,
-  BarChart3,
-  Lock,
   Zap,
-  Users,
   Shield,
   BookOpen,
+  ArrowRight,
+  Truck,
+  Building2,
+  ScanLine,
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 import { useAuth } from "@/context/AuthContext";
 import { EncryptedText } from "@/components/ui/encrypted-text";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { SparkleButton } from "@/components/ui/SparkleButton";
+import { WorkflowSection } from "@/components/WorkflowSection";
 
+// ─── Floating grid background ─────────────────────────────────────────────────
+function GridBackground() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Dot grid */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, #94a3b8 1px, transparent 1px)",
+          backgroundSize: "32px 32px",
+        }}
+      />
+      {/* Radial glow top-left */}
+      <div className="absolute -top-32 -left-32 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px]" />
+      {/* Radial glow top-right */}
+      <div className="absolute -top-16 right-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px]" />
+      {/* Bottom accent */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-indigo-500/5 rounded-full blur-[80px]" />
+    </div>
+  );
+}
+
+// ─── Stat card ────────────────────────────────────────────────────────────────
+function StatCard({
+  value,
+  label,
+  accent,
+}: {
+  value: string;
+  label: string;
+  accent: string;
+}) {
+  return (
+    <motion.div
+      whileHover={{ y: -4, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 300 }}
+      className="flex-1 min-w-[140px] relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-sm p-6 text-center"
+    >
+      <div className={`text-2xl sm:text-3xl font-black mb-1 ${accent}`}>
+        {value}
+      </div>
+      <div className="text-xs text-slate-500 font-medium uppercase tracking-widest">
+        {label}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Trust badge ──────────────────────────────────────────────────────────────
+function TrustBadge({ text }: { text: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+      <span className="text-sm text-slate-400">{text}</span>
+    </div>
+  );
+}
+
+// ─── Role card ────────────────────────────────────────────────────────────────
+function RoleCard({
+  icon,
+  emoji,
+  title,
+  subtitle,
+  features,
+  href,
+  cta,
+  accentFrom,
+  accentTo,
+  glowColor,
+  delay,
+}: {
+  icon: React.ReactNode;
+  emoji: string;
+  title: string;
+  subtitle: string;
+  features: string[];
+  href: string;
+  cta: string;
+  accentFrom: string;
+  accentTo: string;
+  glowColor: string;
+  delay: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 32 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.7, delay }}
+      whileHover={{ y: -6 }}
+      className={`relative flex flex-col overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-sm p-8 group transition-all duration-500 hover:border-white/[0.15] hover:shadow-2xl ${glowColor}`}
+    >
+      {/* Top gradient strip */}
+      <div
+        className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${accentFrom} ${accentTo} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+      />
+
+      {/* Icon + title */}
+      <div className="flex items-center gap-4 mb-6">
+        <div
+          className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${accentFrom} ${accentTo} flex items-center justify-center text-white shadow-lg`}
+        >
+          {icon}
+        </div>
+        <div>
+          <div className="text-2xl mb-0.5">{emoji}</div>
+          <h3 className="text-xl font-bold text-white">{title}</h3>
+        </div>
+      </div>
+
+      <p className="text-slate-400 text-sm leading-relaxed mb-6">{subtitle}</p>
+
+      <ul className="space-y-2.5 mb-8 flex-1">
+        {features.map((f) => (
+          <li key={f} className="flex items-center gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="text-sm text-slate-300">{f}</span>
+          </li>
+        ))}
+      </ul>
+
+      <SparkleButton href={href} className="w-full justify-center">
+        {cta}
+      </SparkleButton>
+    </motion.div>
+  );
+}
+
+// ─── Why card ─────────────────────────────────────────────────────────────────
+function WhyCard({
+  icon,
+  title,
+  desc,
+  color,
+  delay,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+  color: string;
+  delay: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, delay }}
+      whileHover={{ y: -4 }}
+      className="relative group flex gap-4 p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm hover:border-white/[0.12] hover:bg-white/[0.05] transition-all duration-300"
+    >
+      <div
+        className={`mt-0.5 w-10 h-10 rounded-xl ${color} flex items-center justify-center shrink-0`}
+      >
+        {icon}
+      </div>
+      <div>
+        <h4 className="font-bold text-white mb-1">{title}</h4>
+        <p className="text-sm text-slate-400 leading-relaxed">{desc}</p>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Home() {
   const { effectiveTheme } = useTheme();
   const { isAuthenticated, user, isLoading } = useAuth();
+  const heroRef = useRef<HTMLDivElement>(null);
 
-  console.log(isAuthenticated, user, isLoading);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
   const isDark = effectiveTheme === "dark";
   const showDashboardCta = !isLoading && isAuthenticated && !!user;
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.2, delayChildren: 0.3 },
-    },
+    visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
   };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8 } },
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 28 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.75 } },
   };
-
-  const features = [
-    {
-      icon: <FileText className="w-8 h-8" />,
-      title: "Government Forms",
-      description: "Compliant with official regulations",
-      color: "bg-blue-500",
-    },
-    {
-      icon: <QrCode className="w-8 h-8" />,
-      title: "QR Pass System",
-      description: "Auto-generated for every submission",
-      color: "bg-purple-500",
-    },
-    {
-      icon: <FileText className="w-8 h-8" />,
-      title: "Official PDFs",
-      description: "Government-standard documentation",
-      color: "bg-orange-500",
-    },
-    {
-      icon: <BarChart3 className="w-8 h-8" />,
-      title: "Digital Records",
-      description: "Real-time tracking & verification",
-      color: "bg-green-500",
-    },
-    {
-      icon: <Users className="w-8 h-8" />,
-      title: "Public Verification",
-      description: "Secure record access",
-      color: "bg-indigo-500",
-    },
-    {
-      icon: <Lock className="w-8 h-8" />,
-      title: "Government Security",
-      description: "Bank-grade encryption",
-      color: "bg-rose-500",
-    },
-  ];
 
   return (
-    <div
-      className={`min-h-screen ${isDark ? "bg-linear-to-b from-slate-950 via-slate-900 to-slate-950 text-white" : "bg-linear-to-b from-white via-slate-50 to-white text-slate-900"}`}
-    >
-      <section
-        className={`relative min-h-screen flex items-center justify-center px-6 ${isDark ? "bg-linear-to-b from-slate-950 via-slate-900 to-slate-950" : "bg-linear-to-b from-white to-slate-50"}`}
-      >
-        <div className="absolute inset-0 overflow-hidden">
-          <div
-            className={`absolute top-20 left-10 w-96 h-96 ${isDark ? "bg-cyan-500" : "bg-cyan-400"} rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse`}
-          ></div>
-          <div
-            className={`absolute top-40 right-10 w-96 h-96 ${isDark ? "bg-blue-500" : "bg-blue-400"} rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse`}
-            style={{ animationDelay: "2s" }}
-          ></div>
+    <div className="min-h-screen bg-slate-950 text-white">
+
+      {/* ═══════════════════════════════════════════════════════
+          HERO
+      ══════════════════════════════════════════════════════════ */}
+      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center px-6 pt-20 pb-16 overflow-hidden">
+        <GridBackground />
+
+        {/* Parallax wrapper */}
+        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 w-full max-w-5xl mx-auto">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="text-center"
+          >
+            {/* Badge */}
+            <motion.div variants={itemVariants} className="mb-8">
+              <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-cyan-500/30 bg-cyan-500/[0.07] backdrop-blur-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
+                </span>
+                <span className="text-cyan-300 text-sm font-semibold tracking-wide">
+                  🇮🇳 UP Minerals Rules, 2018 — Compliant System
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Headline */}
+            <motion.h1
+              variants={itemVariants}
+              className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black leading-none tracking-tight mb-6"
+            >
+              <span className="bg-gradient-to-br from-white via-slate-200 to-slate-400 bg-clip-text text-transparent block mb-2">
+                Digital
+              </span>
+              <span className="bg-gradient-to-r from-cyan-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent block">
+                <EncryptedText
+                  text="eMineral Pass"
+                  revealDelayMs={60}
+                  flipDelayMs={28}
+                  encryptedClassName="text-slate-600/60"
+                  revealedClassName="text-transparent"
+                />
+              </span>
+            </motion.h1>
+
+            {/* Subheading */}
+            <motion.p
+              variants={itemVariants}
+              className="text-lg sm:text-xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed"
+            >
+              The official digital pass system for mineral transportation in
+              Uttar Pradesh — automated, government-compliant, QR-verified.
+            </motion.p>
+
+            {/* CTAs */}
+            <motion.div
+              variants={itemVariants}
+              className="flex items-center justify-center gap-4 flex-wrap mb-16"
+            >
+              {showDashboardCta ? (
+                <SparkleButton href="/dashboard/user" className="text-lg px-8 py-4">
+                  Go to Dashboard
+                </SparkleButton>
+              ) : (
+                <>
+                  <SparkleButton href="/auth/signup" className="text-lg px-8 py-4">
+                    Get ePass Free
+                  </SparkleButton>
+                  <SparkleButton href="/auth/signin" variant="secondary" className="text-lg px-8 py-4">
+                    Sign In
+                  </SparkleButton>
+                </>
+              )}
+            </motion.div>
+
+            {/* Trust badges */}
+            <motion.div
+              variants={itemVariants}
+              className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mb-16"
+            >
+              <TrustBadge text="UP Minerals Rules 2018" />
+              <TrustBadge text="Bank-grade encryption" />
+              <TrustBadge text="Instant QR generation" />
+              <TrustBadge text="Free to start" />
+            </motion.div>
+
+            {/* Stats row */}
+            <motion.div
+              variants={itemVariants}
+              className="flex flex-wrap gap-4 justify-center"
+            >
+              <StatCard value="ISO" label="Compliant" accent="text-cyan-400" />
+              <StatCard value="AES-256" label="Encryption" accent="text-blue-400" />
+              <StatCard value="24 / 7" label="Uptime" accent="text-emerald-400" />
+              <StatCard value="< 3s" label="PDF Generation" accent="text-violet-400" />
+            </motion.div>
+          </motion.div>
+        </motion.div>
+
+        {/* Bottom fade to next section */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-950 to-transparent pointer-events-none" />
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          WORKFLOW (Animated Beam section — unchanged)
+      ══════════════════════════════════════════════════════════ */}
+      <WorkflowSection isDark={isDark} />
+
+      {/* ═══════════════════════════════════════════════════════
+          WHY eMINERAL PASS
+      ══════════════════════════════════════════════════════════ */}
+      <section className="relative py-28 px-6 overflow-hidden bg-slate-950">
+        {/* Background glows */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px]" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[100px]" />
+        </div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          {/* Section header */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-16"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 mb-5">
+              <Shield className="w-3.5 h-3.5 text-blue-400" />
+              <span className="text-blue-400 text-sm font-semibold">Why Choose Us</span>
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+              Built for India's{" "}
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                Mineral Sector
+              </span>
+            </h2>
+            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+              Every feature is purpose-built for government compliance, operational speed, and transparent verification.
+            </p>
+          </motion.div>
+
+          {/* 2-col layout: reasons + compliance list */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            {/* Left: why cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                {
+                  icon: <Shield className="w-5 h-5 text-white" />,
+                  title: "Government-Compliant",
+                  desc: "Follows all field requirements of eForm-C under UP Minerals Rules 2018 exactly.",
+                  color: "bg-blue-500/20",
+                  delay: 0,
+                },
+                {
+                  icon: <Zap className="w-5 h-5 text-white" />,
+                  title: "Instant QR Pass",
+                  desc: "A unique, tamper-proof QR code is generated the moment your form is submitted.",
+                  color: "bg-cyan-500/20",
+                  delay: 0.1,
+                },
+                {
+                  icon: <BookOpen className="w-5 h-5 text-white" />,
+                  title: "Bilingual PDFs",
+                  desc: "Government-standard PDFs with Hindi & English — Devanagari rendered natively.",
+                  color: "bg-violet-500/20",
+                  delay: 0.2,
+                },
+                {
+                  icon: <CheckCircle2 className="w-5 h-5 text-white" />,
+                  title: "Public Verification",
+                  desc: "Anyone can verify an ePass via the public QR scan endpoint — total transparency.",
+                  color: "bg-emerald-500/20",
+                  delay: 0.3,
+                },
+              ].map((item) => (
+                <WhyCard key={item.title} {...item} />
+              ))}
+            </div>
+
+            {/* Right: compliance card */}
+            <motion.div
+              initial={{ opacity: 0, x: 32 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="relative rounded-3xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-sm p-8 overflow-hidden"
+            >
+              {/* Decorative glow inside card */}
+              <div className="absolute -top-16 -right-16 w-48 h-48 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                    <ScanLine className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-white">Compliance Checklist</h3>
+                    <p className="text-xs text-slate-500">Verified against government standards</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {[
+                    "Uttar Pradesh Minerals Rules, 2018",
+                    "End-to-end AES-256 encrypted data",
+                    "Compliance-ready for all UP agencies",
+                    "Unlimited mineral transportation passes",
+                    "Real-time QR scan logging & audit trail",
+                    "Role-based access control (RBAC)",
+                    "Google OAuth + JWT token auth",
+                    "Supabase PostgreSQL — bank-grade backend",
+                  ].map((item, i) => (
+                    <motion.div
+                      key={item}
+                      initial={{ opacity: 0, x: 16 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.05 * i, duration: 0.4 }}
+                      className="flex items-center gap-3 py-2.5 border-b border-white/[0.04] last:border-0"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span className="text-sm text-slate-300">{item}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          FOR EVERY ROLE
+      ══════════════════════════════════════════════════════════ */}
+      <section className="relative py-28 px-6 overflow-hidden">
+        {/* Subtle mid-page separator glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-slate-800/40 rounded-full blur-[80px]" />
+        </div>
+
+        <div className="max-w-6xl mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-16"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/25 mb-5">
+              <Building2 className="w-3.5 h-3.5 text-violet-400" />
+              <span className="text-violet-400 text-sm font-semibold">Two Roles, One Platform</span>
+            </div>
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+              For Every Stakeholder
+            </h2>
+            <p className="text-slate-400 text-lg max-w-xl mx-auto">
+              Whether you're issuing passes or verifying them — the platform adapts to your role.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <RoleCard
+              icon={<Building2 className="w-7 h-7" />}
+              emoji="🏢"
+              title="License Hosts"
+              subtitle="Manage mineral transportation passes, track vehicles in real-time, and download compliance reports from a centralised portal."
+              features={[
+                "View & filter all issued ePasses",
+                "Download full PDF records",
+                "Real-time analytics dashboard",
+                "QR scan verification at checkpoints",
+                "Role-based access control",
+              ]}
+              href="/auth/signup?role=host"
+              cta="Access Host Portal"
+              accentFrom="from-blue-500"
+              accentTo="to-cyan-500"
+              glowColor="hover:shadow-blue-500/10"
+              delay={0}
+            />
+            <RoleCard
+              icon={<Truck className="w-7 h-7" />}
+              emoji="🚛"
+              title="Transport Users"
+              subtitle="Submit mineral transportation requests, receive an instant digital ePass with a unique QR code, and download your PDF in seconds."
+              features={[
+                "Fill eForm-C digitally in minutes",
+                "Instant QR pass on submission",
+                "Bilingual PDF (English + Hindi)",
+                "Track active & expired passes",
+                "Mobile-friendly interface",
+              ]}
+              href="/auth/signup?role=user"
+              cta="Get Your ePass"
+              accentFrom="from-violet-500"
+              accentTo="to-pink-500"
+              glowColor="hover:shadow-violet-500/10"
+              delay={0.15}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          FINAL CTA BANNER
+      ══════════════════════════════════════════════════════════ */}
+      <section className="relative py-24 px-6 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-blue-600/5 to-violet-500/5" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
         </div>
 
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="relative z-10 text-center max-w-4xl"
+          initial={{ opacity: 0, y: 32 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="max-w-3xl mx-auto text-center relative z-10"
         >
-          <motion.div variants={itemVariants}>
-            <div
-              className={`inline-block mb-6 px-4 py-2 ${isDark ? "bg-slate-800 border-slate-700" : "bg-slate-100 border-slate-300"} border rounded-full`}
+          <div className="text-5xl mb-6">⚡</div>
+          <h2 className="text-4xl sm:text-5xl font-black text-white mb-4 leading-tight">
+            Start Issuing{" "}
+            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Digital Passes
+            </span>{" "}
+            Today
+          </h2>
+          <p className="text-slate-400 text-lg mb-10">
+            Join the digital transformation of mineral transportation in Uttar Pradesh. Free to start, instant setup.
+          </p>
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            <SparkleButton href="/auth/signup" className="text-lg px-8 py-4">
+              Create Free Account
+            </SparkleButton>
+            <a
+              href="/auth/signin"
+              className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors duration-200 font-medium group"
             >
-              <span className="text-cyan-400 font-semibold">
-                🇮🇳 Government Digital Pass System
-              </span>
-            </div>
-          </motion.div>
-
-          <motion.h1
-            variants={itemVariants}
-            className={`text-4xl sm:text-6xl md:text-8xl font-black mb-6 bg-linear-to-r from-cyan-400 via-blue-500 to-blue-600 bg-clip-text text-transparent`}
-          >
-            <EncryptedText
-              text="eMineral Pass"
-              revealDelayMs={80}
-              flipDelayMs={35}
-              encryptedClassName="text-slate-400/80"
-              revealedClassName="text-transparent"
-            />
-          </motion.h1>
-
-          <motion.p
-            variants={itemVariants}
-            className={`text-lg sm:text-xl ${isDark ? "text-slate-300" : "text-slate-600"} mb-12 max-w-2xl mx-auto`}
-          >
-            <TextGenerateEffect
-              words="Official digital pass system for mineral transportation under the Uttar Pradesh Minerals Rules, 2018"
-              className="block"
-              duration={1.6}
-              filter={false}
-            />
-          </motion.p>
-
-          {showDashboardCta && (
-            <motion.div
-              variants={itemVariants}
-              className="flex gap-4 justify-center flex-wrap sm:flex-nowrap"
-            >
-              <Link
-                href="/dashboard/user"
-                className="px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-bold text-base sm:text-lg text-white flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all"
-              >
-                Go to Dashboard <ArrowRight className="w-5 h-5" />
-              </Link>
-            </motion.div>
-          )}
-          {!showDashboardCta && (
-            <motion.div
-              variants={itemVariants}
-              className="flex gap-4 justify-center flex-wrap sm:flex-nowrap"
-            >
-              <Link
-                href="/auth/signup"
-                className="px-6 sm:px-8 py-3 sm:py-4 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-bold text-base sm:text-lg text-white flex items-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 transition-all"
-              >
-                Get ePass <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                href="/auth/signin"
-                className={`px-6 sm:px-8 py-3 sm:py-4 ${isDark ? "bg-slate-800 hover:bg-slate-700 border-slate-600" : "bg-slate-200 hover:bg-slate-300 border-slate-400"} border rounded-lg font-bold text-base sm:text-lg transition-all`}
-              >
-                Sign In
-              </Link>
-            </motion.div>
-          )}
-
-          <motion.div
-            variants={itemVariants}
-            className={`grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-12 sm:mt-20`}
-          >
-            {[
-              { num: "ISO Compliant", label: "Standards" },
-              { num: "Bank-Grade", label: "Security" },
-              { num: "24/7", label: "Availability" },
-            ].map((s, i) => (
-              <div
-                key={i}
-                className={`${isDark ? "bg-slate-800/50 border-slate-700" : "bg-white/50 border-slate-300"} border rounded-lg p-6`}
-              >
-                <div className="text-2xl font-bold text-cyan-400 mb-2">
-                  {s.num}
-                </div>
-                <div
-                  className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}
-                >
-                  {s.label}
-                </div>
-              </div>
-            ))}
-          </motion.div>
+              Already have an account?
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </a>
+          </div>
         </motion.div>
-      </section>
-
-      <section
-        className={`relative py-24 px-6 ${isDark ? "bg-slate-900" : "bg-slate-50"}`}
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold mb-6">
-              Secure Digital Pass System
-            </h2>
-            <p
-              className={`text-xl ${isDark ? "text-slate-400" : "text-slate-600"}`}
-            >
-              Complete mineral transportation authorization system
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((f, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                className={`group ${isDark ? "bg-linear-to-br from-slate-800 to-slate-900 border-slate-700" : "bg-white border-slate-200"} border rounded-xl p-8 hover:border-cyan-400 hover:shadow-lg transition-all`}
-              >
-                <div
-                  className={`w-14 h-14 ${f.color} rounded-lg flex items-center justify-center mb-6 text-white`}
-                >
-                  {f.icon}
-                </div>
-                <h3 className="text-xl font-bold mb-4">{f.title}</h3>
-                <p className={isDark ? "text-slate-400" : "text-slate-600"}>
-                  {f.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section
-        className={`relative py-24 px-6 ${isDark ? "bg-slate-950" : "bg-white"}`}
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl font-bold mb-8">Why eMineral Pass?</h2>
-              <div className="space-y-4">
-                {[
-                  {
-                    icon: <Shield className="w-6 h-6" />,
-                    text: "Government-compliant & secure",
-                  },
-                  {
-                    icon: <Zap className="w-6 h-6" />,
-                    text: "Instant QR code generation",
-                  },
-                  {
-                    icon: <BookOpen className="w-6 h-6" />,
-                    text: "Official documentation",
-                  },
-                  {
-                    icon: <CheckCircle2 className="w-6 h-6" />,
-                    text: "Real-time verification",
-                  },
-                ].map((b, i) => (
-                  <div key={i} className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-linear-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center text-white">
-                      {b.icon}
-                    </div>
-                    <p className="text-lg font-semibold">{b.text}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div
-              className={`${isDark ? "bg-slate-800/50 border-slate-700" : "bg-slate-50 border-slate-300"} border rounded-2xl p-12`}
-            >
-              <div className="space-y-4">
-                {[
-                  { t: "Follows Uttar Pradesh Minerals Rules, 2018" },
-                  { t: "End-to-end encrypted data transfer" },
-                  { t: "Compliance-ready for government agencies" },
-                  { t: "Unlimited mineral transportation passes" },
-                ].map((c, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    <span
-                      className={isDark ? "text-slate-100" : "text-slate-900"}
-                    >
-                      {c.t}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section
-        className={`relative py-24 px-6 text-center ${isDark ? "bg-slate-900" : "bg-slate-50"}`}
-      >
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-4xl font-bold mb-12">For Every Role</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <div
-              className={`${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-300"} border rounded-2xl p-12 hover:shadow-lg hover:${isDark ? "shadow-blue-500/20" : "shadow-blue-200"} transition-all`}
-            >
-              <div className="text-5xl mb-6">🏢</div>
-              <h3 className="text-2xl font-bold mb-4">License Hosts</h3>
-              <p
-                className={`${isDark ? "text-slate-400" : "text-slate-600"} mb-8`}
-              >
-                Manage mineral transportation passes, track vehicles, and
-                generate compliance reports
-              </p>
-              <ul
-                className={`text-left space-y-2 mb-8 text-sm ${isDark ? "text-slate-300" : "text-slate-700"}`}
-              >
-                <li>✓ Generate eMineral Passes</li>
-                <li>✓ Manage fleet & drivers</li>
-                <li>✓ Real-time analytics</li>
-              </ul>
-              <Link
-                href="/auth/signup?role=host"
-                className="w-full inline-block py-3 bg-linear-to-r from-blue-600 to-cyan-600 rounded-lg font-semibold text-white hover:shadow-lg"
-              >
-                Access Portal
-              </Link>
-            </div>
-            <div
-              className={`${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-slate-300"} border rounded-2xl p-12 hover:shadow-lg hover:${isDark ? "shadow-pink-500/20" : "shadow-pink-200"} transition-all`}
-            >
-              <div className="text-5xl mb-6">👤</div>
-              <h3 className="text-2xl font-bold mb-4">Transport Users</h3>
-              <p
-                className={`${isDark ? "text-slate-400" : "text-slate-600"} mb-8`}
-              >
-                Submit mineral transportation requests, get instant passes with
-                QR codes
-              </p>
-              <ul
-                className={`text-left space-y-2 mb-8 text-sm ${isDark ? "text-slate-300" : "text-slate-700"}`}
-              >
-                <li>✓ Submit transport forms</li>
-                <li>✓ Instant digital passes</li>
-                <li>✓ QR code verification</li>
-              </ul>
-              <Link
-                href="/auth/signup?role=user"
-                className="w-full inline-block py-3 bg-linear-to-r from-purple-600 to-pink-600 rounded-lg font-semibold text-white hover:shadow-lg"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
-        </div>
       </section>
     </div>
   );
