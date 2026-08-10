@@ -17,25 +17,22 @@ import { useAuth } from "@/context/AuthContext";
 import { EncryptedText } from "@/components/ui/encrypted-text";
 import { SparkleButton } from "@/components/ui/SparkleButton";
 import { WorkflowSection } from "@/components/WorkflowSection";
+import { TextReveal } from "@/components/ui/text-reveal";
 
 // ─── Floating grid background ─────────────────────────────────────────────────
 function GridBackground() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {/* Dot grid */}
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.04] dark:opacity-[0.03]"
         style={{
           backgroundImage:
             "radial-gradient(circle, #94a3b8 1px, transparent 1px)",
           backgroundSize: "32px 32px",
         }}
       />
-      {/* Radial glow top-left */}
       <div className="absolute -top-32 -left-32 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px]" />
-      {/* Radial glow top-right */}
       <div className="absolute -top-16 right-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px]" />
-      {/* Bottom accent */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-indigo-500/5 rounded-full blur-[80px]" />
     </div>
   );
@@ -55,25 +52,18 @@ function StatCard({
     <motion.div
       whileHover={{ y: -4, scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300 }}
-      className="flex-1 min-w-[140px] relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03] backdrop-blur-sm p-6 text-center"
+      className="flex-1 min-w-[110px] relative overflow-hidden rounded-2xl
+                 border border-slate-200 dark:border-white/[0.06]
+                 bg-slate-50 dark:bg-white/[0.03]
+                 backdrop-blur-sm p-5 sm:p-6 text-center"
     >
-      <div className={`text-2xl sm:text-3xl font-black mb-1 ${accent}`}>
+      <div className={`text-xl sm:text-3xl font-black mb-1 ${accent}`}>
         {value}
       </div>
-      <div className="text-xs text-slate-500 font-medium uppercase tracking-widest">
+      <div className="text-xs text-slate-500 dark:text-slate-500 font-medium uppercase tracking-widest">
         {label}
       </div>
     </motion.div>
-  );
-}
-
-// ─── Trust badge ──────────────────────────────────────────────────────────────
-function TrustBadge({ text }: { text: string }) {
-  return (
-    <div className="flex items-center gap-2">
-      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-      <span className="text-sm text-slate-400">{text}</span>
-    </div>
   );
 }
 
@@ -110,7 +100,12 @@ function RoleCard({
       viewport={{ once: true }}
       transition={{ duration: 0.7, delay }}
       whileHover={{ y: -6 }}
-      className={`relative flex flex-col overflow-hidden rounded-3xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-sm p-8 group transition-all duration-500 hover:border-white/[0.15] hover:shadow-2xl ${glowColor}`}
+      className={`relative flex flex-col overflow-hidden rounded-3xl
+                  border border-slate-200 dark:border-white/[0.07]
+                  bg-slate-50 dark:bg-white/[0.03]
+                  backdrop-blur-sm p-5 sm:p-8 group transition-all duration-500
+                  hover:border-slate-300 dark:hover:border-white/[0.15]
+                  hover:shadow-2xl ${glowColor}`}
     >
       {/* Top gradient strip */}
       <div
@@ -118,25 +113,29 @@ function RoleCard({
       />
 
       {/* Icon + title */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 mb-5 sm:mb-6">
         <div
-          className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${accentFrom} ${accentTo} flex items-center justify-center text-white shadow-lg`}
+          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br ${accentFrom} ${accentTo} flex items-center justify-center text-white shadow-lg shrink-0`}
         >
           {icon}
         </div>
         <div>
-          <div className="text-2xl mb-0.5">{emoji}</div>
-          <h3 className="text-xl font-bold text-white">{title}</h3>
+          <div className="text-xl sm:text-2xl mb-0.5">{emoji}</div>
+          <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+            {title}
+          </h3>
         </div>
       </div>
 
-      <p className="text-slate-400 text-sm leading-relaxed mb-6">{subtitle}</p>
+      <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-5 sm:mb-6">
+        {subtitle}
+      </p>
 
-      <ul className="space-y-2.5 mb-8 flex-1">
+      <ul className="space-y-2 sm:space-y-2.5 mb-6 sm:mb-8 flex-1">
         {features.map((f) => (
           <li key={f} className="flex items-center gap-2.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span className="text-sm text-slate-300">{f}</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span className="text-sm text-slate-700 dark:text-slate-300">{f}</span>
           </li>
         ))}
       </ul>
@@ -169,7 +168,12 @@ function WhyCard({
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay }}
       whileHover={{ y: -4 }}
-      className="relative group flex gap-4 p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm hover:border-white/[0.12] hover:bg-white/[0.05] transition-all duration-300"
+      className="relative group flex gap-4 p-5 sm:p-6 rounded-2xl
+                 border border-slate-200 dark:border-white/[0.06]
+                 bg-white dark:bg-white/[0.02]
+                 hover:border-slate-300 dark:hover:border-white/[0.12]
+                 hover:bg-slate-50 dark:hover:bg-white/[0.05]
+                 transition-all duration-300"
     >
       <div
         className={`mt-0.5 w-10 h-10 rounded-xl ${color} flex items-center justify-center shrink-0`}
@@ -177,8 +181,8 @@ function WhyCard({
         {icon}
       </div>
       <div>
-        <h4 className="font-bold text-white mb-1">{title}</h4>
-        <p className="text-sm text-slate-400 leading-relaxed">{desc}</p>
+        <h4 className="font-bold text-slate-900 dark:text-white mb-1">{title}</h4>
+        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{desc}</p>
       </div>
     </motion.div>
   );
@@ -210,15 +214,17 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
 
       {/* ═══════════════════════════════════════════════════════
           HERO
       ══════════════════════════════════════════════════════════ */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center px-6 pt-20 pb-16 overflow-hidden">
+      <section
+        ref={heroRef}
+        className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 pt-16 sm:pt-20 pb-12 sm:pb-16 overflow-hidden"
+      >
         <GridBackground />
 
-        {/* Parallax wrapper */}
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 w-full max-w-5xl mx-auto">
           <motion.div
             variants={containerVariants}
@@ -227,13 +233,15 @@ export default function Home() {
             className="text-center"
           >
             {/* Badge */}
-            <motion.div variants={itemVariants} className="mb-8">
-              <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-cyan-500/30 bg-cyan-500/[0.07] backdrop-blur-sm">
+            <motion.div variants={itemVariants} className="mb-6 sm:mb-8">
+              <div className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 rounded-full
+                              border border-cyan-500/30 bg-cyan-500/[0.07]
+                              backdrop-blur-sm">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
                 </span>
-                <span className="text-cyan-300 text-sm font-semibold tracking-wide">
+                <span className="text-cyan-600 dark:text-cyan-300 text-xs sm:text-sm font-semibold tracking-wide">
                   🇮🇳 UP Minerals Rules, 2018 — Compliant System
                 </span>
               </div>
@@ -242,17 +250,17 @@ export default function Home() {
             {/* Headline */}
             <motion.h1
               variants={itemVariants}
-              className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black leading-none tracking-tight mb-6"
+              className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black leading-none tracking-tight mb-5 sm:mb-6"
             >
-              <span className="bg-gradient-to-br from-white via-slate-200 to-slate-400 bg-clip-text text-transparent block mb-2">
+              <span className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent block mb-2">
                 Digital
               </span>
-              <span className="bg-gradient-to-r from-cyan-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent block">
+              <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-blue-500 bg-clip-text text-transparent block">
                 <EncryptedText
                   text="eMineral Pass"
                   revealDelayMs={60}
                   flipDelayMs={28}
-                  encryptedClassName="text-slate-600/60"
+                  encryptedClassName="text-slate-400/60 dark:text-slate-600/60"
                   revealedClassName="text-transparent"
                 />
               </span>
@@ -261,7 +269,7 @@ export default function Home() {
             {/* Subheading */}
             <motion.p
               variants={itemVariants}
-              className="text-lg sm:text-xl text-slate-400 mb-10 max-w-2xl mx-auto leading-relaxed"
+              className="text-base sm:text-xl text-slate-600 dark:text-slate-400 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2"
             >
               The official digital pass system for mineral transportation in
               Uttar Pradesh — automated, government-compliant, QR-verified.
@@ -270,62 +278,58 @@ export default function Home() {
             {/* CTAs */}
             <motion.div
               variants={itemVariants}
-              className="flex items-center justify-center gap-4 flex-wrap mb-16"
+              className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap mb-12 sm:mb-16"
             >
               {showDashboardCta ? (
-                <SparkleButton href="/dashboard/user" className="text-lg px-8 py-4">
+                <SparkleButton href="/dashboard/user" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
                   Go to Dashboard
                 </SparkleButton>
               ) : (
                 <>
-                  <SparkleButton href="/auth/signup" className="text-lg px-8 py-4">
+                  <SparkleButton href="/auth/signup" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
                     Get ePass Free
                   </SparkleButton>
-                  <SparkleButton href="/auth/signin" variant="secondary" className="text-lg px-8 py-4">
+                  <SparkleButton href="/auth/signin" variant="secondary" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
                     Sign In
                   </SparkleButton>
                 </>
               )}
             </motion.div>
 
-            {/* Trust badges */}
+            {/* Stats row — 3 non-repetitive cards */}
             <motion.div
               variants={itemVariants}
-              className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mb-16"
+              className="flex flex-wrap gap-3 sm:gap-4 justify-center"
             >
-              <TrustBadge text="UP Minerals Rules 2018" />
-              <TrustBadge text="Bank-grade encryption" />
-              <TrustBadge text="Instant QR generation" />
-              <TrustBadge text="Free to start" />
-            </motion.div>
-
-            {/* Stats row */}
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-wrap gap-4 justify-center"
-            >
-              <StatCard value="ISO" label="Compliant" accent="text-cyan-400" />
-              <StatCard value="AES-256" label="Encryption" accent="text-blue-400" />
-              <StatCard value="24 / 7" label="Uptime" accent="text-emerald-400" />
-              <StatCard value="< 3s" label="PDF Generation" accent="text-violet-400" />
+              <StatCard value="ISO" label="Compliant" accent="text-cyan-500 dark:text-cyan-400" />
+              <StatCard value="24 / 7" label="Uptime" accent="text-emerald-500 dark:text-emerald-400" />
+              <StatCard value="< 3s" label="PDF Generation" accent="text-violet-500 dark:text-violet-400" />
             </motion.div>
           </motion.div>
         </motion.div>
 
         {/* Bottom fade to next section */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-950 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 dark:from-slate-950 to-transparent pointer-events-none" />
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          WORKFLOW (Animated Beam section — unchanged)
+          TEXT REVEAL
+      ══════════════════════════════════════════════════════════ */}
+      <section className="bg-slate-50 dark:bg-slate-950">
+        <TextReveal>
+          eMineral Pass digitises mineral transport across Uttar Pradesh — instant QR passes, bilingual PDFs, and real-time verification, all in one government-compliant platform.
+        </TextReveal>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          WORKFLOW
       ══════════════════════════════════════════════════════════ */}
       <WorkflowSection isDark={isDark} />
 
       {/* ═══════════════════════════════════════════════════════
           WHY eMINERAL PASS
       ══════════════════════════════════════════════════════════ */}
-      <section className="relative py-28 px-6 overflow-hidden bg-slate-950">
-        {/* Background glows */}
+      <section className="relative py-16 sm:py-28 px-4 sm:px-6 overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px]" />
           <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[100px]" />
@@ -338,27 +342,27 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="text-center mb-16"
+            className="text-center mb-12 sm:mb-16"
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 mb-5">
-              <Shield className="w-3.5 h-3.5 text-blue-400" />
-              <span className="text-blue-400 text-sm font-semibold">Why Choose Us</span>
+              <Shield className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
+              <span className="text-blue-600 dark:text-blue-400 text-sm font-semibold">Why Choose Us</span>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
-              Built for India's{" "}
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <h2 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+              Built for India&apos;s{" "}
+              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
                 Mineral Sector
               </span>
             </h2>
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg max-w-2xl mx-auto">
               Every feature is purpose-built for government compliance, operational speed, and transparent verification.
             </p>
           </motion.div>
 
           {/* 2-col layout: reasons + compliance list */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
             {/* Left: why cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {[
                 {
                   icon: <Shield className="w-5 h-5 text-white" />,
@@ -399,18 +403,20 @@ export default function Home() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.2 }}
-              className="relative rounded-3xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-sm p-8 overflow-hidden"
+              className="relative rounded-3xl
+                         border border-slate-200 dark:border-white/[0.07]
+                         bg-white dark:bg-white/[0.03]
+                         backdrop-blur-sm p-6 sm:p-8 overflow-hidden shadow-sm"
             >
-              {/* Decorative glow inside card */}
               <div className="absolute -top-16 -right-16 w-48 h-48 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
 
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0">
                     <ScanLine className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-white">Compliance Checklist</h3>
+                    <h3 className="font-bold text-slate-900 dark:text-white">Compliance Checklist</h3>
                     <p className="text-xs text-slate-500">Verified against government standards</p>
                   </div>
                 </div>
@@ -432,10 +438,10 @@ export default function Home() {
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: 0.05 * i, duration: 0.4 }}
-                      className="flex items-center gap-3 py-2.5 border-b border-white/[0.04] last:border-0"
+                      className="flex items-center gap-3 py-2.5 border-b border-slate-100 dark:border-white/[0.04] last:border-0"
                     >
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span className="text-sm text-slate-300">{item}</span>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <span className="text-sm text-slate-700 dark:text-slate-300">{item}</span>
                     </motion.div>
                   ))}
                 </div>
@@ -448,10 +454,9 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════
           FOR EVERY ROLE
       ══════════════════════════════════════════════════════════ */}
-      <section className="relative py-28 px-6 overflow-hidden">
-        {/* Subtle mid-page separator glow */}
+      <section className="relative py-16 sm:py-28 px-4 sm:px-6 overflow-hidden bg-white dark:bg-slate-950/80 transition-colors duration-300">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-slate-800/40 rounded-full blur-[80px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-slate-100 dark:bg-slate-800/40 rounded-full blur-[80px]" />
         </div>
 
         <div className="max-w-6xl mx-auto relative z-10">
@@ -460,23 +465,23 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="text-center mb-16"
+            className="text-center mb-12 sm:mb-16"
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/25 mb-5">
-              <Building2 className="w-3.5 h-3.5 text-violet-400" />
-              <span className="text-violet-400 text-sm font-semibold">Two Roles, One Platform</span>
+              <Building2 className="w-3.5 h-3.5 text-violet-500 dark:text-violet-400" />
+              <span className="text-violet-600 dark:text-violet-400 text-sm font-semibold">Two Roles, One Platform</span>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4">
               For Every Stakeholder
             </h2>
-            <p className="text-slate-400 text-lg max-w-xl mx-auto">
-              Whether you're issuing passes or verifying them — the platform adapts to your role.
+            <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg max-w-xl mx-auto">
+              Whether you&apos;re issuing passes or verifying them — the platform adapts to your role.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8">
             <RoleCard
-              icon={<Building2 className="w-7 h-7" />}
+              icon={<Building2 className="w-6 h-6 sm:w-7 sm:h-7" />}
               emoji="🏢"
               title="License Hosts"
               subtitle="Manage mineral transportation passes, track vehicles in real-time, and download compliance reports from a centralised portal."
@@ -495,7 +500,7 @@ export default function Home() {
               delay={0}
             />
             <RoleCard
-              icon={<Truck className="w-7 h-7" />}
+              icon={<Truck className="w-6 h-6 sm:w-7 sm:h-7" />}
               emoji="🚛"
               title="Transport Users"
               subtitle="Submit mineral transportation requests, receive an instant digital ePass with a unique QR code, and download your PDF in seconds."
@@ -520,11 +525,11 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════
           FINAL CTA BANNER
       ══════════════════════════════════════════════════════════ */}
-      <section className="relative py-24 px-6 overflow-hidden">
+      <section className="relative py-20 sm:py-24 px-4 sm:px-6 overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-blue-600/5 to-violet-500/5" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
         </div>
 
         <motion.div
@@ -534,24 +539,24 @@ export default function Home() {
           transition={{ duration: 0.8 }}
           className="max-w-3xl mx-auto text-center relative z-10"
         >
-          <div className="text-5xl mb-6">⚡</div>
-          <h2 className="text-4xl sm:text-5xl font-black text-white mb-4 leading-tight">
+          <div className="text-4xl sm:text-5xl mb-5 sm:mb-6">⚡</div>
+          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white mb-4 leading-tight">
             Start Issuing{" "}
-            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
               Digital Passes
             </span>{" "}
             Today
           </h2>
-          <p className="text-slate-400 text-lg mb-10">
+          <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg mb-8 sm:mb-10">
             Join the digital transformation of mineral transportation in Uttar Pradesh. Free to start, instant setup.
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
-            <SparkleButton href="/auth/signup" className="text-lg px-8 py-4">
+            <SparkleButton href="/auth/signup" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
               Create Free Account
             </SparkleButton>
             <a
               href="/auth/signin"
-              className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors duration-200 font-medium group"
+              className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-200 font-medium group text-sm sm:text-base"
             >
               Already have an account?
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

@@ -5,10 +5,11 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { Sun, Moon, LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { SparkleButton } from "@/components/ui/SparkleButton";
+import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 
 function GlobalNavbarComponent() {
   const [mounted, setMounted] = useState(false);
@@ -64,22 +65,17 @@ function GlobalNavbarComponent() {
           </motion.div>
 
           <div className="hidden md:flex gap-3 lg:gap-4 items-center">
-            <button
-              onClick={toggleTheme}
-              className={`p-2.5 rounded-lg transition-colors ${
+            <AnimatedThemeToggler
+              theme={effectiveTheme}
+              onThemeChange={toggleTheme}
+              variant="circle"
+              duration={500}
+              className={`p-2.5 rounded-xl transition-all ${
                 isDark
-                  ? "bg-slate-800/80 hover:bg-slate-700 border border-slate-700"
-                  : "bg-slate-100/80 hover:bg-slate-200 border border-slate-300"
+                  ? "bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-yellow-400"
+                  : "bg-slate-100/80 hover:bg-slate-200 border border-slate-300 text-slate-600"
               }`}
-              title={`Switch to ${effectiveTheme === "dark" ? "light" : "dark"} mode`}
-              aria-label="Toggle theme"
-            >
-              {effectiveTheme === "dark" ? (
-                <Sun className="w-5 h-5 text-yellow-400" />
-              ) : (
-                <Moon className="w-5 h-5 text-slate-600" />
-              )}
-            </button>
+            />
             {isAuthenticated && user ? (
               <>
                 <span
@@ -135,22 +131,17 @@ function GlobalNavbarComponent() {
           </div>
 
           <div className="md:hidden flex gap-2 items-center">
-            <button
-              onClick={toggleTheme}
-              className={`p-2 rounded-lg transition-colors ${
+            <AnimatedThemeToggler
+              theme={effectiveTheme}
+              onThemeChange={toggleTheme}
+              variant="circle"
+              duration={500}
+              className={`p-2 rounded-xl transition-all ${
                 isDark
-                  ? "bg-slate-800/80 hover:bg-slate-700"
-                  : "bg-slate-100/80 hover:bg-slate-200"
+                  ? "bg-slate-800/80 hover:bg-slate-700 text-yellow-400"
+                  : "bg-slate-100/80 hover:bg-slate-200 text-slate-600"
               }`}
-              title={`Switch to ${effectiveTheme === "dark" ? "light" : "dark"} mode`}
-              aria-label="Toggle theme"
-            >
-              {effectiveTheme === "dark" ? (
-                <Sun className="w-5 h-5 text-yellow-400" />
-              ) : (
-                <Moon className="w-5 h-5 text-slate-600" />
-              )}
-            </button>
+            />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className={`p-2 rounded-lg transition-colors ${
