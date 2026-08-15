@@ -581,7 +581,7 @@ pm2 start "npm start" --name "eMineral-Pass"
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please follow these guidelines:
 
@@ -610,15 +610,13 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For issues, questions, or suggestions:
 
-- 📧 **Email**: support@emineral-pass.gov.in
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/yourusername/form-qr-pdf-app/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/yourusername/form-qr-pdf-app/discussions)
+- 📧 **Email**: vaibhav10505@gmail.com
 
 ---
 
-## 🎓 Additional Resources
+## Additional Resources
 
-- [Government eForm-C Official Template](https://minerals.gov.in)
+
 - [UP Minerals Rules 2018](https://upforest.gov.in)
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Supabase Documentation](https://supabase.com/docs)
@@ -626,10 +624,17 @@ For issues, questions, or suggestions:
 
 ---
 
+##  Made By
+
 <div align="center">
 
-**Built with ❤️ for transparent mineral transportation in India**
 
-⭐ Please star this repository if you find it helpful!
+
+| Name | Role |
+|------|------|
+| [**Vaibhav Tiwari**](https://github.com/how-vaibhav) | Full-Stack Development & Design |
+| [**Abhigya Dulal**](https://github.com/SkylerOnRadio) | Co-Developer & Contributor |
+
+*eMineral Pass — Digitising mineral transportation passes for a smarter Uttar Pradesh.*
 
 </div>
