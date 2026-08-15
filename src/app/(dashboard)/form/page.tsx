@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  CheckCircle2, Download, ExternalLink, PlusCircle,
+  QrCode, FileText, Clock, Hash, Calendar, ArrowLeft,
+  Copy, Check, Share2,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import {
   Card,
@@ -192,151 +197,283 @@ export default function FormPage() {
     [formData, errors, handleInputChange],
   );
 
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyId = () => {
+    if (generatedRecord?.id) {
+      navigator.clipboard.writeText(generatedRecord.id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
     <div className="min-h-screen pt-20 pb-10 px-4 sm:px-6 lg:px-10 bg-background bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(59,130,246,0.18),transparent)] dark:bg-[radial-gradient(1200px_600px_at_50%_-10%,rgba(14,116,144,0.22),transparent)]">
       <div className="max-w-6xl mx-auto">
-        {/* Success State */}
-        {generatedRecord && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-6 p-6 sm:p-8 bg-white dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/70 rounded-2xl shadow-[0_16px_40px_rgba(16,185,129,0.12)]"
-          >
-            <div className="flex items-start gap-4 mb-4">
-              <div className="text-4xl">✓</div>
-              <div>
-                <h2 className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mb-1">
-                  eForm-C Generated Successfully
-                </h2>
-                <p
-                  className={`text-sm ${isDark ? "text-emerald-400" : "text-slate-700"}`}
+        {/* ── Success State ── */}
+        <AnimatePresence>
+          {generatedRecord && (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="mb-6"
+            >
+              {/* ── Hero Banner ── */}
+              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-6 sm:p-8 mb-6 shadow-2xl shadow-emerald-500/20">
+                {/* Grid texture overlay */}
+                <div className="absolute inset-0 opacity-[0.06]"
+                  style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E\")" }} />
+                {/* Glow blobs */}
+                <div className="absolute -top-12 -right-12 w-56 h-56 bg-white/10 rounded-full blur-3xl" />
+                <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-emerald-200/20 rounded-full blur-2xl" />
+
+                <div className="relative flex flex-col sm:flex-row sm:items-center gap-4">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                    className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center shrink-0"
+                  >
+                    <CheckCircle2 className="w-8 h-8 text-white" />
+                  </motion.div>
+                  <div className="flex-1">
+                    <motion.h2
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="text-2xl sm:text-3xl font-bold text-white mb-1"
+                    >
+                      eForm-C Generated Successfully!
+                    </motion.h2>
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.4 }}
+                      className="text-emerald-100 text-sm"
+                    >
+                      Your mineral transportation pass is ready. Present the QR code at checkpoints.
+                    </motion.p>
+                  </div>
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5 }}
+                    onClick={handleCreateNewEntry}
+                    className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-sm font-semibold transition-all"
+                  >
+                    <PlusCircle className="w-4 h-4" /> New Entry
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* ── Main Content: QR + Info ── */}
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
+
+                {/* QR Code Panel */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.25 }}
+                  className="lg:col-span-2 flex flex-col items-center justify-center gap-5 p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-black/30"
                 >
-                  Your pass for transportation of minor mineral has been
-                  created.
-                </p>
-              </div>
-            </div>
+                  {generatedRecord.qr_code_url ? (
+                    <>
+                      {/* QR glow ring */}
+                      <div className="relative">
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 blur-xl opacity-30 scale-110" />
+                        <div className="relative p-3 rounded-2xl bg-white border-2 border-emerald-200 dark:border-emerald-500/30 shadow-lg">
+                          <img
+                            src={generatedRecord.qr_code_url}
+                            alt="eForm-C QR Code"
+                            className="w-44 h-44 sm:w-52 sm:h-52 rounded-lg"
+                          />
+                        </div>
+                      </div>
 
-            <div className="space-y-4">
-              {/* Record Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 sm:p-5 bg-slate-50 dark:bg-slate-900/70 border border-emerald-200/70 dark:border-emerald-900/60 rounded-xl">
-                <div>
-                  <p
-                    className={`text-xs font-semibold mb-1 ${
-                      isDark ? "text-muted-foreground" : "text-slate-600"
-                    }`}
-                  >
-                    Record ID
-                  </p>
-                  <p
-                    className={`font-mono text-sm font-semibold break-all ${
-                      isDark ? "text-foreground" : "text-slate-900"
-                    }`}
-                  >
-                    {generatedRecord.id}
-                  </p>
-                </div>
-                <div>
-                  <p
-                    className={`text-xs font-semibold mb-1 ${
-                      isDark ? "text-muted-foreground" : "text-slate-600"
-                    }`}
-                  >
-                    eForm-C No.
-                  </p>
-                  <p
-                    className={`font-mono text-sm font-semibold ${
-                      isDark ? "text-foreground" : "text-slate-900"
-                    }`}
-                  >
-                    {generatedRecord.eform_c_no ||
-                      generatedRecord.id.slice(0, 8)}
-                  </p>
-                </div>
-                {generatedRecord.eform_c_generated_on && (
-                  <div>
-                    <p
-                      className={`text-xs font-semibold mb-1 ${
-                        isDark ? "text-muted-foreground" : "text-slate-600"
-                      }`}
-                    >
-                      Generated On
-                    </p>
-                    <p
-                      className={`font-mono text-sm ${
-                        isDark ? "text-foreground" : "text-slate-900"
-                      }`}
-                    >
-                      {generatedRecord.eform_c_generated_on}
-                    </p>
-                  </div>
-                )}
-                {generatedRecord.eform_c_valid_upto && (
-                  <div>
-                    <p
-                      className={`text-xs font-semibold mb-1 ${
-                        isDark ? "text-muted-foreground" : "text-slate-600"
-                      }`}
-                    >
-                      Valid Upto
-                    </p>
-                    <p
-                      className={`font-mono text-sm ${
-                        isDark ? "text-foreground" : "text-slate-900"
-                      }`}
-                    >
-                      {generatedRecord.eform_c_valid_upto}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* QR Code and Actions */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {generatedRecord.qr_code_url && (
-                  <div className="flex flex-col items-center justify-center p-4 bg-white/90 dark:bg-slate-900/70 border border-slate-200/80 dark:border-slate-700 rounded-xl">
-                    <p className="text-xs text-muted-foreground mb-3 font-semibold">
-                      QR Code
-                    </p>
-                    <img
-                      src={generatedRecord.qr_code_url}
-                      alt="eForm-C QR Code"
-                      className="w-40 h-40 sm:w-48 sm:h-48 p-2 border border-slate-300/80 dark:border-slate-600 rounded-xl bg-white"
-                    />
-                  </div>
-                )}
-
-                <div className="flex flex-col justify-center gap-3">
-                  {generatedRecord.pdf_url ? (
-                    <a href={`/api/records/${generatedRecord.id}/download-pdf`}>
-                      <Button className="w-full">📄 Download PDF Pass</Button>
-                    </a>
+                      <div className="text-center space-y-1">
+                        <p className="flex items-center gap-1.5 justify-center text-sm font-semibold text-slate-700 dark:text-slate-300">
+                          <QrCode className="w-4 h-4 text-emerald-500" />
+                          Scan to Verify
+                        </p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 max-w-[180px] leading-relaxed">
+                          Scan at checkpoints to verify this pass instantly
+                        </p>
+                      </div>
+                    </>
                   ) : (
-                    <Button className="w-full" disabled>
-                      ⏳ PDF is generating...
-                    </Button>
+                    <div className="flex flex-col items-center gap-3 py-10">
+                      <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                        <QrCode className="w-8 h-8 text-slate-400" />
+                      </div>
+                      <p className="text-sm text-slate-400">QR code generating…</p>
+                    </div>
                   )}
 
-                  {generatedRecord.public_token && (
-                    <a
-                      href={`/records/${generatedRecord.public_token}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  {/* Action Buttons */}
+                  <div className="w-full space-y-2.5">
+                    {generatedRecord.pdf_url ? (
+                      <a href={`/api/records/${generatedRecord.id}/download-pdf`} className="block">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold text-sm shadow-lg shadow-emerald-500/30 transition-all"
+                        >
+                          <Download className="w-4 h-4" /> Download PDF Pass
+                        </motion.button>
+                      </a>
+                    ) : (
+                      <div className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-sm cursor-wait">
+                        <div className="w-4 h-4 border-2 border-slate-300 dark:border-slate-600 border-t-emerald-500 rounded-full animate-spin" />
+                        PDF is generating…
+                      </div>
+                    )}
+
+                    {generatedRecord.public_token && (
+                      <a
+                        href={`/records/${generatedRecord.public_token}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block"
+                      >
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 font-semibold text-sm hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all"
+                        >
+                          <ExternalLink className="w-4 h-4" /> View Public Record
+                        </motion.button>
+                      </a>
+                    )}
+                  </div>
+                </motion.div>
+
+                {/* Info Panel */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="lg:col-span-3 space-y-4"
+                >
+                  {/* Pass Details Card */}
+                  <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-black/30 overflow-hidden">
+                    <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-emerald-500" />
+                      <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200">Pass Details</h3>
+                    </div>
+                    <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                      {/* Record ID with copy */}
+                      <div className="sm:col-span-2">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 flex items-center gap-1">
+                          <Hash className="w-3 h-3" /> Record ID
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <code className="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs font-mono text-slate-700 dark:text-slate-300 break-all">
+                            {generatedRecord.id}
+                          </code>
+                          <button
+                            onClick={handleCopyId}
+                            className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+                            title="Copy Record ID"
+                          >
+                            {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4 text-slate-400" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* eForm-C No */}
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">eForm-C No.</p>
+                        <p className="font-mono font-bold text-slate-900 dark:text-white text-sm px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20">
+                          {generatedRecord.eform_c_no || generatedRecord.id.slice(0, 8).toUpperCase()}
+                        </p>
+                      </div>
+
+                      {/* Generated On */}
+                      {generatedRecord.eform_c_generated_on && (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 flex items-center gap-1">
+                            <Calendar className="w-3 h-3" /> Generated On
+                          </p>
+                          <p className="font-mono text-slate-700 dark:text-slate-300 text-xs px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                            {generatedRecord.eform_c_generated_on}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Valid Upto */}
+                      {generatedRecord.eform_c_valid_upto && (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 flex items-center gap-1">
+                            <Clock className="w-3 h-3" /> Valid Upto
+                          </p>
+                          <p className="font-mono text-slate-700 dark:text-slate-300 text-xs px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20">
+                            {generatedRecord.eform_c_valid_upto}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Status badges */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {[
+                      { label: "Status", value: "Active", color: "emerald" },
+                      { label: "Type", value: "eForm-C", color: "cyan" },
+                      { label: "Format", value: "Digital Pass", color: "blue" },
+                    ].map(({ label, value, color }) => (
+                      <div key={label} className={`p-3 rounded-2xl border bg-${color}-50 dark:bg-${color}-500/10 border-${color}-100 dark:border-${color}-500/20`}>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">{label}</p>
+                        <p className={`font-bold text-sm text-${color}-700 dark:text-${color}-400`}>{value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* How to use */}
+                  <div className="rounded-3xl bg-gradient-to-br from-slate-50 to-slate-100/50 dark:from-slate-900 dark:to-slate-800/50 border border-slate-200 dark:border-slate-800 p-5">
+                    <h4 className="font-semibold text-sm text-slate-700 dark:text-slate-300 mb-3">Next Steps</h4>
+                    <ol className="space-y-2">
+                      {[
+                        { n: 1, text: "Download the PDF pass and keep it accessible" },
+                        { n: 2, text: "Show QR code to checkpoint officers for instant verification" },
+                        { n: 3, text: "Pass auto-expires — check the valid-upto date" },
+                      ].map(({ n, text }) => (
+                        <li key={n} className="flex items-start gap-3">
+                          <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">{text}</p>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+
+                  {/* Bottom action row */}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleCreateNewEntry}
+                      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold text-sm shadow-lg shadow-cyan-500/20 transition-all"
                     >
-                      <Button className="w-full" variant="secondary">
-                        🔗 View Record
-                      </Button>
+                      <PlusCircle className="w-4 h-4" /> Create Another Pass
+                    </motion.button>
+                    <a href="/dashboard/user" className="flex-1 sm:flex-none">
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full flex items-center justify-center gap-2 py-3 px-5 rounded-2xl border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-semibold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
+                      >
+                        <ArrowLeft className="w-4 h-4" /> Dashboard
+                      </motion.button>
                     </a>
-                  )}
-
-                  <Button onClick={handleCreateNewEntry} className="w-full">
-                    ➕ Create New Entry
-                  </Button>
-                </div>
+                  </div>
+                </motion.div>
               </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Form */}
         {!generatedRecord && (
