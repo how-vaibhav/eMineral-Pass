@@ -18,8 +18,8 @@ import {
   Trash2,
   FileText,
   Moon,
-  Sun,
 } from "lucide-react";
+import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { supabase } from "@/lib/supabase";
@@ -329,26 +329,22 @@ export default function SettingsPage() {
   };
 
   return (
-    <div
-      className={`min-h-screen pt-20 px-4 pb-8 md:px-8 transition-colors ${isDark ? "bg-slate-950 text-white" : "bg-white text-slate-900"}`}
-    >
+    <div className="min-h-screen pt-20 px-4 pb-8 sm:px-6 md:px-8 transition-colors bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
       {/* Notification Toast */}
       {notification && (
         <motion.div
-          initial={{ opacity: 0, y: -50 }}
+          initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -50 }}
-          className={`fixed top-4 left-4 right-4 sm:top-24 sm:left-auto sm:right-4 z-50 px-4 sm:px-6 py-4 rounded-lg shadow-lg border-2 ${
+          exit={{ opacity: 0, y: -16 }}
+          className={`fixed top-4 left-4 right-4 sm:top-24 sm:left-auto sm:right-4 z-50 px-4 py-3 rounded-xl shadow-lg border ${
             notification.type === "success"
-              ? "bg-green-50 dark:bg-green-950/90 border-green-500 text-green-700 dark:text-green-300"
-              : "bg-red-50 dark:bg-red-950/90 border-red-500 text-red-700 dark:text-red-300"
+              ? "bg-emerald-50 dark:bg-emerald-950/90 border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300"
+              : "bg-red-50 dark:bg-red-950/90 border-red-300 dark:border-red-700 text-red-800 dark:text-red-300"
           }`}
         >
           <div className="flex items-center gap-3">
-            <span className="text-2xl">
-              {notification.type === "success" ? "✓" : "⚠"}
-            </span>
-            <span className="font-semibold">{notification.message}</span>
+            <span className="text-lg">{notification.type === "success" ? "✓" : "⚠"}</span>
+            <span className="font-semibold text-sm">{notification.message}</span>
           </div>
         </motion.div>
       )}
@@ -362,15 +358,13 @@ export default function SettingsPage() {
         >
           <Link
             href="/dashboard/user"
-            className={`p-2 rounded-lg transition-colors ${isDark ? "hover:bg-slate-800" : "hover:bg-slate-100"}`}
+            className="p-2 rounded-xl transition-colors text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">Settings</h1>
-            <p
-              className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}
-            >
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Manage your account and preferences
             </p>
           </div>
@@ -381,31 +375,27 @@ export default function SettingsPage() {
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className={`lg:col-span-1 ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"} border rounded-lg p-4 h-fit`}
+            className="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:p-4 h-fit shadow-sm"
           >
-            <nav className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:space-y-2 lg:overflow-visible">
+            <nav className="flex gap-1.5 overflow-x-auto pb-1 lg:flex-col lg:space-y-1 lg:overflow-visible scrollbar-hide">
               {[
-                { id: "account", label: "Account", icon: User },
-                { id: "security", label: "Security", icon: Lock },
-                { id: "appearance", label: "Appearance", icon: Moon },
+                { id: "account",       label: "Account",       icon: User },
+                { id: "security",      label: "Security",      icon: Lock },
+                { id: "appearance",    label: "Appearance",    icon: Moon },
                 { id: "notifications", label: "Notifications", icon: Bell },
-                { id: "privacy", label: "Privacy & Data", icon: Lock },
+                { id: "privacy",       label: "Privacy & Data",icon: Lock },
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => setActiveTab(id)}
-                  className={`min-w-max lg:w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                  className={`shrink-0 lg:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     activeTab === id
-                      ? isDark
-                        ? "bg-cyan-500/20 border-l-2 border-cyan-500 text-cyan-400"
-                        : "bg-cyan-100 border-l-2 border-cyan-500 text-cyan-600"
-                      : isDark
-                        ? "hover:bg-slate-800 text-slate-400"
-                        : "hover:bg-slate-100 text-slate-600"
+                      ? "bg-cyan-50 dark:bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-500/25"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white border border-transparent"
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium whitespace-nowrap">{label}</span>
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span className="whitespace-nowrap">{label}</span>
                 </button>
               ))}
             </nav>
@@ -419,196 +409,86 @@ export default function SettingsPage() {
           >
             {/* Account Tab */}
             {activeTab === "account" && (
-              <div
-                className={`${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"} border rounded-lg p-6 space-y-6`}
-              >
-                <div>
-                  <h2 className="text-lg sm:text-xl font-bold mb-4">
-                    Account Information
-                  </h2>
-                  <div className="space-y-4">
-                    {/* User ID */}
-                    <div>
-                      <label
-                        className={`block text-sm font-semibold mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}
-                      >
-                        User ID
-                      </label>
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                        <input
-                          type="text"
-                          value={user?.id || ""}
-                          disabled
-                          className={`flex-1 px-4 py-2 rounded-lg border ${isDark ? "bg-slate-800 border-slate-700" : "bg-slate-100 border-slate-300"} cursor-not-allowed text-sm`}
-                        />
-                        <button
-                          onClick={handleCopyUserId}
-                          className={`p-2 rounded-lg transition-colors self-start sm:self-auto ${isDark ? "hover:bg-slate-800" : "hover:bg-slate-100"}`}
-                          title="Copy User ID"
-                        >
-                          {copied ? (
-                            <Check className="w-5 h-5 text-green-500" />
-                          ) : (
-                            <Copy className="w-5 h-5 text-slate-400" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                      <label
-                        className={`block text-sm font-semibold mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}
-                      >
-                        Email Address
-                      </label>
-                      <input
-                        type="email"
-                        value={formData.email}
-                        disabled
-                        className={`w-full px-4 py-2 rounded-lg border ${isDark ? "bg-slate-800 border-slate-700" : "bg-slate-100 border-slate-300"} cursor-not-allowed text-sm`}
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 space-y-6 shadow-sm">
+                <h2 className="text-lg sm:text-xl font-bold">Account Information</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider">User ID</label>
+                    <div className="flex items-center gap-2">
+                      <input type="text" value={user?.id || ""} disabled
+                        className="flex-1 px-3 py-2 rounded-xl border bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed text-xs font-mono"
                       />
+                      <button onClick={handleCopyUserId} title="Copy User ID"
+                        className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4 text-slate-400" />}
+                      </button>
                     </div>
-
-                    {/* Full Name */}
-                    <div>
-                      <label
-                        className={`block text-sm font-semibold mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}
-                      >
-                        Full Name
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.fullName}
-                        onChange={(e) =>
-                          setFormData({ ...formData, fullName: e.target.value })
-                        }
-                        className={`w-full px-4 py-2 rounded-lg border transition-colors text-sm ${isDark ? "bg-slate-800 border-slate-700 focus:border-cyan-500" : "bg-white border-slate-300 focus:border-cyan-500"} outline-none focus:ring-2 focus:ring-cyan-500/20`}
-                      />
-                    </div>
-
-                    <button
-                      onClick={handleUpdateProfile}
-                      disabled={loading}
-                      className="w-full px-6 py-3 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white hover:shadow-lg disabled:opacity-50 transition-all text-sm sm:text-base"
-                    >
-                      {loading ? "Updating..." : "Update Profile"}
-                    </button>
                   </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider">Email Address</label>
+                    <input type="email" value={formData.email} disabled
+                      className="w-full px-3 py-2 rounded-xl border bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider">Full Name</label>
+                    <input type="text" value={formData.fullName}
+                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 dark:focus:border-cyan-500 text-sm transition-colors"
+                    />
+                  </div>
+                  <button onClick={handleUpdateProfile} disabled={loading}
+                    className="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-semibold text-white text-sm hover:shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50 transition-all">
+                    {loading ? "Updating…" : "Update Profile"}
+                  </button>
                 </div>
               </div>
             )}
 
             {/* Security Tab */}
             {activeTab === "security" && (
-              <div
-                className={`${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"} border rounded-lg p-6 space-y-6`}
-              >
-                <div>
-                  <h2 className="text-lg sm:text-xl font-bold mb-4">
-                    Change Password
-                  </h2>
-                  <div className="space-y-4">
-                    <div>
-                      <label
-                        className={`block text-sm font-semibold mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}
-                      >
-                        Current Password
-                      </label>
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        value={formData.currentPassword}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            currentPassword: e.target.value,
-                          })
-                        }
-                        className={`w-full px-4 py-2 rounded-lg border transition-colors text-sm ${isDark ? "bg-slate-800 border-slate-700 focus:border-cyan-500" : "bg-white border-slate-300 focus:border-cyan-500"} outline-none focus:ring-2 focus:ring-cyan-500/20`}
-                      />
-                    </div>
-
-                    <div>
-                      <label
-                        className={`block text-sm font-semibold mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}
-                      >
-                        New Password
-                      </label>
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 space-y-6 shadow-sm">
+                <h2 className="text-lg sm:text-xl font-bold">Change Password</h2>
+                <div className="space-y-4">
+                  {[
+                    { label: "Current Password", key: "currentPassword" },
+                    { label: "New Password",     key: "newPassword",     showToggle: true },
+                    { label: "Confirm Password", key: "confirmPassword" },
+                  ].map(({ label, key, showToggle }) => (
+                    <div key={key}>
+                      <label className="block text-xs font-semibold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider">{label}</label>
                       <div className="relative">
                         <input
                           type={showPassword ? "text" : "password"}
-                          value={formData.newPassword}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              newPassword: e.target.value,
-                            })
-                          }
-                          className={`w-full px-4 py-2 rounded-lg border transition-colors text-sm ${isDark ? "bg-slate-800 border-slate-700 focus:border-cyan-500" : "bg-white border-slate-300 focus:border-cyan-500"} outline-none focus:ring-2 focus:ring-cyan-500/20`}
+                          value={formData[key as keyof typeof formData]}
+                          onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+                          className="w-full px-3 py-2 pr-10 rounded-xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 text-sm transition-colors"
                         />
-                        <button
-                          onClick={() => setShowPassword(!showPassword)}
-                          className={`absolute right-4 top-1/2 -translate-y-1/2 transition-colors ${isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-600 hover:text-slate-900"}`}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="w-5 h-5" />
-                          ) : (
-                            <Eye className="w-5 h-5" />
-                          )}
-                        </button>
+                        {showToggle && (
+                          <button type="button" onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        )}
                       </div>
                     </div>
-
-                    <div>
-                      <label
-                        className={`block text-sm font-semibold mb-2 ${isDark ? "text-slate-300" : "text-slate-700"}`}
-                      >
-                        Confirm Password
-                      </label>
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        value={formData.confirmPassword}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            confirmPassword: e.target.value,
-                          })
-                        }
-                        className={`w-full px-4 py-2 rounded-lg border transition-colors text-sm ${isDark ? "bg-slate-800 border-slate-700 focus:border-cyan-500" : "bg-white border-slate-300 focus:border-cyan-500"} outline-none focus:ring-2 focus:ring-cyan-500/20`}
-                      />
-                    </div>
-
-                    <button
-                      onClick={handleChangePassword}
-                      disabled={loading}
-                      className="w-full px-6 py-3 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white hover:shadow-lg disabled:opacity-50 transition-all text-sm sm:text-base"
-                    >
-                      {loading ? "Updating..." : "Update Password"}
-                    </button>
-                  </div>
+                  ))}
+                  <button onClick={handleChangePassword} disabled={loading}
+                    className="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-semibold text-white text-sm hover:shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50 transition-all">
+                    {loading ? "Updating…" : "Update Password"}
+                  </button>
                 </div>
 
-                <div
-                  className={`border-t ${isDark ? "border-slate-800" : "border-slate-200"} pt-6`}
-                >
-                  <h3 className="text-base sm:text-lg font-bold mb-4">
-                    Danger Zone
-                  </h3>
-                  <div className="space-y-3">
-                    <button
-                      onClick={handleSignOut}
-                      className={`w-full px-6 py-3 rounded-lg font-semibold transition-all border-2 flex items-center justify-center gap-2 ${isDark ? "border-yellow-600 text-yellow-500 hover:bg-yellow-600/10" : "border-yellow-500 text-yellow-600 hover:bg-yellow-100"}`}
-                    >
-                      <LogOut className="w-5 h-5" />
-                      Sign Out
+                <div className="border-t border-slate-100 dark:border-slate-800 pt-5">
+                  <h3 className="text-sm font-bold mb-3 text-red-600 dark:text-red-400 uppercase tracking-widest">Danger Zone</h3>
+                  <div className="space-y-2.5">
+                    <button onClick={handleSignOut}
+                      className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all border-2 flex items-center justify-center gap-2 border-amber-400 dark:border-amber-600 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10">
+                      <LogOut className="w-4 h-4" /> Sign Out
                     </button>
-                    <button
-                      onClick={handleDeleteAccount}
-                      disabled={loading}
-                      className={`w-full px-6 py-3 rounded-lg font-semibold transition-all border-2 flex items-center justify-center gap-2 disabled:opacity-50 ${isDark ? "border-red-600 text-red-500 hover:bg-red-600/10" : "border-red-500 text-red-600 hover:bg-red-100"}`}
-                    >
-                      <Trash2 className="w-5 h-5" />
-                      Delete Account Permanently
+                    <button onClick={handleDeleteAccount} disabled={loading}
+                      className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all border-2 flex items-center justify-center gap-2 disabled:opacity-50 border-red-400 dark:border-red-600 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10">
+                      <Trash2 className="w-4 h-4" /> Delete Account Permanently
                     </button>
                   </div>
                 </div>
@@ -617,124 +497,72 @@ export default function SettingsPage() {
 
             {/* Appearance Tab */}
             {activeTab === "appearance" && (
-              <div
-                className={`${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"} border rounded-lg p-6 space-y-6`}
-              >
-                <div>
-                  <h2 className="text-xl font-bold mb-4">Theme Settings</h2>
-                  <div
-                    className={`flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between p-4 rounded-lg border ${
-                      isDark
-                        ? "bg-slate-800 border-slate-700 text-slate-100"
-                        : "bg-white border-slate-200 text-slate-900"
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      {effectiveTheme === "dark" ? (
-                        <Moon className="w-6 h-6 text-yellow-500" />
-                      ) : (
-                        <Sun className="w-6 h-6 text-yellow-500" />
-                      )}
-                      <div>
-                        <p className="font-semibold">
-                          {effectiveTheme === "dark"
-                            ? "Dark Mode"
-                            : "Light Mode"}
-                        </p>
-                        <p
-                          className={`text-sm ${isDark ? "text-slate-400" : "text-slate-700"}`}
-                        >
-                          Current theme preference
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={toggleTheme}
-                      className="px-6 py-2 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white hover:shadow-lg transition-all"
-                    >
-                      Toggle Theme
-                    </button>
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 space-y-6 shadow-sm">
+                <h2 className="text-lg sm:text-xl font-bold">Theme Settings</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40">
+                  <div>
+                    <p className="font-semibold text-slate-900 dark:text-white">
+                      {effectiveTheme === "dark" ? "Dark Mode" : "Light Mode"}
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                      Click the button to animate between light and dark
+                    </p>
                   </div>
+                  <AnimatedThemeToggler
+                    theme={effectiveTheme}
+                    onThemeChange={toggleTheme}
+                    variant="circle"
+                    duration={500}
+                    className="p-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-yellow-500 hover:border-cyan-400 dark:hover:border-cyan-500 transition-all self-start sm:self-auto"
+                  />
                 </div>
+                <p className="text-xs text-slate-400 dark:text-slate-600">
+                  Your preference is saved automatically in your browser.
+                </p>
               </div>
             )}
 
             {/* Notifications Tab */}
             {activeTab === "notifications" && (
-              <div
-                className={`${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"} border rounded-lg p-6 space-y-6`}
-              >
-                <div>
-                  <h2 className="text-xl font-bold mb-4">
-                    Notification Preferences
-                  </h2>
-                  <div
-                    className={`p-4 rounded-lg border-2 border-dashed ${isDark ? "border-slate-700 bg-slate-800/50" : "border-slate-300 bg-slate-50"}`}
-                  >
-                    <p
-                      className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}
-                    >
-                      📧 Email notifications will be sent for important events
-                      such as:
-                    </p>
-                    <ul
-                      className={`mt-3 space-y-2 text-sm list-disc list-inside ${isDark ? "text-slate-300" : "text-slate-700"}`}
-                    >
-                      <li>Pass creation and expiration</li>
-                      <li>Password changes</li>
-                      <li>Account security updates</li>
-                      <li>Pass access and scans</li>
-                    </ul>
-                  </div>
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm">
+                <h2 className="text-lg sm:text-xl font-bold mb-4">Notification Preferences</h2>
+                <div className="p-4 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    📧 Email notifications will be sent for important events such as:
+                  </p>
+                  <ul className="mt-3 space-y-1.5 text-sm text-slate-700 dark:text-slate-300 list-disc list-inside">
+                    <li>Pass creation and expiration</li>
+                    <li>Password changes</li>
+                    <li>Account security updates</li>
+                    <li>Pass access and scans</li>
+                  </ul>
                 </div>
               </div>
             )}
 
             {/* Privacy & Data Tab */}
             {activeTab === "privacy" && (
-              <div
-                className={`${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"} border rounded-lg p-6 space-y-6`}
-              >
-                <div>
-                  <h2 className="text-xl font-bold mb-4">Privacy & Data</h2>
-                  <div className="space-y-4">
-                    <div
-                      className={`p-4 rounded-lg border-2 ${isDark ? "border-cyan-500/30 bg-cyan-500/10" : "border-cyan-400 bg-cyan-50"}`}
-                    >
-                      <h3 className="font-semibold mb-2 flex items-center gap-2">
-                        <FileText className="w-5 h-5" />
-                        Data Collection
-                      </h3>
-                      <p
-                        className={`text-sm ${isDark ? "text-slate-300" : "text-slate-700"}`}
-                      >
-                        We collect minimal personal data necessary to provide
-                        our services. Your data is encrypted and never shared
-                        with third parties.
-                      </p>
-                    </div>
-
-                    <div
-                      className={`p-4 rounded-lg border-2 ${isDark ? "border-blue-500/30 bg-blue-500/10" : "border-blue-400 bg-blue-50"}`}
-                    >
-                      <h3 className="font-semibold mb-2 flex items-center gap-2">
-                        <Download className="w-5 h-5" />
-                        Download Your Data
-                      </h3>
-                      <p
-                        className={`text-sm mb-4 ${isDark ? "text-slate-300" : "text-slate-700"}`}
-                      >
-                        You can request a copy of all your data in JSON format.
-                      </p>
-                      <button
-                        onClick={handleExportData}
-                        disabled={isExporting}
-                        className={`px-6 py-2 rounded-lg font-semibold transition-all border-2 disabled:opacity-60 ${isDark ? "border-blue-500 text-blue-400 hover:bg-blue-500/10" : "border-blue-500 text-blue-600 hover:bg-blue-100"}`}
-                      >
-                        {isExporting ? "Exporting..." : "Export Data"}
-                      </button>
-                    </div>
-                  </div>
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
+                <h2 className="text-lg sm:text-xl font-bold">Privacy & Data</h2>
+                <div className="p-4 rounded-2xl border border-cyan-200 dark:border-cyan-500/20 bg-cyan-50 dark:bg-cyan-500/10">
+                  <h3 className="font-semibold mb-1.5 flex items-center gap-2 text-cyan-800 dark:text-cyan-300">
+                    <FileText className="w-4 h-4" /> Data Collection
+                  </h3>
+                  <p className="text-sm text-slate-700 dark:text-slate-300">
+                    We collect minimal personal data necessary to provide our services. Your data is encrypted and never shared with third parties.
+                  </p>
+                </div>
+                <div className="p-4 rounded-2xl border border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/10">
+                  <h3 className="font-semibold mb-1.5 flex items-center gap-2 text-blue-800 dark:text-blue-300">
+                    <Download className="w-4 h-4" /> Download Your Data
+                  </h3>
+                  <p className="text-sm text-slate-700 dark:text-slate-300 mb-3">
+                    You can request a copy of all your data in JSON format.
+                  </p>
+                  <button onClick={handleExportData} disabled={isExporting}
+                    className="px-4 py-2 rounded-xl font-semibold text-sm transition-all border-2 disabled:opacity-60 border-blue-400 dark:border-blue-500 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/15">
+                    {isExporting ? "Exporting…" : "Export Data"}
+                  </button>
                 </div>
               </div>
             )}

@@ -3,21 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import {
-  Eye,
-  EyeOff,
-  ArrowLeft,
-  AlertCircle,
-  CheckCircle2,
-} from "lucide-react";
-import { useTheme } from "@/context/ThemeContext";
+import { motion, AnimatePresence } from "framer-motion";
+import { Eye, EyeOff, ArrowLeft, AlertCircle, CheckCircle2, KeyRound } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+
+const inputCls =
+  "w-full px-4 py-2.5 rounded-xl border bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 dark:focus:border-cyan-500 transition-colors text-sm disabled:opacity-50";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const { effectiveTheme } = useTheme();
   const [isReady, setIsReady] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -26,250 +20,132 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const isDark = effectiveTheme === "dark";
-
   useEffect(() => {
     let isMounted = true;
-
-    const checkRecoverySession = async () => {
-      const { data, error: sessionError } = await supabase.auth.getSession();
-
+    const checkSession = async () => {
+      const { error: sessionError } = await supabase.auth.getSession();
       if (!isMounted) return;
-
-      // Only show error if we are sure there is no session AND no recovery event has fired
-      if (sessionError) {
-        setError(
-          "Reset link is invalid or expired. Please request a new password reset.",
-        );
-        return;
-      }
-
+      if (sessionError) { setError("Reset link is invalid or expired. Please request a new password reset."); return; }
       setIsReady(true);
     };
+    checkSession();
 
-    checkRecoverySession();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY" && session) {
-        setIsReady(true);
-        setError("");
-      }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" && session) { setIsReady(true); setError(""); }
     });
-
-    return () => {
-      isMounted = false;
-      subscription?.unsubscribe();
-    };
+    return () => { isMounted = false; subscription?.unsubscribe(); };
   }, []);
 
-  const handleResetPassword = async (e: React.FormEvent) => {
+  const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newPassword || !confirmPassword) { setError("Please fill in all password fields"); return; }
+    if (newPassword !== confirmPassword) { setError("Passwords do not match"); return; }
+    if (newPassword.length < 8) { setError("Password must be at least 8 characters"); return; }
 
-    if (!newPassword || !confirmPassword) {
-      setError("Please fill in all password fields");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    if (newPassword.length < 8) {
-      setError("Password must be at least 8 characters");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-    setSuccess("");
-
+    setLoading(true); setError(""); setSuccess("");
     try {
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: newPassword,
-      });
-
+      const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
       if (updateError) throw updateError;
-
-      setSuccess("Password updated successfully. Redirecting to sign in...");
+      setSuccess("Password updated successfully. Redirecting to sign in…");
       await supabase.auth.signOut();
       router.refresh();
       setTimeout(() => router.push("/auth/signin"), 1500);
     } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : "Failed to update password. Please try again.";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
+      setError(err instanceof Error ? err.message : "Failed to update password. Please try again.");
+    } finally { setLoading(false); }
   };
 
   return (
-    <div
-      className={`min-h-screen pt-20 ${
-        isDark
-          ? "bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 text-white"
-          : "bg-linear-to-br from-white via-slate-50 to-white text-slate-900"
-      }`}
-    >
+    <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-br dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white pt-20 transition-colors duration-300">
+      {/* Glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className={`absolute top-20 left-10 w-96 h-96 ${
-            isDark ? "bg-cyan-500" : "bg-cyan-400"
-          } rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse`}
-        ></div>
-        <div
-          className={`absolute bottom-20 right-10 w-96 h-96 ${
-            isDark ? "bg-blue-500" : "bg-blue-400"
-          } rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse`}
-          style={{ animationDelay: "2s" }}
-        ></div>
+        <div className="absolute top-20 left-10 w-80 h-80 bg-cyan-500 rounded-full filter blur-3xl opacity-[0.06] dark:opacity-[0.09] animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-blue-500 rounded-full filter blur-3xl opacity-[0.06] dark:opacity-[0.09] animate-pulse" style={{ animationDelay: "2s" }} />
       </div>
 
-      <div className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 py-12">
+      <div className="relative min-h-screen flex items-center justify-center px-4 py-12">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          className={`w-full max-w-md ${
-            isDark
-              ? "bg-slate-900 border-slate-800"
-              : "bg-white border-slate-200"
-          } border rounded-2xl shadow-xl p-6 sm:p-8`}
+          transition={{ duration: 0.35 }}
+          className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 p-6 sm:p-8"
         >
-          <Link
-            href="/auth/signin"
-            className="inline-flex items-center gap-2 mb-6 text-cyan-400 hover:text-cyan-300 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <TextGenerateEffect
-              words="Back to Sign In"
-              duration={0.9}
-              filter={false}
-            />
+          <Link href="/auth/signin" className="inline-flex items-center gap-2 mb-6 text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors text-sm font-medium">
+            <ArrowLeft className="w-4 h-4" /> Back to Sign In
           </Link>
 
-          <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-              Set New Password
-            </h1>
-            <p className={isDark ? "text-slate-400" : "text-slate-600"}>
-              <TextGenerateEffect
-                words="Choose a new password for your account"
-                duration={1}
-                filter={false}
-              />
-            </p>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0">
+              <KeyRound className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold">Set New Password</h1>
+              <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">Choose a strong password for your account</p>
+            </div>
           </div>
 
           {!isReady && !error && (
-            <div className="text-sm text-slate-500">
-              <TextGenerateEffect
-                words="Preparing reset..."
-                duration={0.8}
-                filter={false}
-              />
+            <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
+              <div className="w-4 h-4 border-2 border-slate-300 dark:border-slate-600 border-t-cyan-500 rounded-full animate-spin" />
+              Preparing reset…
             </div>
           )}
 
-          {error && (
-            <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm flex items-start gap-2 mb-4">
-              <AlertCircle className="w-5 h-5 mt-0.5 shrink-0" />
-              <TextGenerateEffect words={error} duration={1} filter={false} />
-            </div>
-          )}
+          <AnimatePresence>
+            {error && (
+              <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-start gap-2 p-3 mb-4 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 text-sm">
+                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" /> {error}
+              </motion.div>
+            )}
+            {success && (
+              <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-start gap-2 p-3 mb-4 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-sm">
+                <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" /> {success}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {success && (
-            <div className="p-3 bg-green-500/20 border border-green-500/50 rounded-lg text-green-400 text-sm flex items-start gap-2 mb-4">
-              <CheckCircle2 className="w-5 h-5 mt-0.5 shrink-0" />
-              <TextGenerateEffect words={success} duration={1} filter={false} />
-            </div>
-          )}
-
-          <form onSubmit={handleResetPassword} className="space-y-6">
+          <form onSubmit={handleReset} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">
-                <TextGenerateEffect
-                  words="New Password"
-                  duration={0.8}
-                  filter={false}
-                />
-              </label>
+              <label className="block text-sm font-medium mb-1.5">New Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className={`w-full px-4 py-2 border rounded-lg transition-colors ${
-                    isDark
-                      ? "bg-slate-800 border-slate-700 focus:border-cyan-500 text-white"
-                      : "bg-white border-slate-300 focus:border-cyan-500 text-slate-900"
-                  } focus:outline-none pr-10`}
+                  className={`${inputCls} pr-10`}
                   placeholder="Min. 8 characters"
                   disabled={!isReady || loading}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  disabled={!isReady || loading}
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
+                <button type="button" onClick={() => setShowPassword(!showPassword)} disabled={!isReady || loading}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
-                <TextGenerateEffect
-                  words="Confirm Password"
-                  duration={0.8}
-                  filter={false}
-                />
-              </label>
+              <label className="block text-sm font-medium mb-1.5">Confirm Password</label>
               <input
                 type={showPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className={`w-full px-4 py-2 border rounded-lg transition-colors ${
-                  isDark
-                    ? "bg-slate-800 border-slate-700 focus:border-cyan-500 text-white"
-                    : "bg-white border-slate-300 focus:border-cyan-500 text-slate-900"
-                } focus:outline-none`}
-                placeholder="Re-enter password"
+                className={inputCls}
+                placeholder="Re-enter your password"
                 disabled={!isReady || loading}
               />
             </div>
 
-            <button
+            <motion.button
               type="submit"
               disabled={!isReady || loading}
-              className="w-full py-3 bg-linear-to-r from-cyan-500 to-blue-600 rounded-lg font-semibold text-white flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full py-2.5 mt-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-semibold text-white text-sm hover:shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
             >
               {loading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <TextGenerateEffect
-                    words="Updating..."
-                    duration={0.8}
-                    filter={false}
-                  />
-                </>
-              ) : (
-                <TextGenerateEffect
-                  words="Update Password"
-                  duration={0.8}
-                  filter={false}
-                />
-              )}
-            </button>
+                <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Updating…</>
+              ) : "Update Password"}
+            </motion.button>
           </form>
         </motion.div>
       </div>

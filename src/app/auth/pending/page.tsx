@@ -3,87 +3,60 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { MailCheck, ArrowLeft } from "lucide-react";
-import { useTheme } from "@/context/ThemeContext";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import { Clock, ArrowLeft, LogIn } from "lucide-react";
 import { Suspense } from "react";
 
-function PendingRequestContent() {
+const cardCls =
+  "w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 p-6 sm:p-8";
+
+function PendingContent() {
   const searchParams = useSearchParams();
-  const { effectiveTheme } = useTheme();
   const email = searchParams.get("email");
-  const isDark = effectiveTheme === "dark";
 
   return (
-    <div
-      className={`min-h-screen pt-20 ${
-        isDark
-          ? "bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 text-white"
-          : "bg-linear-to-br from-white via-slate-50 to-white text-slate-900"
-      }`}
-    >
-      <div className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 py-12">
+    <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-br dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white pt-20 transition-colors duration-300">
+      {/* Glow */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-10 w-80 h-80 bg-amber-500 rounded-full filter blur-3xl opacity-[0.05] dark:opacity-[0.08] animate-pulse" />
+      </div>
+
+      <div className="relative min-h-screen flex items-center justify-center px-4 py-12">
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          className={`w-full max-w-lg ${
-            isDark
-              ? "bg-slate-900 border-slate-800"
-              : "bg-white border-slate-200"
-          } border rounded-2xl shadow-xl p-6 sm:p-8`}
+          transition={{ duration: 0.35 }}
+          className={cardCls}
         >
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 mb-6 text-cyan-400 hover:text-cyan-300 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <TextGenerateEffect
-              words="Back to Home"
-              duration={0.9}
-              filter={false}
-            />
+          <Link href="/" className="inline-flex items-center gap-2 mb-6 text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors text-sm font-medium">
+            <ArrowLeft className="w-4 h-4" /> Back to Home
           </Link>
 
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 rounded-full bg-cyan-500/15 text-cyan-400">
-              <MailCheck className="w-6 h-6" />
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+              <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold">
-              Your Host status will be verified shortly!
-            </h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Your Host status will be verified shortly!</h1>
           </div>
 
-          <p className={isDark ? "text-slate-300" : "text-slate-600"}>
-            <TextGenerateEffect
-              words="Please wait while we review your submission."
-              duration={1}
-              filter={false}
-            />
+          <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+            Please wait while we review your submission. An administrator will approve your account.
           </p>
 
           {email && (
-            <p className="mt-4 text-sm font-semibold text-cyan-400 break-all">
-              <TextGenerateEffect words={email} duration={0.8} filter={false} />
+            <p className="mt-4 px-3 py-2 rounded-lg bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/20 text-sm font-semibold text-cyan-700 dark:text-cyan-400 break-all">
+              {email}
             </p>
           )}
 
-          <div className="mt-6 space-y-2 text-sm">
-            <p className={isDark ? "text-slate-400" : "text-slate-600"}>
-              <TextGenerateEffect
-                words="After authorization, return and sign in to access your dashboard."
-                duration={1}
-                filter={false}
-              />
+          <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 space-y-3">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              After authorisation, return and sign in to access your host dashboard.
             </p>
             <Link
               href="/auth/signin"
-              className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 font-semibold"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors"
             >
-              <TextGenerateEffect
-                words="Go to Sign In"
-                duration={0.9}
-                filter={false}
-              />
+              <LogIn className="w-4 h-4" /> Go to Sign In
             </Link>
           </div>
         </motion.div>
@@ -94,8 +67,8 @@ function PendingRequestContent() {
 
 export default function PendingRequest() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950" />}>
-      <PendingRequestContent />
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 dark:bg-slate-950" />}>
+      <PendingContent />
     </Suspense>
   );
 }
