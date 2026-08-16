@@ -620,7 +620,6 @@ For issues, questions, or suggestions:
 
 ## Additional Resources
 
-
 - [UP Minerals Rules 2018](https://upforest.gov.in)
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Supabase Documentation](https://supabase.com/docs)
@@ -628,17 +627,15 @@ For issues, questions, or suggestions:
 
 ---
 
-##  Made By
+## Made By
 
 <div align="center">
 
+| Name                                                  | Role                            |
+| ----------------------------------------------------- | ------------------------------- |
+| [**Vaibhav Tiwari**](https://github.com/how-vaibhav)  | Full-Stack Development & Design |
+| [**Abhigya Dulal**](https://github.com/SkylerOnRadio) | Co-Developer & Contributor      |
 
-
-| Name | Role |
-|------|------|
-| [**Vaibhav Tiwari**](https://github.com/how-vaibhav) | Full-Stack Development & Design |
-| [**Abhigya Dulal**](https://github.com/SkylerOnRadio) | Co-Developer & Contributor |
-
-*eMineral Pass — Digitising mineral transportation passes for a smarter Uttar Pradesh.*
+_eMineral Pass — Digitising mineral transportation passes for a smarter Uttar Pradesh._
 
 </div>

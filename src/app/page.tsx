@@ -135,7 +135,9 @@ function RoleCard({
         {features.map((f) => (
           <li key={f} className="flex items-center gap-2.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span className="text-sm text-slate-700 dark:text-slate-300">{f}</span>
+            <span className="text-sm text-slate-700 dark:text-slate-300">
+              {f}
+            </span>
           </li>
         ))}
       </ul>
@@ -181,8 +183,12 @@ function WhyCard({
         {icon}
       </div>
       <div>
-        <h4 className="font-bold text-slate-900 dark:text-white mb-1">{title}</h4>
-        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{desc}</p>
+        <h4 className="font-bold text-slate-900 dark:text-white mb-1">
+          {title}
+        </h4>
+        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+          {desc}
+        </p>
       </div>
     </motion.div>
   );
@@ -206,7 +212,10 @@ export default function Home() {
 
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15, delayChildren: 0.2 },
+    },
   };
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 28 },
@@ -215,7 +224,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
-
       {/* ═══════════════════════════════════════════════════════
           HERO
       ══════════════════════════════════════════════════════════ */}
@@ -225,7 +233,10 @@ export default function Home() {
       >
         <GridBackground />
 
-        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 w-full max-w-5xl mx-auto">
+        <motion.div
+          style={{ y: heroY, opacity: heroOpacity }}
+          className="relative z-10 w-full max-w-5xl mx-auto"
+        >
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -234,9 +245,11 @@ export default function Home() {
           >
             {/* Badge */}
             <motion.div variants={itemVariants} className="mb-6 sm:mb-8">
-              <div className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 rounded-full
+              <div
+                className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 rounded-full
                               border border-cyan-500/30 bg-cyan-500/[0.07]
-                              backdrop-blur-sm">
+                              backdrop-blur-sm"
+              >
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
@@ -281,15 +294,25 @@ export default function Home() {
               className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap mb-12 sm:mb-16"
             >
               {showDashboardCta ? (
-                <SparkleButton href="/dashboard/user" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
+                <SparkleButton
+                  href="/dashboard/user"
+                  className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
+                >
                   Go to Dashboard
                 </SparkleButton>
               ) : (
                 <>
-                  <SparkleButton href="/auth/signup" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
+                  <SparkleButton
+                    href="/auth/signup"
+                    className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
+                  >
                     Request Access
                   </SparkleButton>
-                  <SparkleButton href="/auth/signin" variant="secondary" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
+                  <SparkleButton
+                    href="/auth/signin"
+                    variant="secondary"
+                    className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
+                  >
                     Sign In
                   </SparkleButton>
                 </>
@@ -301,9 +324,21 @@ export default function Home() {
               variants={itemVariants}
               className="flex flex-wrap gap-3 sm:gap-4 justify-center"
             >
-              <StatCard value="ISO" label="Compliant" accent="text-cyan-500 dark:text-cyan-400" />
-              <StatCard value="24 / 7" label="Uptime" accent="text-emerald-500 dark:text-emerald-400" />
-              <StatCard value="< 3s" label="PDF Generation" accent="text-violet-500 dark:text-violet-400" />
+              <StatCard
+                value="ISO"
+                label="Compliant"
+                accent="text-cyan-500 dark:text-cyan-400"
+              />
+              <StatCard
+                value="24 / 7"
+                label="Uptime"
+                accent="text-emerald-500 dark:text-emerald-400"
+              />
+              <StatCard
+                value="< 3s"
+                label="PDF Generation"
+                accent="text-violet-500 dark:text-violet-400"
+              />
             </motion.div>
           </motion.div>
         </motion.div>
@@ -317,7 +352,9 @@ export default function Home() {
       ══════════════════════════════════════════════════════════ */}
       <section className="bg-slate-50 dark:bg-slate-950">
         <TextReveal>
-          eMineral Pass digitises mineral transport across Uttar Pradesh — instant QR passes, bilingual PDFs, and real-time verification, all in one government-compliant platform.
+          eMineral Pass digitises mineral transport across Uttar Pradesh —
+          instant QR passes, bilingual PDFs, and real-time verification, all in
+          one government-compliant platform.
         </TextReveal>
       </section>
 
@@ -346,7 +383,9 @@ export default function Home() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 mb-5">
               <Shield className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
-              <span className="text-blue-600 dark:text-blue-400 text-sm font-semibold">Why Choose Us</span>
+              <span className="text-blue-600 dark:text-blue-400 text-sm font-semibold">
+                Why Choose Us
+              </span>
             </div>
             <h2 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4">
               Built for India&apos;s{" "}
@@ -355,7 +394,8 @@ export default function Home() {
               </span>
             </h2>
             <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg max-w-2xl mx-auto">
-              Every feature is purpose-built for government compliance, operational speed, and transparent verification.
+              Every feature is purpose-built for government compliance,
+              operational speed, and transparent verification.
             </p>
           </motion.div>
 
@@ -416,8 +456,12 @@ export default function Home() {
                     <ScanLine className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white">Compliance Checklist</h3>
-                    <p className="text-xs text-slate-500">Verified against government standards</p>
+                    <h3 className="font-bold text-slate-900 dark:text-white">
+                      Compliance Checklist
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Verified against government standards
+                    </p>
                   </div>
                 </div>
 
@@ -441,7 +485,9 @@ export default function Home() {
                       className="flex items-center gap-3 py-2.5 border-b border-slate-100 dark:border-white/[0.04] last:border-0"
                     >
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span className="text-sm text-slate-700 dark:text-slate-300">{item}</span>
+                      <span className="text-sm text-slate-700 dark:text-slate-300">
+                        {item}
+                      </span>
                     </motion.div>
                   ))}
                 </div>
@@ -469,13 +515,16 @@ export default function Home() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/25 mb-5">
               <Building2 className="w-3.5 h-3.5 text-violet-500 dark:text-violet-400" />
-              <span className="text-violet-600 dark:text-violet-400 text-sm font-semibold">Two Roles, One Platform</span>
+              <span className="text-violet-600 dark:text-violet-400 text-sm font-semibold">
+                Two Roles, One Platform
+              </span>
             </div>
             <h2 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4">
               For Every Stakeholder
             </h2>
             <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg max-w-xl mx-auto">
-              Whether you&apos;re issuing passes or verifying them — the platform adapts to your role.
+              Whether you&apos;re issuing passes or verifying them — the
+              platform adapts to your role.
             </p>
           </motion.div>
 
@@ -548,10 +597,15 @@ export default function Home() {
             Today
           </h2>
           <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg mb-8 sm:mb-10">
-            Join the digital transformation of mineral transportation in Uttar Pradesh with a secure, compliant, and professionally managed platform.
+            Join the digital transformation of mineral transportation in Uttar
+            Pradesh with a secure, compliant, and professionally managed
+            platform.
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
-            <SparkleButton href="/auth/signup" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
+            <SparkleButton
+              href="/auth/signup"
+              className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
+            >
               Create Account
             </SparkleButton>
             <a
