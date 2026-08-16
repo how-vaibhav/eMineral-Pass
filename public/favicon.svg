@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="MineralTrack logo">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="58%" stop-color="#0f6bff"/>
+      <stop offset="100%" stop-color="#1cc8a8"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="32" fill="url(#bg)"/>
+  <path d="M35 92V45c0-5 4-9 9-9h9l21 23 21-23h9c5 0 9 4 9 9v47c0 5-4 9-9 9h-9c-5 0-9-4-9-9V61L64 87 44 61v31c0 5-4 9-9 9h-9c-5 0-9-4-9-9Z" fill="#edf7ff"/>
+  <path d="M46 44h36l-18 22L46 44Z" fill="#0f172a" opacity="0.15"/>
+  <path d="M43 95c14 9 29 9 42 0" stroke="#dff8f5" stroke-width="7" stroke-linecap="round" opacity="0.9"/>
+</svg>

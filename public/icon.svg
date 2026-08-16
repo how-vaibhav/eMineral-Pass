@@ -1,0 +1,18 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="72" y1="56" x2="444" y2="456" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="0.5" stop-color="#0B6BFF"/>
+      <stop offset="1" stop-color="#15C1A0"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="162" y1="124" x2="368" y2="380" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EFF6FF" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#DBEAFE" stop-opacity="0.7"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="36" y="36" width="440" height="440" rx="108" fill="url(#bg)"/>
+  <path d="M141 334V170.5C141 158.625 150.625 149 162.5 149H183.34L256 263.136L328.66 149H349.5C361.375 149 371 158.625 371 170.5V334C371 346.15 361.15 356 349 356H321.5C309.35 356 299.5 346.15 299.5 334V228.757L255.954 306.158L212.5 228.757V334C212.5 346.15 202.65 356 190.5 356H163C150.85 356 141 346.15 141 334Z" fill="url(#shine)"/>
+  <path d="M194 170.5C194 160.284 202.284 152 212.5 152H270.5L256 175.5L241.5 152H299.5C309.716 152 318 160.284 318 170.5V311.5C318 317.928 312.928 323 306.5 323H299.5C293.072 323 288 317.928 288 311.5V181.5L256 234L224 181.5V311.5C224 317.928 218.928 323 212.5 323H205.5C199.072 323 194 317.928 194 311.5V170.5Z" fill="#0F172A" fill-opacity="0.08"/>
+  <path d="M166 367.5C216.5 395.5 295.5 395.5 346 367.5" stroke="#DFF8F5" stroke-width="20" stroke-linecap="round" opacity="0.9"/>
+</svg>

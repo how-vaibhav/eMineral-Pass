@@ -23,9 +23,47 @@ const notoSansDevanagari = Noto_Sans_Devanagari({
 });
 
 export const metadata: Metadata = {
-  title: "eForm-C | Mineral Transport Authority",
+  metadataBase: new URL("https://www.mineraltrack.shop"),
+  title: {
+    default: "MineralTrack | Mineral Transport Authorization",
+    template: "%s | MineralTrack",
+  },
   description:
-    "Official eForm-C for mineral transport authorization and tracking",
+    "Professional digital mineral transport authorization and verification platform for compliant movement tracking.",
+  applicationName: "MineralTrack",
+  keywords: [
+    "mineral transport",
+    "eForm-C",
+    "mineral pass",
+    "transport authorization",
+    "UP minerals compliance",
+    "digital permit tracking",
+  ],
+  openGraph: {
+    title: "MineralTrack | Mineral Transport Authorization",
+    description:
+      "Secure digital mineral transport authorization, tracking, and verification platform.",
+    url: "https://www.mineraltrack.shop",
+    siteName: "MineralTrack",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MineralTrack",
+    description:
+      "Modern mineral transport authorization and verification for compliant operations.",
+  },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", rel: "shortcut icon" },
+    ],
+    apple: [{ url: "/icon.svg" }],
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({

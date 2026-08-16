@@ -1,5 +1,9 @@
 # eMineral Pass - Digital Mineral Transportation Authorization System 🇮🇳
 
+> Deployed production URL: https://www.mineraltrack.shop/
+>
+> This project is live and deployed in production for mineral transportation authorization, QR-based verification, and compliance tracking.
+
 > Official digital pass system for mineral transportation under the Uttar Pradesh Minerals Rules, 2018. A comprehensive government-compliant platform for managing mineral transportation permits, QR-based verification, and real-time tracking.
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)

@@ -287,7 +287,7 @@ export default function Home() {
               ) : (
                 <>
                   <SparkleButton href="/auth/signup" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
-                    Get ePass Free
+                    Request Access
                   </SparkleButton>
                   <SparkleButton href="/auth/signin" variant="secondary" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
                     Sign In
@@ -548,11 +548,11 @@ export default function Home() {
             Today
           </h2>
           <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg mb-8 sm:mb-10">
-            Join the digital transformation of mineral transportation in Uttar Pradesh. Free to start, instant setup.
+            Join the digital transformation of mineral transportation in Uttar Pradesh with a secure, compliant, and professionally managed platform.
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <SparkleButton href="/auth/signup" className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
-              Create Free Account
+              Create Account
             </SparkleButton>
             <a
               href="/auth/signin"
