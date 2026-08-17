@@ -5,6 +5,7 @@ import "./globals.css";
 import { RootLayoutProvider } from "./root-provider";
 import { GlobalNavbar } from "@/components/GlobalNavbar";
 import { GlobalFooter } from "@/components/GlobalFooter";
+import SchemaMarkup from "./schema";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
     template: "%s | MineralTrack",
   },
   description:
-    "Professional digital mineral transport authorization and verification platform for compliant movement tracking.",
+    "MineralTrack is a secure digital mineral transport authorization platform for eForm-C issuance, QR verification, and compliance tracking in India.",
   applicationName: "MineralTrack",
   keywords: [
     "mineral transport",
@@ -40,9 +41,9 @@ export const metadata: Metadata = {
     "digital permit tracking",
   ],
   openGraph: {
-    title: "MineralTrack | Mineral Transport Authorization",
+    title: "MineralTrack | Digital Mineral Transport Authorization",
     description:
-      "Secure digital mineral transport authorization, tracking, and verification platform.",
+      "Secure digital mineral transport authorization, QR verification, and compliance tracking platform for mineral movement operations.",
     url: "https://www.mineraltrack.shop",
     siteName: "MineralTrack",
     locale: "en_IN",
@@ -76,6 +77,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${notoSansDevanagari.variable} antialiased bg-background text-foreground transition-colors duration-300`}
       >
+        <SchemaMarkup />
         <RootLayoutProvider>
           <GlobalNavbar />
           {children}

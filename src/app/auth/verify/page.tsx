@@ -14,7 +14,7 @@ function VerifyContent() {
   const email = searchParams.get("email");
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-br dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white pt-20 transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-linear-to-br dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white pt-20 transition-colors duration-300">
       {/* Glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-80 h-80 bg-cyan-500 rounded-full filter blur-3xl opacity-[0.06] dark:opacity-[0.09] animate-pulse" />
@@ -27,7 +27,10 @@ function VerifyContent() {
           transition={{ duration: 0.35 }}
           className={cardCls}
         >
-          <Link href="/" className="inline-flex items-center gap-2 mb-6 text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors text-sm font-medium">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 mb-6 text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors text-sm font-medium"
+          >
             <ArrowLeft className="w-4 h-4" /> Back to Home
           </Link>
 
@@ -35,11 +38,14 @@ function VerifyContent() {
             <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0">
               <MailCheck className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Verify your email</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">
+              Verify your email
+            </h1>
           </div>
 
           <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
-            We sent a verification link to your email address. Please open the link to activate your account.
+            We sent a verification link to your email address. Please open the
+            link to activate your account.
           </p>
 
           {email && (
@@ -67,7 +73,9 @@ function VerifyContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50 dark:bg-slate-950" />}>
+    <Suspense
+      fallback={<div className="min-h-screen bg-slate-50 dark:bg-slate-950" />}
+    >
       <VerifyContent />
     </Suspense>
   );

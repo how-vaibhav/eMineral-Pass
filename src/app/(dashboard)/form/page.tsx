@@ -3,9 +3,19 @@
 import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  CheckCircle2, Download, ExternalLink, PlusCircle,
-  QrCode, FileText, Clock, Hash, Calendar, ArrowLeft,
-  Copy, Check, Share2,
+  CheckCircle2,
+  Download,
+  ExternalLink,
+  PlusCircle,
+  QrCode,
+  FileText,
+  Clock,
+  Hash,
+  Calendar,
+  ArrowLeft,
+  Copy,
+  Check,
+  Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import {
@@ -222,10 +232,15 @@ export default function FormPage() {
               className="mb-6"
             >
               {/* ── Hero Banner ── */}
-              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 p-6 sm:p-8 mb-6 shadow-2xl shadow-emerald-500/20">
+              <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-emerald-500 via-teal-500 to-cyan-600 p-6 sm:p-8 mb-6 shadow-2xl shadow-emerald-500/20">
                 {/* Grid texture overlay */}
-                <div className="absolute inset-0 opacity-[0.06]"
-                  style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E\")" }} />
+                <div
+                  className="absolute inset-0 opacity-[0.06]"
+                  style={{
+                    backgroundImage:
+                      "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E\")",
+                  }}
+                />
                 {/* Glow blobs */}
                 <div className="absolute -top-12 -right-12 w-56 h-56 bg-white/10 rounded-full blur-3xl" />
                 <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-emerald-200/20 rounded-full blur-2xl" />
@@ -254,7 +269,8 @@ export default function FormPage() {
                       transition={{ delay: 0.4 }}
                       className="text-emerald-100 text-sm"
                     >
-                      Your mineral transportation pass is ready. Present the QR code at checkpoints.
+                      Your mineral transportation pass is ready. Present the QR
+                      code at checkpoints.
                     </motion.p>
                   </div>
                   <motion.button
@@ -271,7 +287,6 @@ export default function FormPage() {
 
               {/* ── Main Content: QR + Info ── */}
               <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-
                 {/* QR Code Panel */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
@@ -283,7 +298,7 @@ export default function FormPage() {
                     <>
                       {/* QR glow ring */}
                       <div className="relative">
-                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 blur-xl opacity-30 scale-110" />
+                        <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-emerald-400 to-cyan-400 blur-xl opacity-30 scale-110" />
                         <div className="relative p-3 rounded-2xl bg-white border-2 border-emerald-200 dark:border-emerald-500/30 shadow-lg">
                           <img
                             src={generatedRecord.qr_code_url}
@@ -298,7 +313,7 @@ export default function FormPage() {
                           <QrCode className="w-4 h-4 text-emerald-500" />
                           Scan to Verify
                         </p>
-                        <p className="text-xs text-slate-400 dark:text-slate-500 max-w-[180px] leading-relaxed">
+                        <p className="text-xs text-slate-400 dark:text-slate-500 max-w-45 leading-relaxed">
                           Scan at checkpoints to verify this pass instantly
                         </p>
                       </div>
@@ -308,18 +323,23 @@ export default function FormPage() {
                       <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
                         <QrCode className="w-8 h-8 text-slate-400" />
                       </div>
-                      <p className="text-sm text-slate-400">QR code generating…</p>
+                      <p className="text-sm text-slate-400">
+                        QR code generating…
+                      </p>
                     </div>
                   )}
 
                   {/* Action Buttons */}
                   <div className="w-full space-y-2.5">
                     {generatedRecord.pdf_url ? (
-                      <a href={`/api/records/${generatedRecord.id}/download-pdf`} className="block">
+                      <a
+                        href={`/api/records/${generatedRecord.id}/download-pdf`}
+                        className="block"
+                      >
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold text-sm shadow-lg shadow-emerald-500/30 transition-all"
+                          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold text-sm shadow-lg shadow-emerald-500/30 transition-all"
                         >
                           <Download className="w-4 h-4" /> Download PDF Pass
                         </motion.button>
@@ -343,7 +363,8 @@ export default function FormPage() {
                           whileTap={{ scale: 0.98 }}
                           className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 font-semibold text-sm hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all"
                         >
-                          <ExternalLink className="w-4 h-4" /> View Public Record
+                          <ExternalLink className="w-4 h-4" /> View Public
+                          Record
                         </motion.button>
                       </a>
                     )}
@@ -361,10 +382,11 @@ export default function FormPage() {
                   <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-black/30 overflow-hidden">
                     <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
                       <FileText className="w-4 h-4 text-emerald-500" />
-                      <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200">Pass Details</h3>
+                      <h3 className="font-bold text-sm text-slate-700 dark:text-slate-200">
+                        Pass Details
+                      </h3>
                     </div>
                     <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-
                       {/* Record ID with copy */}
                       <div className="sm:col-span-2">
                         <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 flex items-center gap-1">
@@ -379,16 +401,23 @@ export default function FormPage() {
                             className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
                             title="Copy Record ID"
                           >
-                            {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4 text-slate-400" />}
+                            {copied ? (
+                              <Check className="w-4 h-4 text-emerald-500" />
+                            ) : (
+                              <Copy className="w-4 h-4 text-slate-400" />
+                            )}
                           </button>
                         </div>
                       </div>
 
                       {/* eForm-C No */}
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">eForm-C No.</p>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
+                          eForm-C No.
+                        </p>
                         <p className="font-mono font-bold text-slate-900 dark:text-white text-sm px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20">
-                          {generatedRecord.eform_c_no || generatedRecord.id.slice(0, 8).toUpperCase()}
+                          {generatedRecord.eform_c_no ||
+                            generatedRecord.id.slice(0, 8).toUpperCase()}
                         </p>
                       </div>
 
@@ -425,25 +454,49 @@ export default function FormPage() {
                       { label: "Type", value: "eForm-C", color: "cyan" },
                       { label: "Format", value: "Digital Pass", color: "blue" },
                     ].map(({ label, value, color }) => (
-                      <div key={label} className={`p-3 rounded-2xl border bg-${color}-50 dark:bg-${color}-500/10 border-${color}-100 dark:border-${color}-500/20`}>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">{label}</p>
-                        <p className={`font-bold text-sm text-${color}-700 dark:text-${color}-400`}>{value}</p>
+                      <div
+                        key={label}
+                        className={`p-3 rounded-2xl border bg-${color}-50 dark:bg-${color}-500/10 border-${color}-100 dark:border-${color}-500/20`}
+                      >
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">
+                          {label}
+                        </p>
+                        <p
+                          className={`font-bold text-sm text-${color}-700 dark:text-${color}-400`}
+                        >
+                          {value}
+                        </p>
                       </div>
                     ))}
                   </div>
 
                   {/* How to use */}
-                  <div className="rounded-3xl bg-gradient-to-br from-slate-50 to-slate-100/50 dark:from-slate-900 dark:to-slate-800/50 border border-slate-200 dark:border-slate-800 p-5">
-                    <h4 className="font-semibold text-sm text-slate-700 dark:text-slate-300 mb-3">Next Steps</h4>
+                  <div className="rounded-3xl bg-linear-to-br from-slate-50 to-slate-100/50 dark:from-slate-900 dark:to-slate-800/50 border border-slate-200 dark:border-slate-800 p-5">
+                    <h4 className="font-semibold text-sm text-slate-700 dark:text-slate-300 mb-3">
+                      Next Steps
+                    </h4>
                     <ol className="space-y-2">
                       {[
-                        { n: 1, text: "Download the PDF pass and keep it accessible" },
-                        { n: 2, text: "Show QR code to checkpoint officers for instant verification" },
-                        { n: 3, text: "Pass auto-expires — check the valid-upto date" },
+                        {
+                          n: 1,
+                          text: "Download the PDF pass and keep it accessible",
+                        },
+                        {
+                          n: 2,
+                          text: "Show QR code to checkpoint officers for instant verification",
+                        },
+                        {
+                          n: 3,
+                          text: "Pass auto-expires — check the valid-upto date",
+                        },
                       ].map(({ n, text }) => (
                         <li key={n} className="flex items-start gap-3">
-                          <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</span>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">{text}</p>
+                          <span className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                            {n}
+                          </span>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">
+                            {text}
+                          </p>
                         </li>
                       ))}
                     </ol>
@@ -455,7 +508,7 @@ export default function FormPage() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleCreateNewEntry}
-                      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold text-sm shadow-lg shadow-cyan-500/20 transition-all"
+                      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold text-sm shadow-lg shadow-cyan-500/20 transition-all"
                     >
                       <PlusCircle className="w-4 h-4" /> Create Another Pass
                     </motion.button>

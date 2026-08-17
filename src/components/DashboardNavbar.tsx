@@ -42,9 +42,9 @@ function DashboardNavbarComponent() {
           {/* Logo / Brand */}
           <Link
             href="/"
-            className="flex items-center gap-2 font-bold text-lg bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent"
+            className="flex items-center gap-2 font-bold text-lg bg-linear-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg" />
+            <div className="w-8 h-8 bg-linear-to-br from-cyan-500 to-blue-600 rounded-lg" />
             <TextGenerateEffect words="eForm-C" duration={0.9} filter={false} />
           </Link>
 
@@ -106,7 +106,7 @@ function DashboardNavbarComponent() {
             ) : (
               <Link
                 href="/auth/login"
-                className="text-sm font-medium text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 px-4 py-2 rounded-lg transition"
+                className="text-sm font-medium text-white bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 px-4 py-2 rounded-lg transition"
               >
                 <TextGenerateEffect
                   words="Sign In"
@@ -196,7 +196,7 @@ function DashboardNavbarComponent() {
             ) : (
               <Link
                 href="/auth/login"
-                className="block text-sm font-medium text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 px-4 py-2 rounded-lg transition text-center"
+                className="block text-sm font-medium text-white bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 px-4 py-2 rounded-lg transition text-center"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <TextGenerateEffect

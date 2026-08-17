@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import {
-  MapPin, Eye, Download, Trash2, Clock, QrCode,
-} from "lucide-react";
+import { MapPin, Eye, Download, Trash2, Clock, QrCode } from "lucide-react";
 import type { UserRecord } from "@/app/dashboard/user/page";
 
 interface StatusBadgeProps {
@@ -12,15 +10,33 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
-  const map: Record<string, { label: string; className: string; dot: string }> = {
-    active:   { label: "Active",   className: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30", dot: "bg-emerald-500 animate-pulse" },
-    expired:  { label: "Expired",  className: "bg-red-50 text-red-700 border-red-200 dark:bg-red-500/15 dark:text-red-400 dark:border-red-500/30", dot: "bg-red-500" },
-    archived: { label: "Archived", className: "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-500/15 dark:text-slate-400 dark:border-slate-500/30", dot: "bg-slate-400" },
-  };
+  const map: Record<string, { label: string; className: string; dot: string }> =
+    {
+      active: {
+        label: "Active",
+        className:
+          "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30",
+        dot: "bg-emerald-500 animate-pulse",
+      },
+      expired: {
+        label: "Expired",
+        className:
+          "bg-red-50 text-red-700 border-red-200 dark:bg-red-500/15 dark:text-red-400 dark:border-red-500/30",
+        dot: "bg-red-500",
+      },
+      archived: {
+        label: "Archived",
+        className:
+          "bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-500/15 dark:text-slate-400 dark:border-slate-500/30",
+        dot: "bg-slate-400",
+      },
+    };
   const cfg = map[status] ?? map.archived;
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${cfg.className}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${cfg.className}`}
+    >
       <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
       {cfg.label}
     </span>
@@ -62,28 +78,27 @@ export function PassCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
       className="group relative overflow-hidden rounded-2xl
-                 border border-slate-200 dark:border-white/[0.06]
-                 bg-white dark:bg-white/[0.03]
-                 hover:border-slate-300 dark:hover:border-white/[0.12]
-                 hover:bg-slate-50 dark:hover:bg-white/[0.05]
+                 border border-slate-200 dark:border-white/6
+                 bg-white dark:bg-white/3
+                 hover:border-slate-300 dark:hover:border-white/12
+                 hover:bg-slate-50 dark:hover:bg-white/5
                  shadow-sm dark:shadow-none
                  backdrop-blur-sm transition-all duration-300"
     >
       {/* Left accent bar based on status */}
       <div
-        className={`absolute left-0 top-0 bottom-0 w-[3px] rounded-l-2xl transition-colors ${
+        className={`absolute left-0 top-0 bottom-0 w-0.75 rounded-l-2xl transition-colors ${
           effectiveStatus === "active"
             ? "bg-emerald-500"
             : effectiveStatus === "expired"
-            ? "bg-red-500"
-            : "bg-slate-300 dark:bg-slate-600"
+              ? "bg-red-500"
+              : "bg-slate-300 dark:bg-slate-600"
         }`}
       />
 
       <div className="pl-5 pr-4 sm:pr-5 py-4 sm:py-5">
         {/* Mobile layout: stacked */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-
           {/* QR icon + pass info */}
           <div className="flex items-start gap-3 flex-1 min-w-0">
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0">
@@ -102,21 +117,28 @@ export function PassCard({
 
           {/* Destination + Status on mobile: inline row */}
           <div className="flex items-center gap-3 flex-wrap sm:contents">
-            <div className="flex items-center gap-1.5 sm:min-w-[130px]">
+            <div className="flex items-center gap-1.5 sm:min-w-32.5">
               <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 shrink-0" />
-              <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 truncate max-w-[120px] sm:max-w-none">{destination}</span>
+              <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 truncate max-w-30 sm:max-w-none">
+                {destination}
+              </span>
             </div>
 
             <div className="shrink-0">
               <StatusBadge status={effectiveStatus} />
             </div>
 
-            <div className="flex items-center gap-1.5 text-xs text-slate-500 sm:min-w-[150px]">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 sm:min-w-37.5">
               <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-              <span>{validUptoDate
-                ? validUptoDate.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
-                : "—"
-              }</span>
+              <span>
+                {validUptoDate
+                  ? validUptoDate.toLocaleDateString("en-IN", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : "—"}
+              </span>
             </div>
           </div>
 

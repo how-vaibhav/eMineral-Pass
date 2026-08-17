@@ -343,8 +343,12 @@ export default function SettingsPage() {
           }`}
         >
           <div className="flex items-center gap-3">
-            <span className="text-lg">{notification.type === "success" ? "✓" : "⚠"}</span>
-            <span className="font-semibold text-sm">{notification.message}</span>
+            <span className="text-lg">
+              {notification.type === "success" ? "✓" : "⚠"}
+            </span>
+            <span className="font-semibold text-sm">
+              {notification.message}
+            </span>
           </div>
         </motion.div>
       )}
@@ -379,11 +383,11 @@ export default function SettingsPage() {
           >
             <nav className="flex gap-1.5 overflow-x-auto pb-1 lg:flex-col lg:space-y-1 lg:overflow-visible scrollbar-hide">
               {[
-                { id: "account",       label: "Account",       icon: User },
-                { id: "security",      label: "Security",      icon: Lock },
-                { id: "appearance",    label: "Appearance",    icon: Moon },
+                { id: "account", label: "Account", icon: User },
+                { id: "security", label: "Security", icon: Lock },
+                { id: "appearance", label: "Appearance", icon: Moon },
                 { id: "notifications", label: "Notifications", icon: Bell },
-                { id: "privacy",       label: "Privacy & Data",icon: Lock },
+                { id: "privacy", label: "Privacy & Data", icon: Lock },
               ].map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
@@ -410,35 +414,63 @@ export default function SettingsPage() {
             {/* Account Tab */}
             {activeTab === "account" && (
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 space-y-6 shadow-sm">
-                <h2 className="text-lg sm:text-xl font-bold">Account Information</h2>
+                <h2 className="text-lg sm:text-xl font-bold">
+                  Account Information
+                </h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider">User ID</label>
+                    <label className="block text-xs font-semibold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      User ID
+                    </label>
                     <div className="flex items-center gap-2">
-                      <input type="text" value={user?.id || ""} disabled
+                      <input
+                        type="text"
+                        value={user?.id || ""}
+                        disabled
                         className="flex-1 px-3 py-2 rounded-xl border bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed text-xs font-mono"
                       />
-                      <button onClick={handleCopyUserId} title="Copy User ID"
-                        className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                        {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4 text-slate-400" />}
+                      <button
+                        onClick={handleCopyUserId}
+                        title="Copy User ID"
+                        className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      >
+                        {copied ? (
+                          <Check className="w-4 h-4 text-emerald-500" />
+                        ) : (
+                          <Copy className="w-4 h-4 text-slate-400" />
+                        )}
                       </button>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider">Email Address</label>
-                    <input type="email" value={formData.email} disabled
+                    <label className="block text-xs font-semibold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      disabled
                       className="w-full px-3 py-2 rounded-xl border bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider">Full Name</label>
-                    <input type="text" value={formData.fullName}
-                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    <label className="block text-xs font-semibold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.fullName}
+                      onChange={(e) =>
+                        setFormData({ ...formData, fullName: e.target.value })
+                      }
                       className="w-full px-3 py-2 rounded-xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 dark:focus:border-cyan-500 text-sm transition-colors"
                     />
                   </div>
-                  <button onClick={handleUpdateProfile} disabled={loading}
-                    className="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-semibold text-white text-sm hover:shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50 transition-all">
+                  <button
+                    onClick={handleUpdateProfile}
+                    disabled={loading}
+                    className="w-full py-2.5 bg-linear-to-r from-cyan-500 to-blue-600 rounded-xl font-semibold text-white text-sm hover:shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50 transition-all"
+                  >
                     {loading ? "Updating…" : "Update Profile"}
                   </button>
                 </div>
@@ -448,46 +480,73 @@ export default function SettingsPage() {
             {/* Security Tab */}
             {activeTab === "security" && (
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 space-y-6 shadow-sm">
-                <h2 className="text-lg sm:text-xl font-bold">Change Password</h2>
+                <h2 className="text-lg sm:text-xl font-bold">
+                  Change Password
+                </h2>
                 <div className="space-y-4">
                   {[
                     { label: "Current Password", key: "currentPassword" },
-                    { label: "New Password",     key: "newPassword",     showToggle: true },
+                    {
+                      label: "New Password",
+                      key: "newPassword",
+                      showToggle: true,
+                    },
                     { label: "Confirm Password", key: "confirmPassword" },
                   ].map(({ label, key, showToggle }) => (
                     <div key={key}>
-                      <label className="block text-xs font-semibold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider">{label}</label>
+                      <label className="block text-xs font-semibold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                        {label}
+                      </label>
                       <div className="relative">
                         <input
                           type={showPassword ? "text" : "password"}
                           value={formData[key as keyof typeof formData]}
-                          onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({ ...formData, [key]: e.target.value })
+                          }
                           className="w-full px-3 py-2 pr-10 rounded-xl border bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 text-sm transition-colors"
                         />
                         {showToggle && (
-                          <button type="button" onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="w-4 h-4" />
+                            ) : (
+                              <Eye className="w-4 h-4" />
+                            )}
                           </button>
                         )}
                       </div>
                     </div>
                   ))}
-                  <button onClick={handleChangePassword} disabled={loading}
-                    className="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-semibold text-white text-sm hover:shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50 transition-all">
+                  <button
+                    onClick={handleChangePassword}
+                    disabled={loading}
+                    className="w-full py-2.5 bg-linear-to-r from-cyan-500 to-blue-600 rounded-xl font-semibold text-white text-sm hover:shadow-lg hover:shadow-cyan-500/25 disabled:opacity-50 transition-all"
+                  >
                     {loading ? "Updating…" : "Update Password"}
                   </button>
                 </div>
 
                 <div className="border-t border-slate-100 dark:border-slate-800 pt-5">
-                  <h3 className="text-sm font-bold mb-3 text-red-600 dark:text-red-400 uppercase tracking-widest">Danger Zone</h3>
+                  <h3 className="text-sm font-bold mb-3 text-red-600 dark:text-red-400 uppercase tracking-widest">
+                    Danger Zone
+                  </h3>
                   <div className="space-y-2.5">
-                    <button onClick={handleSignOut}
-                      className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all border-2 flex items-center justify-center gap-2 border-amber-400 dark:border-amber-600 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10">
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all border-2 flex items-center justify-center gap-2 border-amber-400 dark:border-amber-600 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10"
+                    >
                       <LogOut className="w-4 h-4" /> Sign Out
                     </button>
-                    <button onClick={handleDeleteAccount} disabled={loading}
-                      className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all border-2 flex items-center justify-center gap-2 disabled:opacity-50 border-red-400 dark:border-red-600 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10">
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={loading}
+                      className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all border-2 flex items-center justify-center gap-2 disabled:opacity-50 border-red-400 dark:border-red-600 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
+                    >
                       <Trash2 className="w-4 h-4" /> Delete Account Permanently
                     </button>
                   </div>
@@ -525,10 +584,13 @@ export default function SettingsPage() {
             {/* Notifications Tab */}
             {activeTab === "notifications" && (
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm">
-                <h2 className="text-lg sm:text-xl font-bold mb-4">Notification Preferences</h2>
+                <h2 className="text-lg sm:text-xl font-bold mb-4">
+                  Notification Preferences
+                </h2>
                 <div className="p-4 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40">
                   <p className="text-sm text-slate-600 dark:text-slate-400">
-                    📧 Email notifications will be sent for important events such as:
+                    📧 Email notifications will be sent for important events
+                    such as:
                   </p>
                   <ul className="mt-3 space-y-1.5 text-sm text-slate-700 dark:text-slate-300 list-disc list-inside">
                     <li>Pass creation and expiration</li>
@@ -549,7 +611,9 @@ export default function SettingsPage() {
                     <FileText className="w-4 h-4" /> Data Collection
                   </h3>
                   <p className="text-sm text-slate-700 dark:text-slate-300">
-                    We collect minimal personal data necessary to provide our services. Your data is encrypted and never shared with third parties.
+                    We collect minimal personal data necessary to provide our
+                    services. Your data is encrypted and never shared with third
+                    parties.
                   </p>
                 </div>
                 <div className="p-4 rounded-2xl border border-blue-200 dark:border-blue-500/20 bg-blue-50 dark:bg-blue-500/10">
@@ -559,8 +623,11 @@ export default function SettingsPage() {
                   <p className="text-sm text-slate-700 dark:text-slate-300 mb-3">
                     You can request a copy of all your data in JSON format.
                   </p>
-                  <button onClick={handleExportData} disabled={isExporting}
-                    className="px-4 py-2 rounded-xl font-semibold text-sm transition-all border-2 disabled:opacity-60 border-blue-400 dark:border-blue-500 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/15">
+                  <button
+                    onClick={handleExportData}
+                    disabled={isExporting}
+                    className="px-4 py-2 rounded-xl font-semibold text-sm transition-all border-2 disabled:opacity-60 border-blue-400 dark:border-blue-500 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/15"
+                  >
                     {isExporting ? "Exporting…" : "Export Data"}
                   </button>
                 </div>

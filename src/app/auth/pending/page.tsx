@@ -14,7 +14,7 @@ function PendingContent() {
   const email = searchParams.get("email");
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-br dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white pt-20 transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-linear-to-br dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white pt-20 transition-colors duration-300">
       {/* Glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-10 w-80 h-80 bg-amber-500 rounded-full filter blur-3xl opacity-[0.05] dark:opacity-[0.08] animate-pulse" />
@@ -27,7 +27,10 @@ function PendingContent() {
           transition={{ duration: 0.35 }}
           className={cardCls}
         >
-          <Link href="/" className="inline-flex items-center gap-2 mb-6 text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors text-sm font-medium">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 mb-6 text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors text-sm font-medium"
+          >
             <ArrowLeft className="w-4 h-4" /> Back to Home
           </Link>
 
@@ -35,11 +38,14 @@ function PendingContent() {
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
               <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Your Host status will be verified shortly!</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">
+              Your Host status will be verified shortly!
+            </h1>
           </div>
 
           <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
-            Please wait while we review your submission. An administrator will approve your account.
+            Please wait while we review your submission. An administrator will
+            approve your account.
           </p>
 
           {email && (
@@ -50,7 +56,8 @@ function PendingContent() {
 
           <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 space-y-3">
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              After authorisation, return and sign in to access your host dashboard.
+              After authorisation, return and sign in to access your host
+              dashboard.
             </p>
             <Link
               href="/auth/signin"
@@ -67,7 +74,9 @@ function PendingContent() {
 
 export default function PendingRequest() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50 dark:bg-slate-950" />}>
+    <Suspense
+      fallback={<div className="min-h-screen bg-slate-50 dark:bg-slate-950" />}
+    >
       <PendingContent />
     </Suspense>
   );

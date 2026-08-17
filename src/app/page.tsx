@@ -31,9 +31,9 @@ function GridBackground() {
           backgroundSize: "32px 32px",
         }}
       />
-      <div className="absolute -top-32 -left-32 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[120px]" />
-      <div className="absolute -top-16 right-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[100px]" />
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-indigo-500/5 rounded-full blur-[80px]" />
+      <div className="absolute -top-32 -left-32 w-150 h-150 bg-cyan-500/10 rounded-full blur-[120px]" />
+      <div className="absolute -top-16 right-0 w-125 h-125 bg-blue-600/10 rounded-full blur-[100px]" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-200 h-75 bg-indigo-500/5 rounded-full blur-[80px]" />
     </div>
   );
 }
@@ -52,9 +52,9 @@ function StatCard({
     <motion.div
       whileHover={{ y: -4, scale: 1.02 }}
       transition={{ type: "spring", stiffness: 300 }}
-      className="flex-1 min-w-[110px] relative overflow-hidden rounded-2xl
-                 border border-slate-200 dark:border-white/[0.06]
-                 bg-slate-50 dark:bg-white/[0.03]
+      className="flex-1 min-w-27.5 relative overflow-hidden rounded-2xl
+                 border border-slate-200 dark:border-white/6
+                 bg-slate-50 dark:bg-white/3
                  backdrop-blur-sm p-5 sm:p-6 text-center"
     >
       <div className={`text-xl sm:text-3xl font-black mb-1 ${accent}`}>
@@ -101,21 +101,21 @@ function RoleCard({
       transition={{ duration: 0.7, delay }}
       whileHover={{ y: -6 }}
       className={`relative flex flex-col overflow-hidden rounded-3xl
-                  border border-slate-200 dark:border-white/[0.07]
-                  bg-slate-50 dark:bg-white/[0.03]
+                  border border-slate-200 dark:border-white/7
+                  bg-slate-50 dark:bg-white/3
                   backdrop-blur-sm p-5 sm:p-8 group transition-all duration-500
-                  hover:border-slate-300 dark:hover:border-white/[0.15]
+                  hover:border-slate-300 dark:hover:border-white/15
                   hover:shadow-2xl ${glowColor}`}
     >
       {/* Top gradient strip */}
       <div
-        className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${accentFrom} ${accentTo} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+        className={`absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r ${accentFrom} ${accentTo} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
       />
 
       {/* Icon + title */}
       <div className="flex items-center gap-4 mb-5 sm:mb-6">
         <div
-          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br ${accentFrom} ${accentTo} flex items-center justify-center text-white shadow-lg shrink-0`}
+          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-linear-to-br ${accentFrom} ${accentTo} flex items-center justify-center text-white shadow-lg shrink-0`}
         >
           {icon}
         </div>
@@ -171,10 +171,10 @@ function WhyCard({
       transition={{ duration: 0.6, delay }}
       whileHover={{ y: -4 }}
       className="relative group flex gap-4 p-5 sm:p-6 rounded-2xl
-                 border border-slate-200 dark:border-white/[0.06]
-                 bg-white dark:bg-white/[0.02]
-                 hover:border-slate-300 dark:hover:border-white/[0.12]
-                 hover:bg-slate-50 dark:hover:bg-white/[0.05]
+                 border border-slate-200 dark:border-white/6
+                 bg-white dark:bg-white/2
+                 hover:border-slate-300 dark:hover:border-white/12
+                 hover:bg-slate-50 dark:hover:bg-white/5
                  transition-all duration-300"
     >
       <div
@@ -265,10 +265,10 @@ export default function Home() {
               variants={itemVariants}
               className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black leading-none tracking-tight mb-5 sm:mb-6"
             >
-              <span className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent block mb-2">
+              <span className="bg-linear-to-br from-slate-800 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent block mb-2">
                 Digital
               </span>
-              <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-blue-500 bg-clip-text text-transparent block">
+              <span className="bg-linear-to-r from-cyan-500 via-cyan-400 to-blue-500 bg-clip-text text-transparent block">
                 <EncryptedText
                   text="eMineral Pass"
                   revealDelayMs={60}
@@ -344,7 +344,7 @@ export default function Home() {
         </motion.div>
 
         {/* Bottom fade to next section */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 dark:from-slate-950 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-slate-50 dark:from-slate-950 to-transparent pointer-events-none" />
       </section>
 
       {/* ═══════════════════════════════════════════════════════
@@ -368,8 +368,8 @@ export default function Home() {
       ══════════════════════════════════════════════════════════ */}
       <section className="relative py-16 sm:py-28 px-4 sm:px-6 overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px]" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[100px]" />
+          <div className="absolute top-0 right-0 w-125 h-125 bg-blue-600/5 rounded-full blur-[100px]" />
+          <div className="absolute bottom-0 left-0 w-125 h-125 bg-cyan-500/5 rounded-full blur-[100px]" />
         </div>
 
         <div className="max-w-7xl mx-auto relative z-10">
@@ -389,7 +389,7 @@ export default function Home() {
             </div>
             <h2 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4">
               Built for India&apos;s{" "}
-              <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
                 Mineral Sector
               </span>
             </h2>
@@ -444,15 +444,15 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.2 }}
               className="relative rounded-3xl
-                         border border-slate-200 dark:border-white/[0.07]
-                         bg-white dark:bg-white/[0.03]
+                         border border-slate-200 dark:border-white/7
+                         bg-white dark:bg-white/3
                          backdrop-blur-sm p-6 sm:p-8 overflow-hidden shadow-sm"
             >
               <div className="absolute -top-16 -right-16 w-48 h-48 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
 
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-linear-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0">
                     <ScanLine className="w-5 h-5 text-white" />
                   </div>
                   <div>
@@ -482,7 +482,7 @@ export default function Home() {
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: 0.05 * i, duration: 0.4 }}
-                      className="flex items-center gap-3 py-2.5 border-b border-slate-100 dark:border-white/[0.04] last:border-0"
+                      className="flex items-center gap-3 py-2.5 border-b border-slate-100 dark:border-white/4 last:border-0"
                     >
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                       <span className="text-sm text-slate-700 dark:text-slate-300">
@@ -502,7 +502,7 @@ export default function Home() {
       ══════════════════════════════════════════════════════════ */}
       <section className="relative py-16 sm:py-28 px-4 sm:px-6 overflow-hidden bg-white dark:bg-slate-950/80 transition-colors duration-300">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-slate-100 dark:bg-slate-800/40 rounded-full blur-[80px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-175 h-100 bg-slate-100 dark:bg-slate-800/40 rounded-full blur-[80px]" />
         </div>
 
         <div className="max-w-6xl mx-auto relative z-10">
@@ -576,9 +576,9 @@ export default function Home() {
       ══════════════════════════════════════════════════════════ */}
       <section className="relative py-20 sm:py-24 px-4 sm:px-6 overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-blue-600/5 to-violet-500/5" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-br from-cyan-500/5 via-blue-600/5 to-violet-500/5" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-150 h-px bg-linear-to-r from-transparent via-cyan-500/50 to-transparent" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-150 h-px bg-linear-to-r from-transparent via-blue-500/50 to-transparent" />
         </div>
 
         <motion.div
@@ -591,7 +591,7 @@ export default function Home() {
           <div className="text-4xl sm:text-5xl mb-5 sm:mb-6">⚡</div>
           <h2 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white mb-4 leading-tight">
             Start Issuing{" "}
-            <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
               Digital Passes
             </span>{" "}
             Today

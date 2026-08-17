@@ -30,7 +30,7 @@ const Node = forwardRef<HTMLDivElement, NodeProps>(
           className={cn(
             "z-10 flex items-center justify-center rounded-2xl border",
             "shadow-lg transition-transform duration-300 hover:scale-105",
-            className
+            className,
           )}
         >
           {children}
@@ -47,7 +47,7 @@ const Node = forwardRef<HTMLDivElement, NodeProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 Node.displayName = "Node";
 
@@ -62,9 +62,9 @@ const Hub = forwardRef<HTMLDivElement, { className?: string }>(
           className={cn(
             "z-10 flex items-center justify-center rounded-full border-2",
             "w-24 h-24 shadow-2xl transition-transform duration-300 hover:scale-105",
-            "bg-gradient-to-br from-cyan-500 to-blue-600",
+            "bg-linear-to-br from-cyan-500 to-blue-600",
             "border-cyan-400/60 shadow-cyan-500/40",
-            className
+            className,
           )}
         >
           {/* eMineral Pass logo / shield */}
@@ -80,7 +80,7 @@ const Hub = forwardRef<HTMLDivElement, { className?: string }>(
         </div>
       </div>
     );
-  }
+  },
 );
 Hub.displayName = "Hub";
 
@@ -108,7 +108,7 @@ export function WorkflowBeamDiagram({ isDark }: { isDark: boolean }) {
   return (
     <div
       ref={containerRef}
-      className="relative flex h-[420px] sm:h-[380px] w-full items-center justify-center overflow-hidden"
+      className="relative flex h-105 sm:h-95 w-full items-center justify-center overflow-hidden"
     >
       {/* ── Grid Layout ── */}
       <div className="flex w-full max-w-2xl items-center justify-between px-4 sm:px-8">
@@ -308,7 +308,7 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
     >
       {/* Background glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-cyan-500/5 rounded-full blur-3xl" />
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/5 rounded-full blur-2xl" />
         <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-indigo-500/5 rounded-full blur-2xl" />
       </div>
@@ -326,8 +326,8 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
             How eMineral Pass Works
           </h2>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-            From form submission to verified digital pass — the entire
-            mineral transportation authorization flow, automated and
+            From form submission to verified digital pass — the entire mineral
+            transportation authorization flow, automated and
             government-compliant.
           </p>
         </div>
