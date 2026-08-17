@@ -54,17 +54,31 @@ function normalizeBaseUrl(candidate?: string): string | null {
 }
 
 function resolvePublicAppUrl(): string {
-  const candidates = [
+  const stableCandidates = [
     process.env.NEXT_PUBLIC_APP_URL,
     process.env.APP_URL,
     process.env.NEXT_PUBLIC_SITE_URL,
+  ];
+
+  for (const candidate of stableCandidates) {
+    const resolved = normalizeBaseUrl(candidate);
+    if (resolved) return resolved;
+  }
+
+  const deploymentCandidates = [
     process.env.VERCEL_PROJECT_PRODUCTION_URL,
     process.env.VERCEL_URL,
   ];
 
-  for (const candidate of candidates) {
+  for (const candidate of deploymentCandidates) {
     const resolved = normalizeBaseUrl(candidate);
     if (resolved) return resolved;
+  }
+
+  if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+    console.warn(
+      "[QR] No public app URL configured. Falling back to localhost. Set NEXT_PUBLIC_APP_URL to your stable production domain to avoid broken QR scans.",
+    );
   }
 
   return "http://localhost:3000";
