@@ -1,4 +1,4 @@
-# eMineral Pass - Digital Mineral Transportation Authorization System 🇮🇳
+# eMineral Pass - Digital Mineral Transportation Authorization System
 
 > Deployed production URL: https://www.mineraltrack.shop/
 >
@@ -12,7 +12,7 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Key Features](#key-features)
@@ -32,7 +32,7 @@
 
 ---
 
-## 🎯 Overview
+## Overview
 
 **eMineral Pass** is a sophisticated digital platform designed to streamline mineral transportation authorization in India. The system combines government compliance, QR-based verification, real-time analytics, and secure PDF generation to create an efficient, transparent, and secure transportation permit ecosystem.
 
@@ -48,82 +48,47 @@ This project was delivered as a freelance engagement.
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 ### For Transport Users
 
-- 📝 **Government Form Compliance**: Official eForm-C template with validation
-- 🆔 **Auto-Generated QR Codes**: Unique QR pass for every submission
-- 📄 **PDF Generation**: Government-standard documentation with digital signatures
-- 📊 **Pass Management**: Create, track, and manage transportation permits
-- 🔍 **Status Tracking**: Real-time pass validity and expiration tracking
-- 📱 **Mobile Responsive**: Full functionality on all devices
-- 🌙 **Dark/Light Mode**: Theme toggle with persistent storage
+- **Government Form Compliance**: Official eForm-C template with validation
+- **Auto-Generated QR Codes**: Unique QR pass for every submission
+- **PDF Generation**: Government-standard documentation with digital signatures
+- **Pass Management**: Create, track, and manage transportation permits
+- **Status Tracking**: Real-time pass validity and expiration tracking
+- **Mobile Responsive**: Full functionality on all devices
+- **Dark/Light Mode**: Theme toggle with persistent storage
 
 ### For License Hosts (Admin)
 
-- 🏢 **Portal Dashboard**: Centralized management system
-- 📈 **Analytics**: Track issued passes, active permits, monthly trends
-- 🔐 **Role-Based Access**: View and download pass PDFs only (no creation)
-- 🔎 **Advanced Filtering**: Filter passes by status (Active/Expired)
-- 📋 **Pass Verification**: Verify and manage transportation records
-- 🎛️ **Settings Management**: Configure portal preferences
+- **Portal Dashboard**: Centralized management system
+- **Analytics**: Track issued passes, active permits, monthly trends
+- **Role-Based Access**: View and download pass PDFs only (no creation)
+- **Advanced Filtering**: Filter passes by status (Active/Expired)
+- **Pass Verification**: Verify and manage transportation records
+- **Settings Management**: Configure portal preferences
 
 ### Universal Features
 
-- 🎨 **Professional UI/UX**: Smooth animations and transitions
-- 🌍 **Multi-Role Support**: Host and User authentication flows
-- 🔐 **Secure Authentication**: Role-based access control (RBAC)
-- 💾 **Database Persistence**: Supabase PostgreSQL integration
-- 🔔 **User Feedback**: Real-time alerts (success, errors, warnings)
-- 🎬 **Page Animations**: Professional staggered entrance effects
-- 🔐 **Password Recovery**: Forgot password with email reset
-- 🔑 **Social Auth**: Google OAuth integration ready
+- **Professional UI/UX**: Smooth animations and transitions
+- **Multi-Role Support**: Host and User authentication flows
+- **Secure Authentication**: Role-based access control (RBAC)
+- **Database Persistence**: Supabase PostgreSQL integration
+- **User Feedback**: Real-time alerts (success, errors, warnings)
+- **Page Animations**: Professional staggered entrance effects
+- **Password Recovery**: Forgot password with email reset
+- **Social Auth**: Google OAuth integration ready
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Client Layer                          │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │
-│  │   Home Page  │  │  Auth Pages   │  │  Dashboard   │   │
-│  └──────────────┘  └──────────────┘  └──────────────┘   │
-└──────────────────────────┬──────────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────────┐
-│              Next.js App Router Layer                    │
-│  ┌────────────────────────────────────────────────────┐ │
-│  │  Route Handlers │ API Routes │ Server Components  │ │
-│  └────────────────────────────────────────────────────┘ │
-└──────────────────────────┬──────────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────────┐
-│           Global Context & State Management              │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │
-│  │   Theme Ctx  │  │   Auth Ctx   │  │  Form State  │   │
-│  └──────────────┘  └──────────────┘  └──────────────┘   │
-└──────────────────────────┬──────────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────────┐
-│           Business Logic & Data Processing               │
-│  ┌────────────────┐  ┌────────────────┐                  │
-│  │ PDF Generation │  │ QR Code Gen    │                  │
-│  └────────────────┘  └────────────────┘                  │
-└──────────────────────────┬──────────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────────┐
-│              Supabase Backend Services                   │
-│  ┌─────────────────────────────────────────────────┐    │
-│  │  PostgreSQL  │  Auth  │  Storage  │  Real-time │    │
-│  └─────────────────────────────────────────────────┘    │
-└──────────────────────────────────────────────────────────┘
-```
+![System Architecture](./System%20Architecture.png)
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 
@@ -152,7 +117,7 @@ This project was delivered as a freelance engagement.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -219,7 +184,7 @@ npm start
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 form-qr-pdf-app/
