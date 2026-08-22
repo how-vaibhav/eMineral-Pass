@@ -268,7 +268,7 @@ Screenshots are stored in the [Screenshots](Screenshots) folder.
 
 ---
 
-## 🎨 Advanced Features
+##  Advanced Features
 
 ### 1. **Responsive Design**
 
@@ -346,7 +346,7 @@ Dashboard Access (Role-based)
 
 ---
 
-## 📡 API Documentation
+##  API Documentation
 
 ### Health Check
 
@@ -400,7 +400,7 @@ GET /api/public/records/[publicToken]
 
 ---
 
-## 🔐 Authentication System
+##  Authentication System
 
 ### User Roles & Permissions
 
@@ -475,7 +475,7 @@ scanned_at: TIMESTAMP
 
 ---
 
-## 🌍 Environment Configuration
+## Environment Configuration
 
 ### Development (.env.local)
 
@@ -508,7 +508,7 @@ SENTRY_DSN=your-sentry-dsn
 
 ---
 
-## 🚀 Deployment Guide
+##  Deployment Guide
 
 ### Vercel Deployment (Recommended)
 
@@ -569,13 +569,13 @@ Contributions are welcome! Please follow these guidelines:
 
 ---
 
-## 📝 License
+##  License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-## 📞 Support & Contact
+##  Support & Contact
 
 For issues, questions, or suggestions:
 
