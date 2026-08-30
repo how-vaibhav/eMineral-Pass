@@ -65,6 +65,16 @@ function GlobalNavbarComponent() {
           </motion.div>
 
           <div className="hidden md:flex gap-3 lg:gap-4 items-center">
+            <Link
+              href="/resources"
+              className={`text-sm lg:text-base font-medium transition-colors ${
+                isDark
+                  ? "text-slate-300 hover:text-white"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Resources
+            </Link>
             <AnimatedThemeToggler
               theme={effectiveTheme}
               onThemeChange={toggleTheme}
@@ -178,6 +188,17 @@ function GlobalNavbarComponent() {
             }`}
           >
             <div className="p-4 space-y-3">
+              <Link
+                href="/resources"
+                onClick={() => setIsMenuOpen(false)}
+                className={`block px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isDark
+                    ? "text-slate-300 hover:bg-slate-800"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                Resources
+              </Link>
               {isAuthenticated && user ? (
                 <>
                   <div

@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
+import { resources } from "@/lib/data/resources";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://www.mineraltrack.shop";
 
-  return [
+  const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}/`,
       lastModified: new Date(),
@@ -52,5 +53,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.5,
     },
+    {
+      url: `${baseUrl}/resources`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
   ];
+
+  const dynamicResourceRoutes: MetadataRoute.Sitemap = resources.map((resource) => ({
+    url: `${baseUrl}/resources/${resource.slug}`,
+    lastModified: new Date(resource.date),
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
+  return [...staticRoutes, ...dynamicResourceRoutes];
 }
