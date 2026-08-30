@@ -3,6 +3,7 @@
 import React, { forwardRef, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { AnimatedBeam } from "@/components/ui/AnimatedBeam";
+import { motion } from "framer-motion";
 import {
   FileText,
   ShieldCheck,
@@ -108,10 +109,10 @@ export function WorkflowBeamDiagram({ isDark }: { isDark: boolean }) {
   return (
     <div
       ref={containerRef}
-      className="relative flex h-105 sm:h-95 w-full items-center justify-center overflow-hidden"
+      className="relative flex min-h-[500px] sm:min-h-[450px] w-full items-center justify-center overflow-hidden py-12"
     >
       {/* ── Grid Layout ── */}
-      <div className="flex w-full max-w-2xl items-center justify-between px-4 sm:px-8">
+      <div className="flex w-full max-w-2xl items-center justify-between px-2 sm:px-8 scale-90 sm:scale-100">
         {/* Left column — Inputs */}
         <div className="flex flex-col items-center gap-8 sm:gap-10">
           <Node
@@ -315,7 +316,13 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-16"
+        >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 mb-6">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
             <span className="text-cyan-400 text-sm font-semibold tracking-wide">
@@ -330,10 +337,14 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
             transportation authorization flow, automated and
             government-compliant.
           </p>
-        </div>
+        </motion.div>
 
         {/* Beam Diagram */}
-        <div
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6, delay: 0.1 }}
           className={`rounded-2xl border overflow-hidden mb-16 ${
             isDark
               ? "bg-slate-900/80 border-slate-700/60"
@@ -358,12 +369,16 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
             <LegendItem color="bg-orange-500" label="PDF output" />
             <LegendItem color="bg-rose-500" label="Host portal" />
           </div>
-        </div>
+        </motion.div>
 
         {/* Steps grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {steps.map((s) => (
-            <div
+          {steps.map((s, idx) => (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.4, delay: 0.1 * idx }}
               key={s.step}
               className={`relative rounded-xl border p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${s.bg} bg-slate-800/40 backdrop-blur-sm`}
             >
@@ -383,7 +398,7 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>
