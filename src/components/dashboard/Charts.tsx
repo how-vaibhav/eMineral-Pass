@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -144,16 +145,25 @@ export function LineChart({
           ))}
 
           {/* Area fill */}
-          <path d={areaPath} fill={`url(#${gradId})`} />
+          <motion.path 
+            d={areaPath} 
+            fill={`url(#${gradId})`} 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+          />
 
           {/* Line */}
-          <path
+          <motion.path
             d={linePath}
             fill="none"
             stroke={lineColor}
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
           />
 
           {/* Hover crosshair + tooltip */}
@@ -318,7 +328,7 @@ export function DonutChart({
               cumulative += fraction;
 
               return (
-                <circle
+                <motion.circle
                   key={i}
                   cx={cx} cy={cy} r={radius}
                   fill="none"
@@ -328,7 +338,10 @@ export function DonutChart({
                   strokeDashoffset={offset}
                   strokeLinecap="butt"
                   transform={`rotate(-90 ${cx} ${cy})`}
-                  style={{ transition: "stroke-width 0.2s ease, stroke-dasharray 0.6s ease" }}
+                  style={{ transition: "stroke-width 0.2s ease" }}
+                  initial={{ strokeDasharray: `0 ${circumference}` }}
+                  animate={{ strokeDasharray: `${dash} ${circumference}` }}
+                  transition={{ duration: 1, delay: i * 0.15, ease: "easeOut" }}
                   onMouseEnter={() => setHovered(i)}
                   onMouseLeave={() => setHovered(null)}
                   className="cursor-pointer"

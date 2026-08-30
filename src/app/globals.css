@@ -277,8 +277,9 @@ body {
 .sparkle-text {
   background: linear-gradient(
     90deg,
-    hsl(0 0% calc((var(--active) * 100%) + 65%)),
-    hsl(0 0% calc((var(--active) * 100%) + 26%))
+    hsl(0 0% calc((var(--active) * 20%) + 80%)),
+    hsl(0 0% calc((var(--active) * 20%) + 100%)),
+    hsl(0 0% calc((var(--active) * 20%) + 80%))
   );
   -webkit-background-clip: text;
   color: transparent;

@@ -303,8 +303,8 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
 
   return (
     <section
-      className={`relative py-24 px-6 overflow-hidden ${
-        isDark ? "bg-slate-950" : "bg-slate-900"
+      className={`relative py-24 px-6 overflow-hidden transition-colors ${
+        isDark ? "bg-slate-950" : "bg-slate-50"
       }`}
     >
       {/* Background glow */}
@@ -329,10 +329,10 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
               End-to-End Workflow
             </span>
           </div>
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+          <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
             How eMineral Pass Works
           </h2>
-          <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+          <p className={`text-lg max-w-2xl mx-auto ${isDark ? "text-slate-400" : "text-slate-600"}`}>
             From form submission to verified digital pass — the entire mineral
             transportation authorization flow, automated and
             government-compliant.
@@ -348,11 +348,13 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
           className={`rounded-2xl border overflow-hidden mb-16 ${
             isDark
               ? "bg-slate-900/80 border-slate-700/60"
-              : "bg-slate-900/90 border-slate-700/60"
+              : "bg-white border-slate-200"
           } backdrop-blur-sm shadow-2xl`}
         >
           {/* Diagram header bar */}
-          <div className="flex items-center gap-2 px-5 py-3 border-b border-slate-700/60 bg-slate-800/50">
+          <div className={`flex items-center gap-2 px-5 py-3 border-b ${
+            isDark ? "border-slate-700/60 bg-slate-800/50" : "border-slate-200 bg-slate-50"
+          }`}>
             <span className="w-3 h-3 rounded-full bg-rose-500/70" />
             <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
             <span className="w-3 h-3 rounded-full bg-emerald-500/70" />
@@ -380,7 +382,7 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.4, delay: 0.1 * idx }}
               key={s.step}
-              className={`relative rounded-xl border p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${s.bg} bg-slate-800/40 backdrop-blur-sm`}
+              className={`relative rounded-xl border p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${s.bg} ${isDark ? "bg-slate-800/40" : "bg-white/60"} backdrop-blur-sm`}
             >
               <div className="flex items-start gap-4">
                 <div className={`p-2.5 rounded-lg border ${s.bg}`}>
@@ -391,9 +393,9 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
                     <span className="text-xs font-mono text-slate-500">
                       {s.step}
                     </span>
-                    <h3 className="text-sm font-bold text-white">{s.title}</h3>
+                    <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{s.title}</h3>
                   </div>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <p className={`text-xs leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
                     {s.desc}
                   </p>
                 </div>
