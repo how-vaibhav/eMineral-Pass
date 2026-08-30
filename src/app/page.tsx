@@ -366,133 +366,179 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════
           WHY eMINERAL PASS
       ══════════════════════════════════════════════════════════ */}
-      <section className="relative py-16 sm:py-28 px-4 sm:px-6 overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-125 h-125 bg-blue-600/5 rounded-full blur-[100px]" />
-          <div className="absolute bottom-0 left-0 w-125 h-125 bg-cyan-500/5 rounded-full blur-[100px]" />
+      <section className="relative py-24 sm:py-32 px-4 sm:px-6 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-blue-600/5 rounded-full blur-[100px] translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-cyan-500/5 rounded-full blur-[100px] -translate-x-1/2 translate-y-1/2" />
         </div>
 
         <div className="max-w-7xl mx-auto relative z-10">
-          {/* Section header */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="text-center mb-12 sm:mb-16"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 mb-5">
-              <Shield className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
-              <span className="text-blue-600 dark:text-blue-400 text-sm font-semibold">
-                Why Choose Us
-              </span>
-            </div>
-            <h2 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4">
-              Built for India&apos;s{" "}
-              <span className="bg-linear-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
-                Mineral Sector
-              </span>
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg max-w-2xl mx-auto">
-              Every feature is purpose-built for government compliance,
-              operational speed, and transparent verification.
-            </p>
-          </motion.div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+            {/* Left Column: Features (Scrolling) */}
+            <div className="lg:col-span-6 space-y-12 lg:space-y-24 lg:pb-32">
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.7 }}
+                className="mb-8 lg:hidden text-center"
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 mb-5">
+                  <Shield className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
+                  <span className="text-blue-600 dark:text-blue-400 text-sm font-semibold">
+                    Why Choose Us
+                  </span>
+                </div>
+                <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">
+                  Built for India&apos;s{" "}
+                  <span className="bg-linear-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
+                    Mineral Sector
+                  </span>
+                </h2>
+                <p className="text-slate-600 dark:text-slate-400 text-lg">
+                  Every feature is purpose-built for government compliance,
+                  operational speed, and transparent verification.
+                </p>
+              </motion.div>
 
-          {/* 2-col layout: reasons + compliance list */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
-            {/* Left: why cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {[
                 {
-                  icon: <Shield className="w-5 h-5 text-white" />,
+                  icon: <Shield className="w-8 h-8 text-blue-500" />,
                   title: "Government-Compliant",
                   desc: "Follows all field requirements of eForm-C under UP Minerals Rules 2018 exactly.",
-                  color: "bg-blue-500/20",
+                  color: "from-blue-500/10 to-transparent",
                   delay: 0,
                 },
                 {
-                  icon: <Zap className="w-5 h-5 text-white" />,
+                  icon: <Zap className="w-8 h-8 text-cyan-500" />,
                   title: "Instant QR Pass",
                   desc: "A unique, tamper-proof QR code is generated the moment your form is submitted.",
-                  color: "bg-cyan-500/20",
-                  delay: 0.1,
+                  color: "from-cyan-500/10 to-transparent",
+                  delay: 0,
                 },
                 {
-                  icon: <BookOpen className="w-5 h-5 text-white" />,
+                  icon: <BookOpen className="w-8 h-8 text-violet-500" />,
                   title: "Bilingual PDFs",
                   desc: "Government-standard PDFs with Hindi & English — Devanagari rendered natively.",
-                  color: "bg-violet-500/20",
-                  delay: 0.2,
+                  color: "from-violet-500/10 to-transparent",
+                  delay: 0,
                 },
                 {
-                  icon: <CheckCircle2 className="w-5 h-5 text-white" />,
+                  icon: <CheckCircle2 className="w-8 h-8 text-emerald-500" />,
                   title: "Public Verification",
                   desc: "Anyone can verify an ePass via the public QR scan endpoint — total transparency.",
-                  color: "bg-emerald-500/20",
-                  delay: 0.3,
+                  color: "from-emerald-500/10 to-transparent",
+                  delay: 0,
                 },
               ].map((item) => (
-                <WhyCard key={item.title} {...item} />
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 50, scale: 0.95 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: false, margin: "-20% 0px -20% 0px" }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="relative p-8 sm:p-10 rounded-[2.5rem] border border-slate-200 dark:border-white/5 bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 overflow-hidden group"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
+                  <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-20 transition-opacity duration-700 mix-blend-overlay pointer-events-none">
+                    {item.icon}
+                  </div>
+                  <div className="relative z-10">
+                    <div className="mb-8 p-4 rounded-2xl bg-white dark:bg-slate-800 shadow-md inline-block border border-slate-100 dark:border-white/5 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500">
+                      {item.icon}
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4 tracking-tight">
+                      {item.title}
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">
+                      {item.desc}
+                    </p>
+                  </div>
+                </motion.div>
               ))}
             </div>
 
-            {/* Right: compliance card */}
-            <motion.div
-              initial={{ opacity: 0, x: 32 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="relative rounded-3xl
-                         border border-slate-200 dark:border-white/7
-                         bg-white dark:bg-white/3
-                         backdrop-blur-sm p-6 sm:p-8 overflow-hidden shadow-sm"
-            >
-              <div className="absolute -top-16 -right-16 w-48 h-48 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
+            {/* Right Column: Sticky Title & Compliance Checklist */}
+            <div className="lg:col-span-6 lg:sticky lg:top-32 lg:h-[calc(100vh-8rem)] flex flex-col justify-center">
+              <motion.div
+                initial={{ opacity: 0, x: 24 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7 }}
+                className="hidden lg:block mb-12"
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 mb-6">
+                  <Shield className="w-3.5 h-3.5 text-blue-500 dark:text-blue-400" />
+                  <span className="text-blue-600 dark:text-blue-400 text-sm font-semibold tracking-wide uppercase">
+                    Why Choose Us
+                  </span>
+                </div>
+                <h2 className="text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-6 leading-[1.1] tracking-tight">
+                  Built for India&apos;s <br />
+                  <span className="bg-linear-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
+                    Mineral Sector
+                  </span>
+                </h2>
+                <p className="text-slate-600 dark:text-slate-400 text-xl max-w-lg leading-relaxed">
+                  Every feature is purpose-built for government compliance,
+                  operational speed, and transparent verification.
+                </p>
+              </motion.div>
 
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-linear-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0">
-                    <ScanLine className="w-5 h-5 text-white" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="relative rounded-[2.5rem] border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl p-8 sm:p-10 overflow-hidden shadow-2xl"
+              >
+                <div className="absolute -top-32 -right-32 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="relative z-10">
+                  <div className="flex items-center gap-5 mb-10">
+                    <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/25 ring-4 ring-blue-500/10">
+                      <ScanLine className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                        Compliance Checklist
+                      </h3>
+                      <p className="text-sm text-slate-500 font-medium">
+                        Verified against government standards
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white">
-                      Compliance Checklist
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      Verified against government standards
-                    </p>
+
+                  <div className="space-y-2">
+                    {[
+                      "Uttar Pradesh Minerals Rules, 2018",
+                      "End-to-end AES-256 encrypted data",
+                      "Compliance-ready for all UP agencies",
+                      "Unlimited mineral transportation passes",
+                      "Real-time QR scan logging & audit trail",
+                      "Role-based access control (RBAC)",
+                    ].map((item, i) => (
+                      <motion.div
+                        key={item}
+                        initial={{ opacity: 0, x: 16 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 * i, duration: 0.5 }}
+                        className="group flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-300 border border-transparent hover:border-slate-200 dark:hover:border-white/5"
+                      >
+                        <div className="w-6 h-6 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        </div>
+                        <span className="text-base text-slate-700 dark:text-slate-300 font-medium">
+                          {item}
+                        </span>
+                      </motion.div>
+                    ))}
                   </div>
                 </div>
-
-                <div className="space-y-3">
-                  {[
-                    "Uttar Pradesh Minerals Rules, 2018",
-                    "End-to-end AES-256 encrypted data",
-                    "Compliance-ready for all UP agencies",
-                    "Unlimited mineral transportation passes",
-                    "Real-time QR scan logging & audit trail",
-                    "Role-based access control (RBAC)",
-                    "Google OAuth + JWT token auth",
-                    "Supabase PostgreSQL — bank-grade backend",
-                  ].map((item, i) => (
-                    <motion.div
-                      key={item}
-                      initial={{ opacity: 0, x: 16 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.05 * i, duration: 0.4 }}
-                      className="flex items-center gap-3 py-2.5 border-b border-slate-100 dark:border-white/4 last:border-0"
-                    >
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span className="text-sm text-slate-700 dark:text-slate-300">
-                        {item}
-                      </span>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>

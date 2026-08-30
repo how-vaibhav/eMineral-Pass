@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
 export function GlobalFooter() {
   const { effectiveTheme } = useTheme();
+  const { isAuthenticated } = useAuth();
   const isDark = effectiveTheme === "dark";
 
   return (
@@ -68,11 +70,13 @@ export function GlobalFooter() {
                   Contact
                 </Link>
               </li>
-              <li>
-                <Link href="/auth/signin" className={`hover:underline transition-colors ${isDark ? "hover:text-primary" : "hover:text-primary"}`}>
-                  Sign In
-                </Link>
-              </li>
+              {!isAuthenticated && (
+                <li>
+                  <Link href="/auth/signin" className={`hover:underline transition-colors ${isDark ? "hover:text-primary" : "hover:text-primary"}`}>
+                    Sign In
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
         </div>

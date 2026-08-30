@@ -28,7 +28,7 @@ export default function ContactPage() {
               Email
             </h2>
             <p className="text-lg text-slate-300 font-medium font-mono">
-              how vaibhav
+              howvaibhav@gmail.com
             </p>
           </div>
           <div className="rounded-2xl bg-slate-50 p-6 dark:bg-slate-800">
