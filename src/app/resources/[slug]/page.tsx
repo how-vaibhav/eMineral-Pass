@@ -34,7 +34,7 @@ export async function generateMetadata(
     openGraph: {
       title: resource.title,
       description: resource.excerpt,
-      url: \`https://www.mineraltrack.shop/resources/\${resource.slug}\`,
+      url: `https://www.mineraltrack.shop/resources/${resource.slug}`,
       type: "article",
       authors: [resource.author],
       tags: resource.tags,
