@@ -254,17 +254,25 @@ form-qr-pdf-app/
 
 ---
 
-## 🖼️ UI Screenshots
+## 🖼️ UI Gallery
 
-Screenshots are stored in the [Screenshots](Screenshots) folder.
+*A glimpse into the platform's professional interface, featuring clean layouts, dark mode support, and responsive design.*
 
-![UI Screenshot 1](<Screenshots/eMineral%20(1).png>)
-![UI Screenshot 2](<Screenshots/eMineral%20(2).png>)
-![UI Screenshot 3](<Screenshots/eMineral%20(3).png>)
-![UI Screenshot 4](<Screenshots/eMineral%20(4).png>)
-![UI Screenshot 5](<Screenshots/eMineral%20(5).png>)
-![UI Screenshot 6](<Screenshots/eMineral%20(6).png>)
-![UI Screenshot 7](<Screenshots/eMineral%20(7).png>)
+| Dashboard & Overview | Form Submission |
+| :---: | :---: |
+| <img src="Screenshots/eMineral%20(1).png" alt="Dashboard" /> | <img src="Screenshots/eMineral%20(2).png" alt="Form Submission" /> |
+| **Pass Generation** | **Digital PDF Export** |
+| <img src="Screenshots/eMineral%20(3).png" alt="Pass Generation" /> | <img src="Screenshots/eMineral%20(4).png" alt="PDF Export" /> |
+| **Data Analytics Portal** | **QR Verification System** |
+| <img src="Screenshots/eMineral%20(5).png" alt="Analytics" /> | <img src="Screenshots/eMineral%20(6).png" alt="QR Verification" /> |
+
+<br/>
+
+<div align="center">
+  <h3>Mobile-First Responsive Design</h3>
+  <img src="Screenshots/eMineral%20(7).png" alt="Mobile Responsive View" width="85%" />
+  <p><em>Seamless experience across all devices and screen sizes.</em></p>
+</div>
 
 ---
 
