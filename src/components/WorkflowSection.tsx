@@ -12,6 +12,7 @@ import {
   Building2,
   BadgeCheck,
 } from "lucide-react";
+import SpotlightCards from "./ui/spotlight-cards";
 
 // ─── Node Component ────────────────────────────────────────────────────────
 
@@ -37,11 +38,11 @@ const Node = forwardRef<HTMLDivElement, NodeProps>(
           {children}
         </div>
         <div className="text-center">
-          <p className="text-sm font-semibold text-slate-200 leading-tight">
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-tight">
             {label}
           </p>
           {sublabel && (
-            <p className="text-xs text-slate-400 mt-0.5 leading-tight">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">
               {sublabel}
             </p>
           )}
@@ -74,10 +75,10 @@ const Hub = forwardRef<HTMLDivElement, { className?: string }>(
           </div>
         </div>
         <div className="text-center">
-          <p className="text-sm font-bold text-cyan-400 leading-tight">
+          <p className="text-sm font-bold text-cyan-600 dark:text-cyan-400 leading-tight">
             eMineral Pass
           </p>
-          <p className="text-xs text-slate-400 mt-0.5">Processing Engine</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Processing Engine</p>
         </div>
       </div>
     );
@@ -104,7 +105,7 @@ export function WorkflowBeamDiagram({ isDark }: { isDark: boolean }) {
   const hostRef = useRef<HTMLDivElement>(null);
 
   const nodeBase =
-    "w-16 h-16 border-slate-700/80 bg-slate-800/90 backdrop-blur-sm";
+    "w-16 h-16 border-slate-300 bg-white/90 shadow-sm dark:border-slate-700/80 dark:bg-slate-800/90 backdrop-blur-sm";
 
   return (
     <div
@@ -250,57 +251,6 @@ export function WorkflowBeamDiagram({ isDark }: { isDark: boolean }) {
 // ─── Full Section Export ───────────────────────────────────────────────────
 
 export function WorkflowSection({ isDark }: { isDark: boolean }) {
-  const steps = [
-    {
-      icon: <FileText className="w-5 h-5" />,
-      color: "text-blue-400",
-      bg: "bg-blue-500/10 border-blue-500/30",
-      step: "01",
-      title: "Submit eForm-C",
-      desc: "Fill the official government eForm-C with mineral type, quantity, vehicle, and destination details.",
-    },
-    {
-      icon: <ShieldCheck className="w-5 h-5" />,
-      color: "text-cyan-400",
-      bg: "bg-cyan-500/10 border-cyan-500/30",
-      step: "02",
-      title: "Instant Validation",
-      desc: "System validates compliance with UP Minerals Rules 2018 and verifies all required fields.",
-    },
-    {
-      icon: <QrCode className="w-5 h-5" />,
-      color: "text-emerald-400",
-      bg: "bg-emerald-500/10 border-emerald-500/30",
-      step: "03",
-      title: "QR Pass Generated",
-      desc: "A unique, tamper-proof QR code is instantly generated and attached to your digital pass.",
-    },
-    {
-      icon: <FileDown className="w-5 h-5" />,
-      color: "text-orange-400",
-      bg: "bg-orange-500/10 border-orange-500/30",
-      step: "04",
-      title: "PDF Issued",
-      desc: "A government-standard bilingual PDF (English + Hindi) is created with embedded QR and watermark.",
-    },
-    {
-      icon: <Building2 className="w-5 h-5" />,
-      color: "text-rose-400",
-      bg: "bg-rose-500/10 border-rose-500/30",
-      step: "05",
-      title: "Host Verification",
-      desc: "License Hosts can scan QR codes at checkpoints and view all passes via their secure portal.",
-    },
-    {
-      icon: <BadgeCheck className="w-5 h-5" />,
-      color: "text-violet-400",
-      bg: "bg-violet-500/10 border-violet-500/30",
-      step: "06",
-      title: "Public Transparency",
-      desc: "Anyone can verify an authentic pass using the public API endpoint — full transparency guaranteed.",
-    },
-  ];
-
   return (
     <section
       className={`relative py-24 px-6 overflow-hidden transition-colors ${
@@ -325,7 +275,7 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 mb-6">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="text-cyan-400 text-sm font-semibold tracking-wide">
+            <span className="text-cyan-600 dark:text-cyan-400 text-sm font-semibold tracking-wide">
               End-to-End Workflow
             </span>
           </div>
@@ -374,35 +324,7 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
         </motion.div>
 
         {/* Steps grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {steps.map((s, idx) => (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.4, delay: 0.1 * idx }}
-              key={s.step}
-              className={`relative rounded-xl border p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg ${s.bg} ${isDark ? "bg-slate-800/40" : "bg-white/60"} backdrop-blur-sm`}
-            >
-              <div className="flex items-start gap-4">
-                <div className={`p-2.5 rounded-lg border ${s.bg}`}>
-                  <span className={s.color}>{s.icon}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-mono text-slate-500">
-                      {s.step}
-                    </span>
-                    <h3 className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{s.title}</h3>
-                  </div>
-                  <p className={`text-xs leading-relaxed ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    {s.desc}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        <SpotlightCards isDark={isDark} />
       </div>
     </section>
   );

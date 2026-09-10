@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import { SparkleButton } from "@/components/ui/SparkleButton";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { AnimatedLogo } from "@/components/ui/animated-logo";
 
 function GlobalNavbarComponent() {
   const [mounted, setMounted] = useState(false);
@@ -55,12 +56,7 @@ function GlobalNavbarComponent() {
             className={`text-lg sm:text-2xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}
           >
             <Link href="/">
-              <TextGenerateEffect
-                words="eMineral Pass"
-                className="bg-linear-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent"
-                duration={1.2}
-                filter={false}
-              />
+              <AnimatedLogo />
             </Link>
           </motion.div>
 

@@ -273,7 +273,7 @@ export default function Home() {
                   text="eMineral Pass"
                   revealDelayMs={60}
                   flipDelayMs={28}
-                  encryptedClassName="text-slate-400/60 dark:text-slate-600/60"
+                  encryptedClassName="text-slate-400 dark:text-slate-600/60"
                   revealedClassName="text-transparent"
                 />
               </span>
