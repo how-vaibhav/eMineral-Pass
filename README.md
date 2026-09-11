@@ -441,7 +441,7 @@ GET /api/public/records/[publicToken]
 
 ---
 
-## 📊 Database Schema
+##  Database Schema
 
 ### Core Tables
 
