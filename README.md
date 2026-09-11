@@ -595,8 +595,7 @@ For issues, questions, or suggestions:
 
 - [UP Minerals Rules 2018](https://upforest.gov.in)
 - [Next.js Documentation](https://nextjs.org/docs)
-- [Supabase Documentation](https://supabase.com/docs)
-- [TailwindCSS Documentation](https://tailwindcss.com/docs)
+
 
 ---
 
