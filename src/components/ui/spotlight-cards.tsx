@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import { FileText, ShieldCheck, QrCode, FileDown, Building2, BadgeCheck } from "lucide-react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, useMotionTemplate } from "framer-motion";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -25,37 +25,37 @@ const DEFAULT_ITEMS: SpotlightItem[] = [
   {
     icon: FileText,
     title: "Submit eForm-C",
-    description: "Fill the official government eForm-C with mineral type, quantity, vehicle, and destination details.",
+    description: "Fill the official eForm-C with mineral type, quantity, vehicle, and destination.",
     color: "#60a5fa", // blue-400
   },
   {
     icon: ShieldCheck,
     title: "Instant Validation",
-    description: "System validates compliance with UP Minerals Rules 2018 and verifies all required fields.",
+    description: "Automated compliance checks against UP Minerals Rules 2018.",
     color: "#2dd4bf", // cyan-400
   },
   {
     icon: QrCode,
     title: "QR Pass Generated",
-    description: "A unique, tamper-proof QR code is instantly generated and attached to your digital pass.",
+    description: "Tamper-proof QR code attached to your digital pass instantly.",
     color: "#34d399", // emerald-400
   },
   {
     icon: FileDown,
     title: "PDF Issued",
-    description: "A government-standard bilingual PDF (English + Hindi) is created with embedded QR and watermark.",
+    description: "Bilingual government-standard PDF (English + Hindi) with watermark.",
     color: "#fb923c", // orange-400
   },
   {
     icon: Building2,
     title: "Host Verification",
-    description: "License Hosts can scan QR codes at checkpoints and view all passes via their secure portal.",
+    description: "License Hosts securely scan QR codes and track passes at checkpoints.",
     color: "#fb7185", // rose-400
   },
   {
     icon: BadgeCheck,
     title: "Public Transparency",
-    description: "Anyone can verify an authentic pass using the public API endpoint — full transparency guaranteed.",
+    description: "Open API endpoint allows anyone to verify authentic passes.",
     color: "#a78bfa", // violet-400
   },
 ];
@@ -75,6 +75,8 @@ function Card({ item, dimmed, onHoverStart, onHoverEnd }: CardProps) {
 
   const normX = useMotionValue(0.5);
   const normY = useMotionValue(0.5);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
 
   const rawRotateX = useTransform(normY, [0, 1], [TILT_MAX, -TILT_MAX]);
   const rawRotateY = useTransform(normX, [0, 1], [-TILT_MAX, TILT_MAX]);
@@ -82,6 +84,9 @@ function Card({ item, dimmed, onHoverStart, onHoverEnd }: CardProps) {
   const rotateX = useSpring(rawRotateX, TILT_SPRING);
   const rotateY = useSpring(rawRotateY, TILT_SPRING);
   const glowOpacity = useSpring(0, GLOW_SPRING);
+
+  const background = useMotionTemplate`radial-gradient(350px circle at ${mouseX}px ${mouseY}px, ${item.color}25, transparent 80%)`;
+  const borderBackground = useMotionTemplate`radial-gradient(400px circle at ${mouseX}px ${mouseY}px, ${item.color}80, transparent 80%)`;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = cardRef.current;
@@ -91,6 +96,8 @@ function Card({ item, dimmed, onHoverStart, onHoverEnd }: CardProps) {
     const rect = el.getBoundingClientRect();
     normX.set((e.clientX - rect.left) / rect.width);
     normY.set((e.clientY - rect.top) / rect.height);
+    mouseX.set(e.clientX - rect.left);
+    mouseY.set(e.clientY - rect.top);
   };
 
   const handleMouseEnter = () => {
@@ -112,13 +119,12 @@ function Card({ item, dimmed, onHoverStart, onHoverEnd }: CardProps) {
         opacity: dimmed ? 0.5 : 1,
       }}
       className={cn(
-        "group relative flex flex-col gap-5 overflow-hidden rounded-2xl border p-6",
+        "group relative flex flex-col gap-5 overflow-hidden rounded-[20px] p-6 backdrop-blur-xl",
         // Light
-        "border-zinc-200 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]",
+        "bg-white/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-200/60",
         // Dark
-        "dark:border-white/6 dark:bg-white/3 dark:shadow-none",
-        "transition-[border-color] duration-300",
-        "hover:border-zinc-300 dark:hover:border-white/14"
+        "dark:bg-slate-900/60 dark:shadow-2xl dark:border-white/10",
+        "transition-all duration-300"
       )}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -127,52 +133,55 @@ function Card({ item, dimmed, onHoverStart, onHoverEnd }: CardProps) {
       style={{
         rotateX,
         rotateY,
-        transformPerspective: 900,
+        transformPerspective: 1000,
       }}
       transition={{ duration: 0.18, ease: "easeOut" }}
     >
-      {/* Static accent tint — always visible */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-2xl"
+      {/* Animated Glowing Border (Visible only on hover) */}
+      <motion.div
+        className="pointer-events-none absolute inset-0 rounded-[20px] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{
-          background: `radial-gradient(ellipse at 20% 20%, ${item.color}14, transparent 65%)`,
+          background: borderBackground,
+          padding: "1.5px", // Creates the border thickness
+          WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+          WebkitMaskComposite: "xor",
+          maskComposite: "exclude",
         }}
       />
 
-      {/* Hover glow layer */}
+      {/* Dynamic Hover Spotlight Layer */}
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-2xl"
+        className="pointer-events-none absolute inset-0 rounded-[20px]"
         style={{
           opacity: glowOpacity,
-          background: `radial-gradient(ellipse at 20% 20%, ${item.color}2e, transparent 65%)`,
+          background: background,
         }}
       />
 
       {/* Shimmer sweep */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 left-0 w-[55%] -translate-x-full -skew-x-12 bg-linear-to-r from-transparent via-white/4.5 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[280%]"
+        className="pointer-events-none absolute inset-y-0 left-0 w-[40%] -translate-x-full -skew-x-12 bg-linear-to-r from-transparent via-white/10 dark:via-white/5 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-[350%]"
       />
 
       {/* Icon badge */}
       <div
-        className="relative z-10 flex h-10 w-10 items-center justify-center rounded-xl"
+        className="relative z-10 flex h-12 w-12 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-110 shadow-sm"
         style={{
-          background: `${item.color}18`,
-          boxShadow: `inset 0 0 0 1px ${item.color}30`,
+          background: `linear-gradient(135deg, ${item.color}25, ${item.color}05)`,
+          boxShadow: `inset 0 0 0 1px ${item.color}40, 0 4px 12px ${item.color}15`,
         }}
       >
-        <Icon size={17} strokeWidth={1.9} style={{ color: item.color }} />
+        <Icon size={22} strokeWidth={2} style={{ color: item.color }} className="drop-shadow-sm" />
       </div>
 
       {/* Text */}
-      <div className="relative z-10 flex flex-col gap-2">
-        <h3 className="font-semibold text-[14px] text-zinc-900 tracking-tight dark:text-white">
+      <div className="relative z-10 flex flex-col gap-2.5">
+        <h3 className="font-bold text-[16px] text-slate-900 tracking-tight dark:text-white transition-colors">
           {item.title}
         </h3>
-        <p className="text-[12.5px] text-zinc-500 leading-relaxed dark:text-white/40">
+        <p className="text-[14px] text-slate-500 leading-relaxed dark:text-slate-400 font-medium">
           {item.description}
         </p>
       </div>
@@ -180,9 +189,9 @@ function Card({ item, dimmed, onHoverStart, onHoverEnd }: CardProps) {
       {/* Accent bottom line */}
       <div
         aria-hidden="true"
-        className="absolute bottom-0 left-0 h-[2px] w-0 rounded-full transition-all duration-500 group-hover:w-full"
+        className="absolute bottom-0 left-0 h-[3px] w-0 rounded-full transition-all duration-700 ease-out group-hover:w-full"
         style={{
-          background: `linear-gradient(to right, ${item.color}80, transparent)`,
+          background: `linear-gradient(to right, ${item.color}90, transparent)`,
         }}
       />
     </motion.div>

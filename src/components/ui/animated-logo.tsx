@@ -92,7 +92,7 @@ export function AnimatedLogo() {
           </filter>
         </defs>
 
-        {/* --- GEOMETRIC MINERAL CRYSTAL ICON --- */}
+        {/* --- GEOMETRIC TRUCK ICON --- */}
         <g 
           stroke="url(#proGrad)" 
           strokeWidth="1.5" 
@@ -103,16 +103,24 @@ export function AnimatedLogo() {
           filter="url(#neonGlow)"
           transform="translate(4, 2)"
         >
-          {/* Outer Hexagon Outline */}
+          {/* Cargo/Dump Bed */}
           <path
             className="logo-icon-line"
-            d="M 18 4 L 6 11 L 6 25 L 18 32 L 30 25 L 30 11 Z"
+            d="M 2 8 L 18 8 L 18 22 L 2 22 Z"
           />
-          {/* Inner 3D Lines forming a crystalline cube */}
+          {/* Cabin */}
           <path
             className="logo-icon-line"
-            d="M 18 4 L 18 18 L 6 25 M 18 18 L 30 25"
+            d="M 18 12 L 26 12 L 32 16 L 32 22 L 18 22"
           />
+          {/* Window Line */}
+          <path
+            className="logo-icon-line"
+            d="M 20 14 L 25 14 L 29 17 L 20 17 Z"
+          />
+          {/* Wheels */}
+          <circle className="logo-icon-line" cx="8" cy="24" r="3.5" />
+          <circle className="logo-icon-line" cx="26" cy="24" r="3.5" />
         </g>
 
         {/* --- STAGGERED TEXT --- */}
@@ -125,7 +133,7 @@ export function AnimatedLogo() {
           strokeWidth="0.5"
           filter="url(#neonGlow)"
         >
-          {"E-MINERAL PASS".split("").map((char, index) => (
+          {"MINERAL TRACK".split("").map((char, index) => (
             <tspan
               key={index}
               className="logo-char"

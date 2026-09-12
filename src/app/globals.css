@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -39,6 +38,10 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  --btn-primary-base: 45%;
+  --btn-secondary-base: 95%;
+  --btn-text-base: 20%;
 }
 
 .dark {
@@ -74,6 +77,10 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  --btn-primary-base: 15%;
+  --btn-secondary-base: 15%;
+  --btn-text-base: 90%;
 }
 
 @theme inline {
@@ -164,7 +171,7 @@ body {
       hsl(220 calc(var(--active) * 97%) 70% / var(--active)),
       transparent
     ),
-    hsl(var(--hue) calc(var(--active) * 97%) calc((var(--active) * 44%) + 12%));
+    hsl(var(--hue) calc(var(--active) * 97%) calc((var(--active) * 10%) + var(--btn-primary-base)));
   background: var(--bg);
   box-shadow:
     0 0 calc(var(--active) * 6em) calc(var(--active) * 3em)
@@ -206,7 +213,7 @@ body {
       hsl(220 calc(var(--active) * 60%) 50% / calc(var(--active) * 0.6)),
       transparent
     ),
-    hsl(220 20% calc((var(--active) * 20%) + 8%));
+    hsl(220 20% calc((var(--active) * 10%) + var(--btn-secondary-base)));
   box-shadow:
     0 0 calc(var(--active) * 4em) calc(var(--active) * 1.5em)
       hsl(220 97% 61% / 0.4),
@@ -277,9 +284,9 @@ body {
 .sparkle-text {
   background: linear-gradient(
     90deg,
-    hsl(0 0% calc((var(--active) * 20%) + 80%)),
-    hsl(0 0% calc((var(--active) * 20%) + 100%)),
-    hsl(0 0% calc((var(--active) * 20%) + 80%))
+    hsl(0 0% calc((var(--active) * 20%) + var(--btn-text-base))),
+    hsl(0 0% calc((var(--active) * 20%) + calc(var(--btn-text-base) + 20%))),
+    hsl(0 0% calc((var(--active) * 20%) + var(--btn-text-base)))
   );
   -webkit-background-clip: text;
   color: transparent;

@@ -110,12 +110,12 @@ export function WorkflowBeamDiagram({ isDark }: { isDark: boolean }) {
   return (
     <div
       ref={containerRef}
-      className="relative flex min-h-[500px] sm:min-h-[450px] w-full items-center justify-center overflow-hidden py-12"
+      className="relative flex min-h-[350px] w-full items-center justify-center overflow-hidden py-8"
     >
       {/* ── Grid Layout ── */}
-      <div className="flex w-full max-w-2xl items-center justify-between px-2 sm:px-8 scale-90 sm:scale-100">
+      <div className="flex w-full max-w-xl items-center justify-between px-2 sm:px-6 scale-90 sm:scale-100">
         {/* Left column — Inputs */}
-        <div className="flex flex-col items-center gap-8 sm:gap-10">
+        <div className="flex flex-col items-center gap-8">
           <Node
             ref={formRef}
             label="eForm-C"
@@ -148,7 +148,7 @@ export function WorkflowBeamDiagram({ isDark }: { isDark: boolean }) {
         <Hub ref={hubRef} />
 
         {/* Right column — Outputs */}
-        <div className="flex flex-col items-center gap-8 sm:gap-10">
+        <div className="flex flex-col items-center gap-8">
           <Node
             ref={qrRef}
             label="QR Pass"
@@ -183,7 +183,7 @@ export function WorkflowBeamDiagram({ isDark }: { isDark: boolean }) {
         containerRef={containerRef}
         fromRef={formRef}
         toRef={hubRef}
-        curvature={-30}
+        curvature={-25}
         gradientStartColor="#3b82f6"
         gradientStopColor="#06b6d4"
         duration={3.5}
@@ -203,7 +203,7 @@ export function WorkflowBeamDiagram({ isDark }: { isDark: boolean }) {
         containerRef={containerRef}
         fromRef={vehicleRef}
         toRef={hubRef}
-        curvature={30}
+        curvature={25}
         gradientStartColor="#6366f1"
         gradientStopColor="#06b6d4"
         duration={3.5}
@@ -215,7 +215,7 @@ export function WorkflowBeamDiagram({ isDark }: { isDark: boolean }) {
         containerRef={containerRef}
         fromRef={hubRef}
         toRef={qrRef}
-        curvature={-30}
+        curvature={-25}
         reverse
         gradientStartColor="#06b6d4"
         gradientStopColor="#10b981"
@@ -237,7 +237,7 @@ export function WorkflowBeamDiagram({ isDark }: { isDark: boolean }) {
         containerRef={containerRef}
         fromRef={hubRef}
         toRef={hostRef}
-        curvature={30}
+        curvature={25}
         reverse
         gradientStartColor="#06b6d4"
         gradientStopColor="#f43f5e"
@@ -295,11 +295,11 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className={`rounded-2xl border overflow-hidden mb-16 ${
+          className={`rounded-xl border overflow-hidden mb-12 ${
             isDark
-              ? "bg-slate-900/80 border-slate-700/60"
-              : "bg-white border-slate-200"
-          } backdrop-blur-sm shadow-2xl`}
+              ? "bg-slate-900/80 border-white/10"
+              : "bg-white border-slate-200/60"
+          } backdrop-blur-md shadow-xl`}
         >
           {/* Diagram header bar */}
           <div className={`flex items-center gap-2 px-5 py-3 border-b ${

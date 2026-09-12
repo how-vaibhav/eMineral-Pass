@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, useInView, animate } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export interface FunnelStage {
@@ -17,6 +17,39 @@ export interface FunnelChartProps {
   gap?: number;
 }
 
+// Advanced Animated Counter Component
+function AnimatedCounter({ value, displayValue }: { value: number; displayValue?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  
+  useEffect(() => {
+    if (isInView && ref.current) {
+      const controls = animate(0, value, {
+        duration: 2,
+        ease: [0.22, 1, 0.36, 1], // Custom spring-like cubic bezier
+        onUpdate: (latest) => {
+          if (ref.current) {
+            if (displayValue && displayValue.match(/[a-zA-Z]+/)) {
+               const suffix = displayValue.match(/[a-zA-Z]+/)?.[0] || "";
+               const targetNumber = parseFloat(displayValue.replace(/[a-zA-Z]+/, ""));
+               const ratio = latest / value;
+               const currentVal = ratio * targetNumber;
+               // Format elegantly: 12.0k -> 12k
+               const formatted = currentVal % 1 === 0 ? currentVal.toFixed(0) : currentVal.toFixed(1);
+               ref.current.textContent = formatted.replace(".0", "") + suffix;
+            } else {
+               ref.current.textContent = Math.floor(latest).toLocaleString();
+            }
+          }
+        }
+      });
+      return () => controls.stop();
+    }
+  }, [isInView, value, displayValue]);
+
+  return <span ref={ref}>0</span>;
+}
+
 export function FunnelChart({
   data,
   className,
@@ -25,6 +58,7 @@ export function FunnelChart({
 }: FunnelChartProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -42,8 +76,9 @@ export function FunnelChart({
   const layerOpacities = Array.from({ length: layers }, (_, i) => 0.15 + (i * 0.25));
 
   return (
-    <div className={cn("relative w-full aspect-[4/3] sm:aspect-[21/9]", className)}>
-      {/* ─── SVG BACKGROUND LAYER ───────────────────────────────── */}
+    <div ref={containerRef} className={cn("relative w-full aspect-[4/3] sm:aspect-[21/9] group/funnel", className)}>
+      
+      {/* ─── ADVANCED MORPHING SVG LAYER ──────────────────────── */}
       <svg
         viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
         className="absolute inset-0 w-full h-full pointer-events-none drop-shadow-2xl"
@@ -54,11 +89,33 @@ export function FunnelChart({
             <stop offset="0%" stopColor="#06b6d4" />
             <stop offset="100%" stopColor="#3b82f6" />
           </linearGradient>
+          
+          <linearGradient id="glow-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="rgba(6,182,212,0)" />
+            <stop offset="50%" stopColor="rgba(6,182,212,0.4)" />
+            <stop offset="100%" stopColor="rgba(6,182,212,0)" />
+          </linearGradient>
         </defs>
 
         {isMounted && data.map((stage, i) => {
-          const vL = stage.value / maxValue;
-          const vR = i < data.length - 1 ? data[i + 1].value / maxValue : vL * 0.75;
+          // Dynamic Expansion Logic: Expand hovered, slightly compress others
+          const isHovered = hoveredIndex === i;
+          const isDimmed = hoveredIndex !== null && hoveredIndex !== i;
+          
+          let expansionFactor = 1;
+          if (isHovered) expansionFactor = 1.15; // Expand significantly on hover
+          if (isDimmed) expansionFactor = 0.9;   // Compress slightly to make room mentally
+
+          // Use a logarithmic scale so tiny values don't vanish visually
+          const getScale = (val: number) => {
+            if (val <= 0) return 0;
+            const minFloor = 0.15;
+            const logRatio = Math.log(val) / Math.log(maxValue);
+            return minFloor + (1 - minFloor) * logRatio;
+          };
+
+          const vL = getScale(stage.value) * expansionFactor;
+          const vR = getScale(i < data.length - 1 ? data[i + 1].value : stage.value * 0.75) * expansionFactor;
 
           const hL = viewBoxHeight * vL;
           const hR = viewBoxHeight * vR;
@@ -67,15 +124,8 @@ export function FunnelChart({
           const x1 = (i + 1) * segmentWidth - gap / 2;
           const cpOffset = (x1 - x0) * 0.5;
 
-          const isHovered = hoveredIndex === i;
-          const isDimmed = hoveredIndex !== null && hoveredIndex !== i;
-
           return (
-            <g
-              key={stage.label}
-              className="transition-opacity duration-500 ease-out"
-              style={{ opacity: isDimmed ? 0.3 : 1 }}
-            >
+            <g key={stage.label}>
               {layerScales.map((scale, layerIdx) => {
                 const scaledHL = hL * scale;
                 const scaledHR = hR * scale;
@@ -96,22 +146,15 @@ export function FunnelChart({
                 return (
                   <motion.path
                     key={layerIdx}
-                    d={pathData}
+                    animate={{
+                      d: pathData,
+                      opacity: isDimmed ? layerOpacities[layerIdx] * 0.3 : (isHovered ? layerOpacities[layerIdx] + 0.3 : layerOpacities[layerIdx]),
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 25, mass: 0.8 }}
                     fill="url(#funnel-gradient)"
                     initial={{ opacity: 0, scaleY: 0, transformOrigin: "center" }}
-                    whileInView={{ opacity: layerOpacities[layerIdx], scaleY: 1 }}
+                    whileInView={{ scaleY: 1 }}
                     viewport={{ once: true, margin: "-100px" }}
-                    transition={{
-                      duration: 0.8,
-                      delay: i * 0.1 + layerIdx * 0.1,
-                      ease: [0.16, 1, 0.3, 1],
-                    }}
-                    animate={{
-                      opacity: isHovered 
-                        ? layerOpacities[layerIdx] + 0.2 
-                        : layerOpacities[layerIdx],
-                      scaleY: isHovered ? 1.05 : 1,
-                    }}
                     className="will-change-transform"
                   />
                 );
@@ -126,7 +169,6 @@ export function FunnelChart({
         {data.map((stage, i) => {
           const isHovered = hoveredIndex === i;
           const isDimmed = hoveredIndex !== null && hoveredIndex !== i;
-          const percentage = Math.round((stage.value / maxValue) * 100);
 
           return (
             <div
@@ -136,50 +178,64 @@ export function FunnelChart({
               onMouseLeave={() => setHoveredIndex(null)}
               onTouchStart={() => setHoveredIndex(i)}
             >
+              {/* Holographic Glare Effect */}
+              <div 
+                className={cn(
+                  "absolute inset-0 pointer-events-none overflow-hidden rounded-xl transition-opacity duration-500",
+                  isHovered ? "opacity-100" : "opacity-0"
+                )}
+              >
+                <motion.div
+                  initial={{ y: "100%" }}
+                  animate={isHovered ? { y: "-100%" } : { y: "100%" }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                  className="w-full h-[200%] bg-gradient-to-t from-transparent via-white/10 dark:via-white/5 to-transparent rotate-12 blur-md"
+                />
+              </div>
+
               {/* Interaction highlight indicator (small bar at the top) */}
               <div 
                 className={cn(
-                  "absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1 rounded-b-md transition-all duration-300 bg-cyan-500",
-                  isHovered ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
+                  "absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-1.5 rounded-b-md transition-all duration-300 bg-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.5)]",
+                  isHovered ? "opacity-100 scale-x-100 translate-y-0" : "opacity-0 scale-x-0 -translate-y-2"
                 )}
               />
 
               <div 
                 className={cn(
                   "w-full h-full flex flex-col items-center justify-center transition-all duration-500",
-                  isDimmed ? "opacity-40 scale-95 blur-[1px]" : "opacity-100 scale-100",
-                  isHovered ? "scale-105" : ""
+                  isDimmed ? "opacity-30 scale-95 blur-[2px]" : "opacity-100 scale-100",
+                  isHovered ? "scale-110 -translate-y-2" : ""
                 )}
               >
-                {/* Value Text */}
+                {/* Value Text with Animated Counter */}
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 15 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.5, delay: i * 0.1 + 0.4 }}
-                  className="flex flex-col items-center"
+                  transition={{ duration: 0.6, delay: i * 0.1 + 0.2 }}
+                  className="flex flex-col items-center relative z-10"
                 >
-                  <span className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white drop-shadow-sm">
-                    {stage.displayValue || stage.value}
+                  <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white drop-shadow-md tracking-tight">
+                    <AnimatedCounter value={stage.value} displayValue={stage.displayValue} />
                   </span>
                   
-                  {/* Percentage Pill */}
-                  <div className="mt-2 px-3 py-0.5 rounded-full bg-white/90 dark:bg-slate-900/90 border border-slate-200/50 dark:border-slate-800/50 backdrop-blur-sm shadow-sm text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
-                    {percentage}%
-                  </div>
+                  {/* Removed Percentage Pill since data points are in different units */}
                 </motion.div>
               </div>
 
               {/* Stage Label (Bottom Aligned) */}
-              <div className="absolute bottom-4 left-0 right-0 text-center px-1">
+              <div className="absolute bottom-6 left-0 right-0 text-center px-2">
                 <motion.span
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.5, delay: i * 0.1 + 0.5 }}
+                  transition={{ duration: 0.5, delay: i * 0.1 + 0.4 }}
                   className={cn(
-                    "block text-xs sm:text-sm md:text-base font-semibold transition-colors duration-300",
-                    isHovered ? "text-cyan-600 dark:text-cyan-400" : "text-slate-600 dark:text-slate-400"
+                    "block text-xs sm:text-sm md:text-base lg:text-lg font-bold transition-all duration-300",
+                    isHovered 
+                      ? "text-cyan-600 dark:text-cyan-400 scale-110 -translate-y-1 drop-shadow-sm" 
+                      : "text-slate-600 dark:text-slate-400"
                   )}
                 >
                   {stage.label}

@@ -19,88 +19,6 @@ import { HeroSection } from "@/components/hero/HeroSection";
 import { FunnelChart } from "@/components/ui/funnel-chart";
 
 
-// ─── Role card ────────────────────────────────────────────────────────────────
-function RoleCard({
-  icon,
-  emoji,
-  title,
-  subtitle,
-  features,
-  href,
-  cta,
-  accentFrom,
-  accentTo,
-  glowColor,
-  delay,
-}: {
-  icon: React.ReactNode;
-  emoji: string;
-  title: string;
-  subtitle: string;
-  features: string[];
-  href: string;
-  cta: string;
-  accentFrom: string;
-  accentTo: string;
-  glowColor: string;
-  delay: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 32 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.7, delay }}
-      whileHover={{ y: -6 }}
-      className={`relative flex flex-col overflow-hidden rounded-3xl
-                  border border-slate-200 dark:border-white/7
-                  bg-slate-50 dark:bg-white/3
-                  backdrop-blur-sm p-5 sm:p-8 group transition-all duration-500
-                  hover:border-slate-300 dark:hover:border-white/15
-                  hover:shadow-2xl ${glowColor}`}
-    >
-      {/* Top gradient strip */}
-      <div
-        className={`absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r ${accentFrom} ${accentTo} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-      />
-
-      {/* Icon + title */}
-      <div className="flex items-center gap-4 mb-5 sm:mb-6">
-        <div
-          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-linear-to-br ${accentFrom} ${accentTo} flex items-center justify-center text-white shadow-lg shrink-0`}
-        >
-          {icon}
-        </div>
-        <div>
-          <div className="text-xl sm:text-2xl mb-0.5">{emoji}</div>
-          <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
-            {title}
-          </h3>
-        </div>
-      </div>
-
-      <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-5 sm:mb-6">
-        {subtitle}
-      </p>
-
-      <ul className="space-y-2 sm:space-y-2.5 mb-6 sm:mb-8 flex-1">
-        {features.map((f) => (
-          <li key={f} className="flex items-center gap-2.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span className="text-sm text-slate-700 dark:text-slate-300">
-              {f}
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      <SparkleButton href={href} className="w-full justify-center">
-        {cta}
-      </SparkleButton>
-    </motion.div>
-  );
-}
-
 // ─── Why card ─────────────────────────────────────────────────────────────────
 function WhyCard({
   icon,
@@ -171,26 +89,27 @@ export default function Home() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 mb-4">
             <span className="text-cyan-600 dark:text-cyan-400 text-sm font-semibold tracking-wide">
-              Live Pipeline
+              Market Scale
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-            Transparent Logistics
+            Uttar Pradesh Mining Potential
           </h2>
           <p className="text-slate-600 dark:text-slate-400 text-base max-w-lg mx-auto leading-relaxed">
-            From generation to final delivery, track every ePass stage with absolute clarity and government compliance.
+            The sheer scale of mineral logistics in UP highlights the immense real-world impact and necessity for an automated, high-speed ePass ecosystem.
           </p>
         </motion.div>
         
         <FunnelChart
           data={[
-            { label: "Generated Passes", value: 15400, displayValue: "15.4k" },
-            { label: "Checkpost Verified", value: 12100, displayValue: "12.1k" },
-            { label: "In Transit", value: 8300, displayValue: "8.3k" },
-            { label: "Delivered", value: 7900, displayValue: "7.9k" },
+            { label: "Annual Mineral Output (Tonnes)", value: 500000000, displayValue: "500M" },
+            { label: "Annual e-Passes Required", value: 18000000, displayValue: "18M" },
+            { label: "Active Transport Vehicles", value: 150000, displayValue: "150K" },
+            { label: "Registered Mining Leases", value: 3500, displayValue: "3.5K" },
+            { label: "Monitoring Checkposts", value: 1200, displayValue: "1.2K" },
           ]}
           layers={3}
-          gap={6}
+          gap={8}
           className="mb-8"
         />
       </section>
@@ -387,80 +306,6 @@ export default function Home() {
                 </div>
               </motion.div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════
-          FOR EVERY ROLE
-      ══════════════════════════════════════════════════════════ */}
-      <section className="relative py-16 sm:py-28 px-4 sm:px-6 overflow-hidden bg-white dark:bg-slate-950/80 transition-colors duration-300">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-175 h-100 bg-slate-100 dark:bg-slate-800/40 rounded-full blur-[80px]" />
-        </div>
-
-        <div className="max-w-6xl mx-auto relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="text-center mb-12 sm:mb-16"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/25 mb-5">
-              <Building2 className="w-3.5 h-3.5 text-violet-500 dark:text-violet-400" />
-              <span className="text-violet-600 dark:text-violet-400 text-sm font-semibold">
-                Two Roles, One Platform
-              </span>
-            </div>
-            <h2 className="text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4">
-              For Every Stakeholder
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400 text-base sm:text-lg max-w-xl mx-auto">
-              Whether you&apos;re issuing passes or verifying them — the
-              platform adapts to your role.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8">
-            <RoleCard
-              icon={<Building2 className="w-6 h-6 sm:w-7 sm:h-7" />}
-              emoji="🏢"
-              title="License Hosts"
-              subtitle="Manage mineral transportation passes, track vehicles in real-time, and download compliance reports from a centralised portal."
-              features={[
-                "View & filter all issued ePasses",
-                "Download full PDF records",
-                "Real-time analytics dashboard",
-                "QR scan verification at checkpoints",
-                "Role-based access control",
-              ]}
-              href="/auth/signup?role=host"
-              cta="Access Host Portal"
-              accentFrom="from-blue-500"
-              accentTo="to-cyan-500"
-              glowColor="hover:shadow-blue-500/10"
-              delay={0}
-            />
-            <RoleCard
-              icon={<Truck className="w-6 h-6 sm:w-7 sm:h-7" />}
-              emoji="🚛"
-              title="Transport Users"
-              subtitle="Submit mineral transportation requests, receive an instant digital ePass with a unique QR code, and download your PDF in seconds."
-              features={[
-                "Fill eForm-C digitally in minutes",
-                "Instant QR pass on submission",
-                "Bilingual PDF (English + Hindi)",
-                "Track active & expired passes",
-                "Mobile-friendly interface",
-              ]}
-              href="/auth/signup?role=user"
-              cta="Get Your ePass"
-              accentFrom="from-violet-500"
-              accentTo="to-pink-500"
-              glowColor="hover:shadow-violet-500/10"
-              delay={0.15}
-            />
           </div>
         </div>
       </section>
