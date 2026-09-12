@@ -1,4 +1,4 @@
-# eMineral Pass - Digital Mineral Transportation Authorization System
+# Mineral Track - Digital Mineral Transportation Authorization System
 
 > Deployed production URL: https://www.mineraltrack.shop/
 >
@@ -34,7 +34,7 @@
 
 ## Overview
 
-**eMineral Pass** is a sophisticated digital platform designed to streamline mineral transportation authorization in India. The system combines government compliance, QR-based verification, real-time analytics, and secure PDF generation to create an efficient, transparent, and secure transportation permit ecosystem.
+**Mineral Track** is a sophisticated digital platform designed to streamline mineral transportation authorization in India. The system combines government compliance, QR-based verification, real-time analytics, and secure PDF generation to create an efficient, transparent, and secure transportation permit ecosystem.
 
 This project was delivered as a freelance engagement.
 
@@ -609,6 +609,6 @@ For issues, questions, or suggestions:
 | [**Vaibhav Tiwari**](https://github.com/how-vaibhav)  | Full-Stack Development & Design |
 | [**Abhigya Dulal**](https://github.com/SkylerOnRadio) | Co-Developer & Contributor      |
 
-_eMineral Pass — Digitising mineral transportation passes for a smarter Uttar Pradesh._
+_Mineral Track — Digitising mineral transportation passes for a smarter Uttar Pradesh._
 
 </div>

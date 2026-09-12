@@ -212,7 +212,7 @@ export default function SignInPage() {
                 <h1 className="text-2xl sm:text-3xl font-bold mb-2">Sign In</h1>
                 <p className={isDark ? "text-slate-400" : "text-slate-600"}>
                   <TextGenerateEffect
-                    words="Access your eMineral Pass account"
+                    words="Access your Mineral Track account"
                     duration={1.1}
                     filter={false}
                   />

@@ -115,7 +115,7 @@ function SignUpForm() {
               Create Account
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm">
-              Join eMineral Pass today
+              Join Mineral Track today
             </p>
           </div>
 

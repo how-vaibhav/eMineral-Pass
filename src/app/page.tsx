@@ -100,18 +100,22 @@ export default function Home() {
           </p>
         </motion.div>
         
-        <FunnelChart
-          data={[
-            { label: "Annual Mineral Output (Tonnes)", value: 500000000, displayValue: "500M" },
-            { label: "Annual e-Passes Required", value: 18000000, displayValue: "18M" },
-            { label: "Active Transport Vehicles", value: 150000, displayValue: "150K" },
-            { label: "Registered Mining Leases", value: 3500, displayValue: "3.5K" },
-            { label: "Monitoring Checkposts", value: 1200, displayValue: "1.2K" },
-          ]}
-          layers={3}
-          gap={8}
-          className="mb-8"
-        />
+        <div className="w-full overflow-x-auto pb-6 snap-x touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="min-w-[700px] lg:min-w-0 px-4">
+            <FunnelChart
+              data={[
+                { label: "Annual Mineral Output (Tonnes)", value: 500000000, displayValue: "500M" },
+                { label: "Annual e-Passes Required", value: 18000000, displayValue: "18M" },
+                { label: "Active Transport Vehicles", value: 150000, displayValue: "150K" },
+                { label: "Registered Mining Leases", value: 3500, displayValue: "3.5K" },
+                { label: "Monitoring Checkposts", value: 1200, displayValue: "1.2K" },
+              ]}
+              layers={3}
+              gap={8}
+              className="mb-8"
+            />
+          </div>
+        </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
@@ -119,7 +123,7 @@ export default function Home() {
       ══════════════════════════════════════════════════════════ */}
       <section className="bg-slate-50 dark:bg-slate-950">
         <TextReveal>
-          eMineral Pass digitises mineral transport across Uttar Pradesh —
+          Mineral Track digitises mineral transport across Uttar Pradesh —
           instant QR passes, bilingual PDFs, and real-time verification, all in
           one government-compliant platform.
         </TextReveal>
@@ -131,7 +135,7 @@ export default function Home() {
       <WorkflowSection isDark={isDark} />
 
       {/* ═══════════════════════════════════════════════════════
-          WHY eMINERAL PASS
+          WHY MINERAL TRACK
       ══════════════════════════════════════════════════════════ */}
       <section className="relative py-24 sm:py-32 px-4 sm:px-6 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
         <div className="absolute inset-0 pointer-events-none overflow-hidden">

@@ -55,14 +55,14 @@ export function HeroSection() {
         {/* Headline */}
         <motion.h1
           variants={item}
-          className="text-6xl sm:text-7xl md:text-[6.5rem] font-extrabold tracking-tight leading-[1.05] mb-8"
+          className="text-5xl sm:text-6xl md:text-[6.5rem] font-extrabold tracking-tight leading-[1.05] mb-8"
         >
           <span className="block text-slate-900 dark:text-white mb-2">
             The Digital
           </span>
           <span className="block bg-linear-to-r from-cyan-500 via-blue-500 to-indigo-500 bg-clip-text text-transparent pb-4">
             <EncryptedText
-              text="eMineral Pass"
+              text="Mineral Track"
               revealDelayMs={50}
               flipDelayMs={30}
               encryptedClassName="text-slate-300 dark:text-slate-700"

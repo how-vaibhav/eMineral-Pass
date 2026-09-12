@@ -23,7 +23,7 @@ export function GlobalFooter() {
           {/* Brand Column */}
           <div className="md:col-span-2 space-y-4">
             <h2 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-              eMineral Pass
+              Mineral Track
             </h2>
             <p className="max-w-sm leading-relaxed text-sm">
               The official digital platform for secure, transparent, and compliant mineral transport authorization across Uttar Pradesh.
@@ -85,7 +85,7 @@ export function GlobalFooter() {
         <div className={`pt-8 border-t ${isDark ? "border-slate-800" : "border-slate-200"} flex flex-col md:flex-row justify-between items-center gap-4 text-xs`}>
           <p>
             <TextGenerateEffect
-              words="© 2026 eMineral Pass. All rights reserved."
+              words="© 2026 Mineral Track. All rights reserved."
               duration={1.5}
               filter={false}
             />

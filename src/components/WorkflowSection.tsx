@@ -69,14 +69,14 @@ const Hub = forwardRef<HTMLDivElement, { className?: string }>(
             className,
           )}
         >
-          {/* eMineral Pass logo / shield */}
+          {/* Mineral Track logo / shield */}
           <div className="flex flex-col items-center gap-0.5">
             <ShieldCheck className="w-9 h-9 text-white drop-shadow" />
           </div>
         </div>
         <div className="text-center">
           <p className="text-sm font-bold text-cyan-600 dark:text-cyan-400 leading-tight">
-            eMineral Pass
+            Mineral Track
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Processing Engine</p>
         </div>
@@ -108,13 +108,14 @@ export function WorkflowBeamDiagram({ isDark }: { isDark: boolean }) {
     "w-16 h-16 border-slate-300 bg-white/90 shadow-sm dark:border-slate-700/80 dark:bg-slate-800/90 backdrop-blur-sm";
 
   return (
-    <div
-      ref={containerRef}
-      className="relative flex min-h-[350px] w-full items-center justify-center overflow-hidden py-8"
-    >
-      {/* ── Grid Layout ── */}
-      <div className="flex w-full max-w-xl items-center justify-between px-2 sm:px-6 scale-90 sm:scale-100">
-        {/* Left column — Inputs */}
+    <div className="w-full overflow-x-auto pb-6 snap-x touch-pan-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div
+        ref={containerRef}
+        className="relative flex min-h-[350px] min-w-[650px] sm:min-w-0 w-full items-center justify-center overflow-hidden py-8 px-4"
+      >
+        {/* ── Grid Layout ── */}
+        <div className="flex w-full max-w-xl items-center justify-between px-2 sm:px-6 scale-90 sm:scale-100 mx-auto">
+          {/* Left column — Inputs */}
         <div className="flex flex-col items-center gap-8">
           <Node
             ref={formRef}
@@ -244,6 +245,7 @@ export function WorkflowBeamDiagram({ isDark }: { isDark: boolean }) {
         duration={3.5}
         delay={1.5}
       />
+      </div>
     </div>
   );
 }
@@ -280,7 +282,7 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
             </span>
           </div>
           <h2 className={`text-4xl sm:text-5xl font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
-            How eMineral Pass Works
+            How Mineral Track Works
           </h2>
           <p className={`text-lg max-w-2xl mx-auto ${isDark ? "text-slate-400" : "text-slate-600"}`}>
             From form submission to verified digital pass — the entire mineral
@@ -309,14 +311,14 @@ export function WorkflowSection({ isDark }: { isDark: boolean }) {
             <span className="w-3 h-3 rounded-full bg-yellow-500/70" />
             <span className="w-3 h-3 rounded-full bg-emerald-500/70" />
             <span className="ml-3 text-xs text-slate-500 font-mono">
-              emineral-pass / workflow-engine
+              mineral-track / workflow-engine
             </span>
           </div>
           <WorkflowBeamDiagram isDark={isDark} />
           {/* Legend */}
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 px-6 pb-5 border-t border-slate-700/40 pt-4">
             <LegendItem color="bg-blue-500" label="Form inputs" />
-            <LegendItem color="bg-cyan-500" label="eMineral engine" />
+            <LegendItem color="bg-cyan-500" label="Mineral Track engine" />
             <LegendItem color="bg-emerald-500" label="QR pass output" />
             <LegendItem color="bg-orange-500" label="PDF output" />
             <LegendItem color="bg-rose-500" label="Host portal" />
