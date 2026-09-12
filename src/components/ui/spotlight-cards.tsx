@@ -2,7 +2,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import { FileText, ShieldCheck, QrCode, FileDown, Building2, BadgeCheck } from "lucide-react";
-import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 

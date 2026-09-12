@@ -1,7 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform, type Variants } from "framer-motion";
-import { useRef } from "react";
+import { motion } from "framer-motion";
 import {
   CheckCircle2,
   Zap,
@@ -13,59 +12,12 @@ import {
   ScanLine,
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
-import { useAuth } from "@/context/AuthContext";
-import { EncryptedText } from "@/components/ui/encrypted-text";
 import { SparkleButton } from "@/components/ui/SparkleButton";
 import { WorkflowSection } from "@/components/WorkflowSection";
 import { TextReveal } from "@/components/ui/text-reveal";
+import { HeroSection } from "@/components/hero/HeroSection";
+import { FunnelChart } from "@/components/ui/funnel-chart";
 
-// ─── Floating grid background ─────────────────────────────────────────────────
-function GridBackground() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div
-        className="absolute inset-0 opacity-[0.04] dark:opacity-[0.03]"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, #94a3b8 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
-      />
-      <div className="absolute -top-32 -left-32 w-150 h-150 bg-cyan-500/10 rounded-full blur-[120px]" />
-      <div className="absolute -top-16 right-0 w-125 h-125 bg-blue-600/10 rounded-full blur-[100px]" />
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-200 h-75 bg-indigo-500/5 rounded-full blur-[80px]" />
-    </div>
-  );
-}
-
-// ─── Stat card ────────────────────────────────────────────────────────────────
-function StatCard({
-  value,
-  label,
-  accent,
-}: {
-  value: string;
-  label: string;
-  accent: string;
-}) {
-  return (
-    <motion.div
-      whileHover={{ y: -4, scale: 1.02 }}
-      transition={{ type: "spring", stiffness: 300 }}
-      className="flex-1 min-w-27.5 relative overflow-hidden rounded-2xl
-                 border border-slate-200 dark:border-white/6
-                 bg-slate-50 dark:bg-white/3
-                 backdrop-blur-sm p-5 sm:p-6 text-center"
-    >
-      <div className={`text-xl sm:text-3xl font-black mb-1 ${accent}`}>
-        {value}
-      </div>
-      <div className="text-xs text-slate-500 dark:text-slate-500 font-medium uppercase tracking-widest">
-        {label}
-      </div>
-    </motion.div>
-  );
-}
 
 // ─── Role card ────────────────────────────────────────────────────────────────
 function RoleCard({
@@ -197,154 +149,50 @@ function WhyCard({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Home() {
   const { effectiveTheme } = useTheme();
-  const { isAuthenticated, user, isLoading } = useAuth();
-  const heroRef = useRef<HTMLDivElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-
   const isDark = effectiveTheme === "dark";
-  const showDashboardCta = !isLoading && isAuthenticated && !!user;
-
-  const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.2 },
-    },
-  };
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 28 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.75 } },
-  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
       {/* ═══════════════════════════════════════════════════════
           HERO
       ══════════════════════════════════════════════════════════ */}
-      <section
-        ref={heroRef}
-        className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 pt-16 sm:pt-20 pb-12 sm:pb-16 overflow-hidden"
-      >
-        <GridBackground />
+      <HeroSection />
 
+      {/* ═══════════════════════════════════════════════════════
+          PIPELINE / FUNNEL
+      ══════════════════════════════════════════════════════════ */}
+      <section className="bg-slate-50 dark:bg-slate-950 py-12 sm:py-20 max-w-6xl mx-auto px-4 sm:px-6">
         <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="relative z-10 w-full max-w-5xl mx-auto"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-12 sm:mb-20"
         >
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="text-center"
-          >
-            {/* Badge */}
-            <motion.div variants={itemVariants} className="mb-6 sm:mb-8">
-              <div
-                className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 rounded-full
-                              border border-cyan-500/30 bg-cyan-500/[0.07]
-                              backdrop-blur-sm"
-              >
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
-                </span>
-                <span className="text-cyan-600 dark:text-cyan-300 text-xs sm:text-sm font-semibold tracking-wide">
-                  🇮🇳 UP Minerals Rules, 2018 — Compliant System
-                </span>
-              </div>
-            </motion.div>
-
-            {/* Headline */}
-            <motion.h1
-              variants={itemVariants}
-              className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black leading-none tracking-tight mb-5 sm:mb-6"
-            >
-              <span className="bg-linear-to-br from-slate-800 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent block mb-2">
-                Digital
-              </span>
-              <span className="bg-linear-to-r from-cyan-500 via-cyan-400 to-blue-500 bg-clip-text text-transparent block">
-                <EncryptedText
-                  text="eMineral Pass"
-                  revealDelayMs={60}
-                  flipDelayMs={28}
-                  encryptedClassName="text-slate-400 dark:text-slate-600/60"
-                  revealedClassName="text-transparent"
-                />
-              </span>
-            </motion.h1>
-
-            {/* Subheading */}
-            <motion.p
-              variants={itemVariants}
-              className="text-base sm:text-xl text-slate-600 dark:text-slate-400 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-2"
-            >
-              The official digital pass system for mineral transportation in
-              Uttar Pradesh — automated, government-compliant, QR-verified.
-            </motion.p>
-
-            {/* CTAs */}
-            <motion.div
-              variants={itemVariants}
-              className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap mb-12 sm:mb-16"
-            >
-              {showDashboardCta ? (
-                <SparkleButton
-                  href="/dashboard/user"
-                  className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
-                >
-                  Go to Dashboard
-                </SparkleButton>
-              ) : (
-                <>
-                  <SparkleButton
-                    href="/auth/signup"
-                    className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
-                  >
-                    Request Access
-                  </SparkleButton>
-                  <SparkleButton
-                    href="/auth/signin"
-                    variant="secondary"
-                    className="text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4"
-                  >
-                    Sign In
-                  </SparkleButton>
-                </>
-              )}
-            </motion.div>
-
-            {/* Stats row — 3 non-repetitive cards */}
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-wrap gap-3 sm:gap-4 justify-center"
-            >
-              <StatCard
-                value="ISO"
-                label="Compliant"
-                accent="text-cyan-500 dark:text-cyan-400"
-              />
-              <StatCard
-                value="24 / 7"
-                label="Uptime"
-                accent="text-emerald-500 dark:text-emerald-400"
-              />
-              <StatCard
-                value="< 3s"
-                label="PDF Generation"
-                accent="text-violet-500 dark:text-violet-400"
-              />
-            </motion.div>
-          </motion.div>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 mb-4">
+            <span className="text-cyan-600 dark:text-cyan-400 text-sm font-semibold tracking-wide">
+              Live Pipeline
+            </span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4">
+            Transparent Logistics
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 text-base max-w-lg mx-auto leading-relaxed">
+            From generation to final delivery, track every ePass stage with absolute clarity and government compliance.
+          </p>
         </motion.div>
-
-        {/* Bottom fade to next section */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-slate-50 dark:from-slate-950 to-transparent pointer-events-none" />
+        
+        <FunnelChart
+          data={[
+            { label: "Generated Passes", value: 15400, displayValue: "15.4k" },
+            { label: "Checkpost Verified", value: 12100, displayValue: "12.1k" },
+            { label: "In Transit", value: 8300, displayValue: "8.3k" },
+            { label: "Delivered", value: 7900, displayValue: "7.9k" },
+          ]}
+          layers={3}
+          gap={6}
+          className="mb-8"
+        />
       </section>
 
       {/* ═══════════════════════════════════════════════════════

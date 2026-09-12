@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { format } from "date-fns";
 import fs from "fs";
 import path from "path";
-import { createCanvas } from "canvas";
+
 import { loadDevanagariFont } from "@/lib/font-loader";
 
 /* ================= CONFIG & CONSTANTS ================= */
