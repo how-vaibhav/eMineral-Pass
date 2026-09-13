@@ -254,7 +254,7 @@ form-qr-pdf-app/
 
 ---
 
-## 🖼️ UI Gallery
+## UI Gallery
 
 *A glimpse into the platform's professional interface, featuring clean layouts, dark mode support, and responsive design.*
 
@@ -587,7 +587,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For issues, questions, or suggestions:
 
-- 📧 **Email**: vaibhav10505@gmail.com
+- 📧 **Email**: howvaibhav@gmail.com
 
 ---
 
